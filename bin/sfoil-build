@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# Build or rebuild the installation (pip packages, Odoo modules).
+
+set -e
+
+. sfoil-check-project
+
+exit 0
+
+if ! test -f etc/odoo.template.cfg; then
+    echo "Error: $(basename -- "$0") should be run from root project folder."
+    exit 1
+fi
+
+. env/bin/activate
+
+. odoobuildlib/versions
+
+. versions
+
+gitaggregate --expand-env --env-file=versions --config=repos.yml --jobs=4 aggregate
+
+pip install -r <(
+    bin/combine_requirements parts/odoo/requirements.txt requirements.txt
+)
+pip install -e parts/odoo
+
+bin/generate_config

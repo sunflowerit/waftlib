@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# By default, we treat local folder as project folder
+SFOIL_PROJECT_ROOT="${SFOIL_PROJECT_ROOT:-.}"
+
+if ! test -f $SFOIL_PROJECT_ROOT/etc/odoo.template.cfg; then
+    echo "Error: $(basename -- "$0") should be run from root project folder."
+    exit 1
+fi
+
