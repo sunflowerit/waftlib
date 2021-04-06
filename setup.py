@@ -10,6 +10,13 @@ setuptools.setup(
         'Intended Audience :: System Administrators',
         'Topic :: Software Development :: Build Tools',
         'Topic :: Software Development :: Libraries :: Python Modules',
-    ]
+    ],
+    scripts=[
+        "bin/sfoil-bootstrap",
+        "bin/sfoil-create-venv",
+        "bin/sfoil-build",
+        "bin/sfoil-check-project",
+        "bin/sfoil-check-requirements",
+    ],
 )
 

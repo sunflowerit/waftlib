@@ -4,26 +4,29 @@
 
 set -e
 
+# Check if we are in correct folder
 . sfoil-check-project
 
-exit 0
-
-if ! test -f etc/odoo.template.cfg; then
-    echo "Error: $(basename -- "$0") should be run from root project folder."
-    exit 1
+# Load variables
+export $(cat ./shared.env | xargs)
+if test -e ./local.env; then
+    export $(cat ./local.env | xargs)
 fi
 
-. env/bin/activate
+# Aggregate Odoo module sources
+cd custom/src
+gitaggregate --expand-env --config=repos.yaml --jobs=4 aggregate
+cd ../..
 
-. odoobuildlib/versions
+# TODO: run clean step
+# TODO: run compileall
 
-. versions
+# Install Odoo and make link
+TMPREQ=$(mktemp)
+cat custom/src/odoo/requirements.txt | grep -v pypiwin32 > $TMPREQ
+pipenv install -r $TMPREQ
+pipenv lock --keep-outdated
+pipenv install -e custom/src/odoo
 
-gitaggregate --expand-env --env-file=versions --config=repos.yml --jobs=4 aggregate
-
-pip install -r <(
-    bin/combine_requirements parts/odoo/requirements.txt requirements.txt
-)
-pip install -e parts/odoo
-
-bin/generate_config
+# TODO: run addons-link
+# TODO: run config-generate
