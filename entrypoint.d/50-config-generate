@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-export OPENERP_SERVER="$ODOO_WORK_DIR/auto/odoo.conf"
-if [ -f  "${OPENERP_SERVER}" ]; then
-    log INFO File $OPENERP_SERVER exists, skipping config generation
-    exit 0
-fi
+
+log INFO Generating $OPENERP_SERVER file. Overriding any existing...
 
 config-generate

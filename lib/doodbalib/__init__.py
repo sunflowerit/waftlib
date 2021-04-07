@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-
 from glob import glob
 from pprint import pformat
 from subprocess import check_output
@@ -11,34 +10,33 @@ import yaml
 # Constants needed in scripts
 CUSTOM_DIR = os.path.join(os.environ["ODOO_WORK_DIR"], "custom")
 AUTO_DIR = os.path.join(os.environ["ODOO_WORK_DIR"], "auto")
-ADDONS_DIR = os.path.join(AUTO_DIR, 'addons')
-SRC_DIR = os.path.join(CUSTOM_DIR, 'src')
+ADDONS_DIR = os.path.join(AUTO_DIR, "addons")
+SRC_DIR = os.path.join(CUSTOM_DIR, "src")
 
-ADDONS_YAML = os.path.join(SRC_DIR, 'addons')
-if os.path.isfile('%s.yaml' % ADDONS_YAML):
-    ADDONS_YAML = '%s.yaml' % ADDONS_YAML
+ADDONS_YAML = os.path.join(SRC_DIR, "addons")
+if os.path.isfile("%s.yaml" % ADDONS_YAML):
+    ADDONS_YAML = "%s.yaml" % ADDONS_YAML
 else:
-    ADDONS_YAML = '%s.yml' % ADDONS_YAML
+    ADDONS_YAML = "%s.yml" % ADDONS_YAML
 
-REPOS_YAML = os.path.join(SRC_DIR, 'repos')
-if os.path.isfile('%s.yaml' % REPOS_YAML):
-    REPOS_YAML = '%s.yaml' % REPOS_YAML
+REPOS_YAML = os.path.join(SRC_DIR, "repos")
+if os.path.isfile("%s.yaml" % REPOS_YAML):
+    REPOS_YAML = "%s.yaml" % REPOS_YAML
 else:
-    REPOS_YAML = '%s.yml' % REPOS_YAML
+    REPOS_YAML = "%s.yml" % REPOS_YAML
 
-AUTO_REPOS_YAML = os.path.join(AUTO_DIR, 'repos')
-if os.path.isfile('%s.yml' % AUTO_REPOS_YAML):
-    AUTO_REPOS_YAML = '%s.yml' % AUTO_REPOS_YAML
+AUTO_REPOS_YAML = os.path.join(AUTO_DIR, "repos")
+if os.path.isfile("%s.yml" % AUTO_REPOS_YAML):
+    AUTO_REPOS_YAML = "%s.yml" % AUTO_REPOS_YAML
 else:
-    AUTO_REPOS_YAML = '%s.yaml' % AUTO_REPOS_YAML
+    AUTO_REPOS_YAML = "%s.yaml" % AUTO_REPOS_YAML
 
 CLEAN = os.environ.get("CLEAN") == "true"
-LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR")
-FILE_APT_BUILD = os.path.join(
-    CUSTOM_DIR, 'dependencies', 'apt_build.txt',
-)
+LOG_LEVELS = frozenset({"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"})
+FILE_APT_BUILD = os.path.join(CUSTOM_DIR, "dependencies", "apt_build.txt")
 PRIVATE = "private"
 CORE = "odoo/addons"
+ENTERPRISE = "enterprise"
 PRIVATE_DIR = os.path.join(SRC_DIR, PRIVATE)
 CORE_DIR = os.path.join(SRC_DIR, CORE)
 ODOO_DIR = os.path.join(SRC_DIR, "odoo")
@@ -96,17 +94,20 @@ def addons_config(filtered=True, strict=False):
                 if not filtered:
                     doc.setdefault(CORE, ["*"])
                     doc.setdefault(PRIVATE, ["*"])
-                elif any(os.environ.get(key) not in values
-                         for key, values in only.items()):
+                elif any(
+                    os.environ.get(key) not in values for key, values in only.items()
+                ):
                     logger.debug("Skipping section with ONLY %s", only)
                     continue
                 # Flatten all sections in a single dict
                 for repo, partial_globs in doc.items():
+                    if repo == "ENV":
+                        continue
                     logger.debug("Processing %s repo", repo)
                     all_globs.setdefault(repo, set())
                     all_globs[repo].update(partial_globs)
     except IOError:
-        logger.debug('Could not find addons configuration yaml.')
+        logger.debug("Could not find addons configuration yaml.")
     # Add default values for special sections
     for repo in (CORE, PRIVATE):
         all_globs.setdefault(repo, {"*"})
@@ -121,19 +122,17 @@ def addons_config(filtered=True, strict=False):
                 # Projects without private addons should never fail
                 if (repo, partial_glob) != (PRIVATE, "*"):
                     missing_glob.add(full_glob)
-                logger.debug(
-                    "Skipping unexpandable glob '%s'",
-                    full_glob)
+                logger.debug("Skipping unexpandable glob '%s'", full_glob)
                 continue
             for addon in found:
-                manifests = (
-                    os.path.join(addon, m) for m in MANIFESTS
-                )
+                if not os.path.isdir(addon):
+                    continue
+                manifests = (os.path.join(addon, m) for m in MANIFESTS)
                 if not any(os.path.isfile(m) for m in manifests):
                     missing_manifest.add(addon)
                     logger.debug(
-                        "Skipping '%s' as it is not a valid Odoo "
-                        "module", addon)
+                        "Skipping '%s' as it is not a valid Odoo " "module", addon
+                    )
                     continue
                 logger.debug("Registering addon %s", addon)
                 addon = os.path.basename(addon)
@@ -147,11 +146,7 @@ def addons_config(filtered=True, strict=False):
         if missing_manifest:
             error += ["Addons without manifest:", pformat(missing_manifest)]
         if error:
-            raise AddonsConfigError(
-                "\n".join(error),
-                missing_glob,
-                missing_manifest,
-            )
+            raise AddonsConfigError("\n".join(error), missing_glob, missing_manifest)
     logger.debug("Resulting configuration after expanding: %r", config)
     for addon, repos in config.items():
         # Private addons are most important
@@ -164,11 +159,12 @@ def addons_config(filtered=True, strict=False):
             continue
         repos.discard(CORE)
         # Other addons fall in between
-        if len(repos) != 1:
+        if filtered and len(repos) != 1:
             raise AddonsConfigError(
-                u"Addon {} defined in several repos {}".format(addon, repos),
+                u"Addon {} defined in several repos {}".format(addon, repos)
             )
-        yield addon, repos.pop()
+        for repo in repos:
+            yield addon, repo
 
 
 try:
