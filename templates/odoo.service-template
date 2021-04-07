@@ -1,0 +1,13 @@
+[Unit]
+Description=odoo
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/odoo
+ExecStart=/home/ubuntu/.local/bin/pipenv run /home/ubuntu/odoo/.venv/bin/odoo --logfile /home/ubuntu/odoo/logfile/odoo.log -c /home/ubuntu/odoo/auto/odoo.conf
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target

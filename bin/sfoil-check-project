@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if ! test -f ./shared.env; then
-    echo "Error: $(basename -- "$0") should be run from root project folder."
-    exit 1
-fi
-

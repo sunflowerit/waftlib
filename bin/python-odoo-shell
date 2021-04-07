@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec odoo shell -d $PGDATABASE < "$1"

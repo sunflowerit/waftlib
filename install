@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ $# -eq 0 ]; then
+  echo "Installs a new empty demo database"
+  echo "Usage: ./install [databasename]"
+  exit
+fi
+
+run createdb "$1"
+cd "$(dirname "$0")" && $HOME/.local/bin/pipenv run odoo -i base -d "$1" --stop-after-init

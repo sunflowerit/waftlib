@@ -1,54 +1,25 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-eggs/
-lib/
-lib64/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.cache
-nosetests.xml
-coverage.xml
-
-# Translations
-*.mo
-
-# Pycharm
-.idea
-
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
-
-# Rope
-.ropeproject
-
-# Sphinx documentation
-docs/_build/
-doc/build/
-
-# Backup files
-*~
-*.swp
+.vscode
+**.pyc
+*.pyo
+common/entrypoint
+common/build
+custom/src/*
+!custom/src/private
+custom/src/private/*
+!custom/src/private/.gitkeep
+!custom/src/addons.yaml
+!custom/src/repos.yaml
+auto/*
+!auto/addons
+auto/addons/*
+!auto/addons/.gitkeep
+odoo-variables
+logfile
+qa/*
+!qa/artifacts
+qa/artifacts/*
+!qa/artifacts/.gitkeep
+!qa/insider
+.env
+.venv
+Pipfile.lock

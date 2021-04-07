@@ -1,0 +1,131 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+import sys
+import yaml
+from multiprocessing import cpu_count
+from subprocess import check_call
+
+from doodbalib import (
+    ADDONS_YAML,
+    AUTO_REPOS_YAML,
+    CORE,
+    logger,
+    PRIVATE,
+    REPOS_YAML,
+    SRC_DIR,
+)
+
+UMASK = os.environ.get("UMASK")
+UID = int(os.environ.get("UID") or -1)
+GID = int(os.environ.get("GID") or -1)
+DEFAULT_REPO_PATTERN = os.environ.get("DEFAULT_REPO_PATTERN")
+DEFAULT_REPO_PATTERN_ODOO = os.environ.get("DEFAULT_REPO_PATTERN_ODOO")
+
+
+def aggregate(config):
+    """Execute git aggregator to pull git code.
+
+    :param str config:
+        Path where to find the ``repos.yaml`` file.
+    """
+    logger.info("Running gitaggregate with %s", config)
+    old_umask = None
+    try:
+        # Download git code with the specified umask, if any
+        if UMASK:
+            old_umask = os.umask(int(UMASK))
+        check_call(
+            ["gitaggregate", "--expand-env", "--config", config,
+             "--jobs", str(cpu_count() or 1)],
+            cwd=SRC_DIR,
+            stderr=sys.stderr,
+            stdout=sys.stdout,
+        )
+    finally:
+        # Restore umask, if changed
+        if old_umask is not None:
+            os.umask(old_umask)
+        # Chown recursively, if UID or GID are specified
+        if ~UID or ~GID:
+            for root, dirs, files in os.walk(SRC_DIR):
+                for target in dirs + files:
+                    try:
+                        os.chown(os.path.join(root, target), UID, GID)
+                    except:
+                        logger.debug(
+                            "Error trying to chown on file. Skipping...",
+                            exc_info=True,
+                        )
+
+
+def origin_for(folder):
+    """Guess the default git origin for that folder.
+
+    :param str folder:
+        Normally an absolute path to an expected git repo, whose name should
+        match the git repository where it comes from, using the env-supplied
+        pattern.
+    """
+    base = os.path.basename(folder)
+    pattern = DEFAULT_REPO_PATTERN
+    if base == "odoo":
+        pattern = DEFAULT_REPO_PATTERN_ODOO
+    return pattern.format(base)
+
+
+def missing_repos_config():
+    """Find the undefined repositories and return their default configuration.
+
+    :return dict:
+        git-aggregator-ready configuration dict for undefined repositories.
+    """
+    defined, expected = set(), {os.path.join(SRC_DIR, "odoo")}
+    # Find the repositories defined by hand
+    try:
+        with open(REPOS_YAML) as yaml_file:
+            for doc in yaml.safe_load_all(yaml_file):
+                for repo in doc:
+                    defined.add(os.path.abspath(os.path.join(SRC_DIR, repo)))
+    except (IOError, AttributeError):
+        logger.debug("No repositories defined by hand")
+    # Find the repositories that should be present
+    try:
+        with open(ADDONS_YAML) as yaml_file:
+            for doc in yaml.safe_load_all(yaml_file):
+                for repo in doc:
+                    if repo in {PRIVATE, CORE, "ONLY"}:
+                        continue
+                    repo_path = os.path.abspath(os.path.join(SRC_DIR, repo))
+                    if not os.path.exists(repo_path) or os.path.isdir(
+                            os.path.join(repo_path, ".git")):
+                        expected.add(repo_path)
+    except (IOError, AttributeError):
+        logger.debug("No addons are expected to be present")
+    # Find the undefined repositories and generate a config for them
+    missing = expected - defined
+    config = {
+        repo_path: {
+            'defaults': {'depth': '$DEPTH_DEFAULT'},
+            'merges': ['origin $ODOO_VERSION'],
+            'remotes': {
+                'origin': origin_for(repo_path),
+            },
+            'target': 'origin $ODOO_VERSION',
+        }
+        for repo_path in missing
+    }
+    logger.debug("Generated missing repos config %r", config)
+    return config
+
+
+# Aggregate user-specified repos
+if os.path.isfile(REPOS_YAML):
+    aggregate(REPOS_YAML)
+
+# Aggregate unspecified repos
+missing_config = missing_repos_config()
+if missing_config:
+    with open(AUTO_REPOS_YAML, "w") as autorepos:
+        yaml.dump(missing_config, autorepos)
+    aggregate(AUTO_REPOS_YAML)

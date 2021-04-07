@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+import shutil
+import sys
+
+from doodbalib import (
+    addons_config,
+    CLEAN,
+    logger,
+    ODOO_DIR,
+    PRIVATE_DIR,
+    SRC_DIR,
+)
+
+if not CLEAN:
+    logger.warning("Not cleaning garbage")
+    sys.exit()
+
+# Get the enabled paths
+repos_addons = {}
+for addon, repo in addons_config(filtered=False):
+    repo_path = os.path.realpath(os.path.join(SRC_DIR, repo))
+    repos_addons.setdefault(repo_path, set())
+    repos_addons[repo_path].add(addon)
+logger.debug("Addon paths enabled: %s", repos_addons)
+
+# Traverse src dir and remove anything not explicitly enabled
+for directory, subdirectories, subfiles in os.walk(SRC_DIR):
+    logger.debug("Checking for cleanup directory %s", directory)
+    # Skip main src directory
+    if directory == SRC_DIR:
+        continue
+    # Always skip private/*
+    if directory == PRIVATE_DIR:
+        subdirectories[:] = []
+        continue
+    # Inside the odoo dir, skip all but addons dir
+    if directory == ODOO_DIR:
+        subdirectories[:] = ["addons"]
+        continue
+    try:
+        # Get addons enalbed in current directory
+        enabled_addons = repos_addons[directory]
+    except KeyError:
+        # This isn't a repo; is there anything inside to preserve?
+        directory += os.path.sep
+        if any(repo.startswith(directory) for repo in repos_addons):
+            # Then, let's walk in; we'll remove later if needed
+            continue
+    else:
+        # This is an addons repo; do not walk into the enabled ones
+        for addon in enabled_addons:
+            subdirectories.remove(addon)
+        continue
+    # Remove every other directory
+    logger.info("Removing directory %s", directory)
+    shutil.rmtree(directory)

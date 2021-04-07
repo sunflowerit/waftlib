@@ -1,0 +1,11 @@
+#!/bin/sh
+
+SCRIPT_PATH=$(cd "$(dirname "$0")" && pwd)
+cd $SCRIPT_PATH
+. ./.envrc
+
+rm -fr ./auto/odoo.conf
+rm -fr ./auto/addons/*
+/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|repos.yaml|addons.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
+
+$HOME/.local/bin/pipenv run ./common/build && $HOME/.local/bin/pipenv run python ./common/entrypoint

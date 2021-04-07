@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+if [ "$UNACCENT" == true ]; then
+    result="$(psql -qc 'CREATE EXTENSION IF NOT EXISTS unaccent' 2>&1)"
+    ok=$?
+    if [ $ok -eq 0 -a -z "$result" ]; then
+        log INFO Unaccent extension installed
+    elif [ $ok -ne 0 ]; then
+        log WARNING Attempt to install unaccent in \
+            $PGDATABASE@$PGHOST failed with this message: $result
+    fi
+fi

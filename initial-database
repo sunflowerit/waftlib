@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd "$(dirname "$0")"
+. ./.envrc
+
+$HOME/.local/bin/pipenv run odoo -i base -c ./auto/odoo.conf --without-demo=all --stop-after-init

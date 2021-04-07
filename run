@@ -1,0 +1,2 @@
+#!/bin/sh
+cd "$(dirname "$0")" && $HOME/.local/bin/pipenv run odoo -c ./auto/odoo.conf

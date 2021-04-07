@@ -1,5 +1,0 @@
-#!/bin/sh
-
-set -e
-
-pip install --upgrade $SFOIL_GITAGGREGATOR_VERSION
