@@ -48,7 +48,7 @@ Python-Chart = "==1.39"
 PyYAML = "==3.13"
 Werkzeug = "==0.11.11"
 XlsxWriter = "==0.9.3"
-click-odoo-contrib = {editable = true,git = "https://github.com/acsone/click-odoo-contrib.git",ref = "master"}
+click-odoo-contrib = "==1.12.0"
 git-aggregator = "==1.7.0"
 ptvsd = "==5.0.0a4"
 pudb = "==2019.1"

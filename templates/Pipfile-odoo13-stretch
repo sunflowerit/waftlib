@@ -48,7 +48,7 @@ beautifulsoup4 = "==4.8.0"
 bs4 = "==0.0.1"
 phonenumbers = "==8.10.19"
 libxml2-python3 = "==2.9.5"
-click-odoo-contrib = {git = "https://github.com/acsone/click-odoo-contrib.git",ref = "master"}
+click-odoo-contrib = "==1.12.0"
 Babel = "==2.3.4"
 Jinja2 = "==2.10.1"
 Mako = "==1.0.4"
