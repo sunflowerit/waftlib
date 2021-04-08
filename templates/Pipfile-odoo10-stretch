@@ -49,7 +49,7 @@ PyYAML = "==3.13"
 Werkzeug = "==0.11.11"
 XlsxWriter = "==0.9.3"
 click-odoo-contrib = "==1.12.0"
-git-aggregator = "==1.7.0"
+git-aggregator = {git = "https://github.com/janverb/git-aggregator.git", ref = "therp-patches"}
 ptvsd = "==5.0.0a4"
 pudb = "==2019.1"
 wdb = "==3.3.0"
