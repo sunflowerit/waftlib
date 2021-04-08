@@ -1,10 +1,33 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
-if [ $# -eq 0 ]; then
-  echo "Installs a new empty demo database"
-  echo "Usage: ./install [databasename]"
+if [ $# -le 1 ]; then
+  echo "Installs a new empty database"
+  echo "Usage: ./install databasename modulename [nodemo]"
   exit
 fi
 
-run createdb "$1"
-cd "$(dirname "$0")" && $HOME/.local/bin/pipenv run odoo -i base -d "$1" --stop-after-init
+if [ "$3" == "nodemo" ]
+then
+   DEMO="--without-demo=1"
+   echo "Without demo data"
+else
+   DEMO="--without-demo="
+   echo "With demo data"
+fi
+
+if [ "$( psql -tAc "SELECT 1 FROM pg_database WHERE datname='$1'" )" = '1' ]
+then
+    echo "Database '$1' already exists. If you want to drop it: 'dropdb $1'"
+    exit 1
+else
+    createdb "$1"
+fi
+
+cd "$(dirname "$0")" && $HOME/.local/bin/pipenv run odoo \
+  -c ./auto/odoo.conf \
+  --load-language=en_US,nl_NL \
+  -i "$2" \
+  -d "$1" \
+  --stop-after-init \
+  $DEMO
