@@ -15,7 +15,6 @@ db_user = $PGUSER
 dbfilter = .*
 demo = {}
 email_from = 
-geoip_database = /usr/share/GeoIP/GeoLite2-City.mmdb
 import_partial =
 lang = $INITIAL_LANG
 limit_memory_hard = 2684354560

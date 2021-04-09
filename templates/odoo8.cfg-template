@@ -16,7 +16,6 @@ dbfilter = .*
 debug_mode = False
 demo = {}
 email_from =
-geoip_database = /usr/share/GeoIP/GeoLiteCity.dat
 import_partial =
 lang = $INITIAL_LANG
 limit_memory_hard = 2684354560
