@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
+from dotenv import load_dotenv
 from glob import glob
 from pprint import pformat
 from subprocess import check_output
 
 import yaml
+
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+os.environ['ODOO_WORK_DIR'] = os.path.join(SCRIPT_PATH, "../../../../..")
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 # Constants needed in scripts
 CUSTOM_DIR = os.path.join(os.environ["ODOO_WORK_DIR"], "custom")

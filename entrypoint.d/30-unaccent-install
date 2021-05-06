@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH/../..
+. $ODOO_WORK_DIR/.env-shared && \
+. $ODOO_WORK_DIR/.env-secret
+cd $ODOO_WORK_DIR
+
 if [ "$UNACCENT" == true ]; then
     result="$(psql -qc 'CREATE EXTENSION IF NOT EXISTS unaccent' 2>&1)"
     ok=$?

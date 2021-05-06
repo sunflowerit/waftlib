@@ -27,39 +27,57 @@ if [ ! -f $HOME/.local/bin/pipenv ]; then
     exit 1
 fi
 
-#/bin/rm -fr waftlib
-#/usr/bin/git clone -b $LIBRARIES_BRANCH $LIBRARIES_REPOSITORIES $ODOO_WORK_DIR/waftlib
-
-/usr/bin/touch $ODOO_WORK_DIR/.env-secret
 /bin/mkdir -p $ODOO_WORK_DIR/auto/addons/
 /bin/mkdir -p $ODOO_WORK_DIR/common/build.d/
 /bin/mkdir -p $ODOO_WORK_DIR/common/conf.d/
 /bin/mkdir -p $ODOO_WORK_DIR/common/entrypoint.d/
 /bin/mkdir -p $ODOO_WORK_DIR/custom/src/private/
 
-if [ ! -f $ODOO_WORK_DIR/Pipfile ]; then
-  /bin/echo "$ODOO_WORK_DIR/Pipfile file not found!"
-  /bin/echo "Copy it from $ODOO_WORK_DIR/waftlib/templates/"
-  exit 1
+if [ ! -f $ODOO_WORK_DIR/.env-shared ]; then
+  if [ -f $ODOO_WORK_DIR/.env-secret ]; then
+    . $ODOO_WORK_DIR/.env-secret
+    if [ "$ODOO_VERSION" != "" ]; then
+      /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared $ODOO_WORK_DIR/
+    else
+      /bin/echo "You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
+    fi
+  else
+    /bin/echo "You should define 'ODOO_VERSION' variable in the system"
+    /bin/echo "or create $ODOO_WORK_DIR/.env-secret manually and define 'ODOO_VERSION' inside it"
+    /bin/echo "or copy $ODOO_WORK_DIR/waftlib/templates/ODOO_VERSION/.env-shared to $ODOO_WORK_DIR"
+    exit 1
+  fi
 fi
 
-if [ ! -f $ODOO_WORK_DIR/.env-shared ]; then
-    /bin/cp $ODOO_WORK_DIR/waftlib/templates/.env-shared-template $ODOO_WORK_DIR/.env-shared
-fi
+/usr/bin/touch $ODOO_WORK_DIR/.env-secret
 
 . $ODOO_WORK_DIR/.env-shared && \
 . $ODOO_WORK_DIR/.env-secret
 
-if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -le '8' ]; then
+if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -lt '8' ]; then
   /bin/echo "Waft does not support $ODOO_VERSION"
+  exit 1
 fi
 
-if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -ge '15' ]; then
+if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -gt '14' ]; then
   /bin/echo "Waft does not support $ODOO_VERSION yet"
+  exit 1
+fi
+
+if [ ! -f $ODOO_WORK_DIR/Pipfile ]; then
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/Pipfile $ODOO_WORK_DIR/
 fi
 
 if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/odoo$ODOO_VERSION.cfg-template $ODOO_WORK_DIR/common/conf.d/odoo.cfg
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/odoo.cfg $ODOO_WORK_DIR/common/conf.d/
+fi
+
+if [ ! -d $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/repos.yaml $ODOO_WORK_DIR/custom/src/
+fi
+
+if [ ! -d $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/addons.yaml $ODOO_WORK_DIR/custom/src/
 fi
 
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
@@ -118,6 +136,8 @@ cd $ODOO_WORK_DIR && \
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/doodbalib || true
 /bin/chmod 740 $ODOO_WORK_DIR/waftlib/doodbalib/* || true
 /bin/chmod 640 $ODOO_WORK_DIR/waftlib/templates/* || true
+/bin/chmod 740 $ODOO_WORK_DIR/waftlib/templates/*.0 || true
+/bin/chmod 640 $ODOO_WORK_DIR/waftlib/templates/*/* || true
 /bin/chmod -f 600 $ODOO_WORK_DIR/.env-shared || true
 /bin/chmod -f 600 $ODOO_WORK_DIR/.env-secret || true
 /bin/chmod 740 $ODOO_WORK_DIR/bootstrap || true
@@ -127,5 +147,3 @@ cd $ODOO_WORK_DIR && \
 /bin/chmod -f 600 $ODOO_WORK_DIR/Pipfile || true
 /bin/chmod -f 600 $ODOO_WORK_DIR/Pipfile.lock || true
 /bin/chmod 740 $ODOO_WORK_DIR/run || true
-
-

@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+import shutil
+import sys
+import yaml
+
+from dotenv import load_dotenv
+from subprocess import check_call
+
+from doodbalib import ODOO_DIR, PRIVATE_DIR, SRC_DIR, addons_config, logger, REPOS_YAML
+
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+os.environ['ODOO_WORK_DIR'] = os.path.join(SCRIPT_PATH, "../..")
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
+
+repos = set([ODOO_DIR])
+with open(REPOS_YAML) as yaml_file:
+    for doc in yaml.safe_load_all(yaml_file):
+        for repo in doc:
+            repos.add(os.path.abspath(os.path.join(SRC_DIR, repo)))
+
+for directory in repos:
+    if not os.path.isdir(directory):
+        continue
+    check_call(
+        [
+            "git",
+            "-C",
+            directory,
+            "reset",
+            "--hard",
+            "HEAD",
+        ],
+        cwd=SRC_DIR,
+        stderr=sys.stderr,
+        stdout=sys.stdout,
+    )

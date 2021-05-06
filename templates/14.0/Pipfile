@@ -61,6 +61,7 @@ XlsxWriter = "==1.1.2"
 websocket_client = "==0.56.0"
 unidecode = "==1.1.1"
 pg_activity = "==1.5.0"
+python-dotenv = "0.17.0"
 
 [requires]
-python_version = "3.6"
+python_version = "3"

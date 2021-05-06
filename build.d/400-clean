@@ -4,7 +4,14 @@ import os
 import shutil
 import sys
 
+from dotenv import load_dotenv
+
 from doodbalib import CLEAN, ODOO_DIR, PRIVATE_DIR, SRC_DIR, addons_config, logger
+
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+os.environ['ODOO_WORK_DIR'] = os.path.join(SCRIPT_PATH, "../..")
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 if not CLEAN:
     logger.warning("Not cleaning garbage")

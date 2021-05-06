@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+
+exit 0
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH/../..
+. $ODOO_WORK_DIR/.env-shared && \
+. $ODOO_WORK_DIR/.env-secret
+cd $ODOO_WORK_DIR
+
 if [ "$WAIT_DB" != true ]; then
     log INFO Not waiting for a postgres server
     exit 0

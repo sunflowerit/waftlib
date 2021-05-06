@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH/../..
+. $ODOO_WORK_DIR/.env-shared && \
+. $ODOO_WORK_DIR/.env-secret
+cd $ODOO_WORK_DIR
+
 log WARNING unittest is deprecated and will be removed in Doodba 13.0, \
     use instead: addons update --test $@
 # Shortcut to run Odoo in unit testing mode

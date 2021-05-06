@@ -1,6 +1,9 @@
 #!/bin/sh
 
-cd "$(dirname "$0")"
-. ./.envrc
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH
+. $SCRIPT_PATH/.env-shared && \
+. $SCRIPT_PATH/.env-secret
+cd $ODOO_WORK_DIR
 
 $HOME/.local/bin/pipenv run odoo -i base -c ./auto/odoo.conf --without-demo=all --stop-after-init

@@ -3,12 +3,18 @@
 # Copyright 2017 LasLabs Inc.
 
 import os
+from dotenv import load_dotenv
 
 from glob import glob
 from os.path import basename, join, splitext
 
 from doodbalib import CUSTOM_DIR, FILE_APT_BUILD, SRC_DIR
 from doodbalib.installer import INSTALLERS, install, logger
+
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+os.environ['ODOO_WORK_DIR'] = os.path.join(SCRIPT_PATH, "../..")
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 # Build dependencies installed before any others
 install("apt", FILE_APT_BUILD)

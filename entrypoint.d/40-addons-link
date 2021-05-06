@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+from dotenv import load_dotenv
 from glob import iglob
 
 from doodbalib import ADDONS_DIR, ADDONS_YAML, SRC_DIR, addons_config, logger
+
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+os.environ['ODOO_WORK_DIR'] = os.path.join(SCRIPT_PATH, "../..")
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 logger.info("Linking all addons from %s in %s", ADDONS_YAML, ADDONS_DIR)
 

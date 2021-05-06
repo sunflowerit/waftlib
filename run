@@ -1,2 +1,10 @@
 #!/bin/sh
-cd "$(dirname "$0")" && $HOME/.local/bin/pipenv run odoo -c ./auto/odoo.conf --workers=0
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH
+. $SCRIPT_PATH/.env-shared && \
+. $SCRIPT_PATH/.env-secret
+cd $ODOO_WORK_DIR
+
+$HOME/.local/bin/pipenv run odoo -c ./auto/odoo.conf --workers=0
+

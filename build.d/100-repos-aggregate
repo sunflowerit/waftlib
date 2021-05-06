@@ -2,6 +2,12 @@
 
 set -e
 
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH/../..
+. $ODOO_WORK_DIR/.env-shared && \
+. $ODOO_WORK_DIR/.env-secret
+cd $ODOO_WORK_DIR
+
 if [ "$AGGREGATE" != true ]; then
     log WARNING Not aggregating code repositories
     exit 0

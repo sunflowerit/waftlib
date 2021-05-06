@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 #export PYTHONOPTIMIZE=""  # You'll want to `assert` in your scripts
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH/../..
+. $ODOO_WORK_DIR/.env-shared && \
+. $ODOO_WORK_DIR/.env-secret
+cd $ODOO_WORK_DIR
+
 log WARNING python-odoo-shell is deprecated and will be removed in \
     Doodba 13.0, use instead: click-odoo
 exec odoo shell -d $PGDATABASE < "$1"

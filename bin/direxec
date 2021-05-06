@@ -4,9 +4,15 @@
 import os
 import subprocess
 import sys
+from dotenv import load_dotenv
 from logging import DEBUG, INFO, WARNING
 from psycopg2 import connect, OperationalError
 from doodbalib import logger, which
+
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+os.environ['ODOO_WORK_DIR'] = os.path.join(SCRIPT_PATH, "..")
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 # Call this file linked from another file called `build` or `entrypoint`
 mode = os.path.basename(__file__)
