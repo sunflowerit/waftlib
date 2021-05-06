@@ -59,6 +59,7 @@ beautifulsoup = "==3.2.1"
 bs4 = "==0.0.1"
 astor = "==0.8.0"
 unidecode = "==1.1.1"
+python-dotenv = "0.17.0"
 
 [requires]
 python_version = "2.7"

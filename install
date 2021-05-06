@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH
+. $SCRIPT_PATH/.env-shared && \
+. $SCRIPT_PATH/.env-secret
+cd $ODOO_WORK_DIR
+
 if [ $# -le 1 ]; then
   echo "Installs a new empty database"
   echo "Usage: ./install databasename modulename [nodemo]"
@@ -24,7 +30,7 @@ else
     createdb "$1"
 fi
 
-cd "$(dirname "$0")" && $HOME/.local/bin/pipenv run odoo \
+cd $ODOO_WORK_DIR && $HOME/.local/bin/pipenv run odoo \
   -c ./auto/odoo.conf \
   --load-language=en_US,nl_NL \
   -i "$2" \

@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # Shortcut to run Odoo in unit testing mode
 set -e
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH/../..
+. $ODOO_WORK_DIR/.env-shared && \
+. $ODOO_WORK_DIR/.env-secret
+cd $ODOO_WORK_DIR
+
 addons=$1
 shift
 log INFO Executing Odoo in i18n export mode for addons $addons

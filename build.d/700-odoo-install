@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 set -e
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH/../..
+. $ODOO_WORK_DIR/.env-shared && \
+. $ODOO_WORK_DIR/.env-secret
+cd $ODOO_WORK_DIR
+
 src=$ODOO_WORK_DIR/custom/src/odoo
 log INFO Installing Odoo from $src
 
