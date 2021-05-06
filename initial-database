@@ -6,4 +6,4 @@ ODOO_WORK_DIR=$SCRIPT_PATH
 . $SCRIPT_PATH/.env-secret
 cd $ODOO_WORK_DIR
 
-$HOME/.local/bin/pipenv run odoo -i base -c ./auto/odoo.conf --without-demo=all --stop-after-init
+$HOME/.local/bin/pipenv run ./.venv/bin/odoo -i base -c ./auto/odoo.conf --without-demo=all --stop-after-init
