@@ -40,7 +40,7 @@ for directory, subdirectories, subfiles in os.walk(SRC_DIR):
         subdirectories[:] = ["addons"]
         continue
     try:
-        # Get addons enalbed in current directory
+        # Get addons enabled in current directory
         enabled_addons = repos_addons[directory]
     except KeyError:
         # This isn't a repo; is there anything inside to preserve?

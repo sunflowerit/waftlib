@@ -39,7 +39,6 @@ else:
 
 CLEAN = os.environ.get("CLEAN") == "true"
 LOG_LEVELS = frozenset({"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"})
-FILE_APT_BUILD = os.path.join(CUSTOM_DIR, "dependencies", "apt_build.txt")
 PRIVATE = "private"
 CORE = "odoo/addons"
 ENTERPRISE = "enterprise"
@@ -48,8 +47,6 @@ CORE_DIR = os.path.join(SRC_DIR, CORE)
 ODOO_DIR = os.path.join(SRC_DIR, "odoo")
 ODOO_VERSION = os.environ["ODOO_VERSION"]
 MANIFESTS = ("__manifest__.py", "__openerp__.py")
-if ODOO_VERSION in {"8.0", "9.0"}:
-    MANIFESTS = MANIFESTS[1:]
 
 # Customize logging for build
 logger = logging.getLogger("doodba")

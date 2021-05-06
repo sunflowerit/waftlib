@@ -67,11 +67,11 @@ if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
 fi
 
 if [ ! -d $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/repos.yaml $ODOO_WORK_DIR/custom/src/
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/repos.yaml $ODOO_WORK_DIR/custom/src/
 fi
 
 if [ ! -d $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/addons.yaml $ODOO_WORK_DIR/custom/src/
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/addons.yaml $ODOO_WORK_DIR/custom/src/
 fi
 
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then

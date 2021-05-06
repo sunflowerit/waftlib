@@ -10,4 +10,9 @@ cd $ODOO_WORK_DIR
 #rm -fr ./auto/addons/*
 #/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|repos.yaml|addons.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
 
+if [ ! -d $ODOO_WORK_DIR/.venv ]; then
+    /bin/echo 'run ./bootstrap first!'
+    exit 1
+fi
+
 $HOME/.local/bin/pipenv run ./common/build && $HOME/.local/bin/pipenv run python $ODOO_WORK_DIR/common/entrypoint

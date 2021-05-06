@@ -1,0 +1,6 @@
+---
+odoo/addons:
+    - "*"
+
+odoo/odoo/addons:
+    - "*"
