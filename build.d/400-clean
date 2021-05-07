@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from doodbalib import CLEAN, ODOO_DIR, PRIVATE_DIR, SRC_DIR, addons_config, logger
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
-os.environ['ODOO_WORK_DIR'] = os.path.join(SCRIPT_PATH, "../..")
+os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../.."))
 load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
 load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
@@ -27,17 +27,16 @@ logger.debug("Addon paths enabled: %s", repos_addons)
 
 # Traverse src dir and remove anything not explicitly enabled
 for directory, subdirectories, subfiles in os.walk(SRC_DIR):
-    directory = os.path.realpath(directory)
     logger.debug("Checking for cleanup directory %s", directory)
     # Skip main src directory
-    if directory == os.path.realpath(SRC_DIR):
+    if directory == SRC_DIR:
         continue
     # Always skip private/*
-    if directory == os.path.realpath(PRIVATE_DIR):
+    if directory == PRIVATE_DIR:
         subdirectories[:] = []
         continue
     # Inside the odoo dir, skip all but addons dir
-    if directory == os.path.realpath(ODOO_DIR):
+    if directory == ODOO_DIR:
         subdirectories[:] = ["addons"]
         continue
     try:

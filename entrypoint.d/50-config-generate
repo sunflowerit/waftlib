@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
-ODOO_WORK_DIR=$SCRIPT_PATH/../..
+ODOO_WORK_DIR=$(cd $SCRIPT_PATH/../.. && /bin/pwd)
 . $ODOO_WORK_DIR/.env-shared && \
 . $ODOO_WORK_DIR/.env-secret
 cd $ODOO_WORK_DIR

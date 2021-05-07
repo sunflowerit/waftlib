@@ -2,7 +2,8 @@
 
 set -e
 
-ODOO_WORK_DIR=$(SCRIPT_PATH= cd -- "$(/usr/bin/dirname "$0")" && cd .. && /bin/pwd)
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$(cd $SCRIPT_PATH/.. && /bin/pwd)
 cd $ODOO_WORK_DIR
 
 if [ ! -f $HOME/.local/bin/pipenv ]; then
