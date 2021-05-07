@@ -27,16 +27,17 @@ logger.debug("Addon paths enabled: %s", repos_addons)
 
 # Traverse src dir and remove anything not explicitly enabled
 for directory, subdirectories, subfiles in os.walk(SRC_DIR):
+    directory = os.path.realpath(directory)
     logger.debug("Checking for cleanup directory %s", directory)
     # Skip main src directory
-    if directory == SRC_DIR:
+    if directory == os.path.realpath(SRC_DIR):
         continue
     # Always skip private/*
-    if directory == PRIVATE_DIR:
+    if directory == os.path.realpath(PRIVATE_DIR):
         subdirectories[:] = []
         continue
     # Inside the odoo dir, skip all but addons dir
-    if directory == ODOO_DIR:
+    if directory == os.path.realpath(ODOO_DIR):
         subdirectories[:] = ["addons"]
         continue
     try:
