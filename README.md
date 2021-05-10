@@ -42,7 +42,7 @@ It will clone waftlib and exit with a suggestion to do more things, which we wil
 
 Select an Odoo version that you want to use, for example 13.0
 
-Create your secret environment variable from default environments variable template and rerun bootstrap:
+Create your secret environment variables file from default environment variables template file and rerun bootstrap:
 
 ```
 cp waftlib/templates/13.0/.env-shared .env-secret
