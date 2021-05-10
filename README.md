@@ -26,7 +26,7 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 - Install postgres
 - Install lessc
 - Install wkhtmltopdf
-- Install pipenv and pyenv
+- Install pipenv
 - Install system requirements for compiling the necessary Python modules (lxml, yaml etc)
 
 You'll need to take care of these yourself.
@@ -36,24 +36,23 @@ You'll need to take care of these yourself.
 Clone the [waft template project](https://github.com/sunflowerit/waft) and run bootstrap:
 
     git clone https://github.com/sunflowerit/waft
-    ./bootstrap
+    cd waft && ./bootstrap
 
 It will clone waftlib and exit with a suggestion to do more things, which we will do now.
 
 Select an Odoo version that you want to use, for example 13.0
 
-Copy templates and rerun bootstrap:
+Create your secret environment variable from default environments variable template and rerun bootstrap:
 
 ```
-cp waftlib/templates/13.0/.env-shared .
-cp waftlib/templates/13.0/Pipfile .
+cp waftlib/templates/13.0/.env-shared .env-secret
 ./bootstrap
 ```
 
 When successful, now we can prepare for building Odoo:
 
 ```
-cp .env-shared .env-local  # override some vars such as DBFILTER, PGDATABASE, PGUSER etc
+vi .env-secret  # override some vars such as DBFILTER, PGDATABASE, PGUSER etc
 ./build
 ```
 
