@@ -75,12 +75,12 @@ if [ ! -d $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
   /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/addons.yaml $ODOO_WORK_DIR/custom/src/
 fi
 
-if [ ! -d $HOME/.pyenv ]; then
-  /usr/bin/git clone git@github.com:pyenv/pyenv.git $HOME/.pyenv || /usr/bin/git clone https://github.com/pyenv/pyenv $HOME/.pyenv
+if [ ! -d $ODOO_WORK_DIR/.pyenv ]; then
+  /usr/bin/git clone git@github.com:pyenv/pyenv.git $ODOO_WORK_DIR/.pyenv || /usr/bin/git clone https://github.com/pyenv/pyenv $ODOO_WORK_DIR/.pyenv
 fi
 
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
-  PYENV_ROOT="$HOME/.pyenv" PATH="$PYENV_ROOT/bin:$PATH" PIPENV_VENV_IN_PROJECT="enabled" PIPENV_YES="1" $HOME/.local/bin/pipenv install
+  PYENV_ROOT="$ODOO_WORK_DIR/.pyenv" PATH="$PYENV_ROOT/bin:$PATH" PIPENV_VENV_IN_PROJECT="enabled" PIPENV_YES="1" $HOME/.local/bin/pipenv install
 fi
 
 # in .gitignore so not overridable
