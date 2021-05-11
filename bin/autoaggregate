@@ -7,7 +7,7 @@ from multiprocessing import cpu_count
 from subprocess import check_call
 
 import yaml
-from doodbalib import (
+from waftlib import (
     ADDONS_YAML,
     AUTO_REPOS_YAML,
     CORE,

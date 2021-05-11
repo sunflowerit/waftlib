@@ -5,7 +5,7 @@ from collections import OrderedDict
 from os.path import exists
 from subprocess import check_call
 
-from doodbalib import logger
+from waftlib import logger
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../../../../.."))

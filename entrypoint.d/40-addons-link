@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from glob import iglob
 
-from doodbalib import ADDONS_DIR, ADDONS_YAML, SRC_DIR, addons_config, logger
+from waftlib import ADDONS_DIR, ADDONS_YAML, SRC_DIR, addons_config, logger
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../.."))

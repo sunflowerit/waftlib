@@ -49,7 +49,7 @@ ODOO_VERSION = os.environ["ODOO_VERSION"]
 MANIFESTS = ("__manifest__.py", "__openerp__.py")
 
 # Customize logging for build
-logger = logging.getLogger("doodba")
+logger = logging.getLogger("Waft")
 log_handler = logging.StreamHandler()
 log_formatter = logging.Formatter("%(name)s %(levelname)s: %(message)s")
 log_handler.setFormatter(log_formatter)

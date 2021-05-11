@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from argparse import ArgumentParser
 from subprocess import check_call
 
-from doodbalib import (
+from waftlib import (
     CORE,
     ENTERPRISE,
     MANIFESTS,

@@ -7,7 +7,7 @@ import sys
 from dotenv import load_dotenv
 from logging import DEBUG, INFO, WARNING
 from psycopg2 import connect, OperationalError
-from doodbalib import logger, which
+from waftlib import logger, which
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, ".."))

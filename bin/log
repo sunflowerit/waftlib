@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import argparse
 import logging
 
-from doodbalib import LOG_LEVELS, logger
+from waftlib import LOG_LEVELS, logger
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../.."))

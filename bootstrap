@@ -85,9 +85,9 @@ fi
 
 # in .gitignore so not overridable
 cd $ODOO_WORK_DIR/.venv/lib/*/site-packages && \
-/bin/mkdir -p doodbalib && \
-cd doodbalib && \
-for f in ../../../../../waftlib/doodbalib/*; do /bin/ln -sf $f; done
+/bin/mkdir -p waftlib && \
+cd waftlib && \
+for f in ../../../../../waftlib/waftlib/*; do /bin/ln -sf $f; done
 
 cd $ODOO_WORK_DIR/.venv/bin && \
 for f in ../../waftlib/bin/*; do /bin/ln -sf $f; done
@@ -132,8 +132,8 @@ cd $ODOO_WORK_DIR && \
 /bin/chmod 750 $ODOO_WORK_DIR/custom/src/private/ || true
 /bin/chmod -f 640 $ODOO_WORK_DIR/custom/src/addons.yaml || true
 /bin/chmod -f 640 $ODOO_WORK_DIR/custom/src/repos.yaml || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/doodbalib || true
-/bin/chmod 740 $ODOO_WORK_DIR/waftlib/doodbalib/* || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/waftlib || true
+/bin/chmod 740 $ODOO_WORK_DIR/waftlib/waftlib/* || true
 /bin/chmod 640 $ODOO_WORK_DIR/waftlib/templates/* || true
 /bin/chmod 740 $ODOO_WORK_DIR/waftlib/templates/*.0 || true
 /bin/chmod 640 $ODOO_WORK_DIR/waftlib/templates/*/* || true
