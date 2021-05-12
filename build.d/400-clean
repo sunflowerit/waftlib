@@ -13,10 +13,6 @@ os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../.."
 load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
 load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
-if not CLEAN:
-    logger.warning("Not cleaning garbage")
-    sys.exit()
-
 # Get the enabled paths
 repos_addons = {}
 for addon, repo in addons_config(filtered=False):
@@ -34,6 +30,9 @@ for directory, subdirectories, subfiles in os.walk(SRC_DIR):
     # Always skip private/*
     if directory == PRIVATE_DIR:
         subdirectories[:] = []
+        continue
+    # Leave .git directories unless we are really CLEAN-ing
+    if directory.endswith("/.git") and not CLEAN:
         continue
     # Inside the odoo dir, skip all but addons dir
     if directory == ODOO_DIR:
