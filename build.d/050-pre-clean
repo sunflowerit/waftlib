@@ -24,6 +24,9 @@ with open(REPOS_YAML) as yaml_file:
 for directory in repos:
     if not os.path.isdir(directory):
         continue
+    if not os.path.isdir(os.path.join(directory, '.git')):
+        shutil.rmtree(directory)
+        continue
     check_call(
         [
             "git",

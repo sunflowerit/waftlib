@@ -44,18 +44,20 @@ def aggregate(config):
         # Download git code with the specified umask, if any
         if UMASK:
             old_umask = os.umask(int(UMASK))
+        cmd = [
+            "gitaggregate",
+            "--expand-env",
+            "--config",
+            config,
+            "--log-level",
+            log_level,
+            "--jobs",
+            str(cpu_count() or 1),
+            "aggregate",
+        ]
+        logger.info("Running '%s' in '%s'", ' '.join(cmd), SRC_DIR)
         check_call(
-            [
-                "gitaggregate",
-                "--expand-env",
-                "--config",
-                config,
-                "--log-level",
-                log_level,
-                "--jobs",
-                str(cpu_count() or 1),
-                "aggregate",
-            ],
+            cmd,
             cwd=SRC_DIR,
             stderr=sys.stderr,
             stdout=sys.stdout,
