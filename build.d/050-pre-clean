@@ -27,16 +27,19 @@ for directory in repos:
     if not os.path.isdir(os.path.join(directory, '.git')):
         shutil.rmtree(directory)
         continue
-    check_call(
-        [
-            "git",
-            "-C",
-            directory,
-            "reset",
-            "--hard",
-            "HEAD",
-        ],
-        cwd=SRC_DIR,
-        stderr=sys.stderr,
-        stdout=sys.stdout,
-    )
+    try:
+        check_call(
+            [
+                "git",
+                "-C",
+                directory,
+                "reset",
+                "--hard",
+                "HEAD",
+            ],
+            cwd=SRC_DIR,
+            stderr=sys.stderr,
+            stdout=sys.stdout,
+        )
+    except:
+        shutil.rmtree(directory)
