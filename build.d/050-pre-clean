@@ -41,5 +41,17 @@ for directory in repos:
             stderr=sys.stderr,
             stdout=sys.stdout,
         )
+        check_call(
+            [
+                "git",
+                "-C",
+                directory,
+                "clean",
+                "-fd",
+            ],
+            cwd=SRC_DIR,
+            stderr=sys.stderr,
+            stdout=sys.stdout,
+        )
     except:
         shutil.rmtree(directory)
