@@ -1,0 +1,12 @@
+#!/bin/sh
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH/..
+
+if [ $# -eq 0 ]; then
+  echo "Upgrade a module"
+  echo "Usage: ./upgrade-module modulename"
+  exit
+fi
+
+cd $ODOO_WORK_DIR && pipenv run odoo -c ./auto/odoo.conf -u "$1" --xmlrpc-port 18069 --stop-after-init
