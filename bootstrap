@@ -104,12 +104,11 @@ for f in ../../waftlib/build.d/*; do [ ! -e $(/usr/bin/basename $f) ] && /bin/ln
 cd $ODOO_WORK_DIR/common/entrypoint.d && \
 for f in ../../waftlib/entrypoint.d/*; do [ ! -e $(/usr/bin/basename $f) ] && /bin/ln -sf $f $(/usr/bin/basename $f); done
 
-cd $ODOO_WORK_DIR && \
-[ ! -e build ] && /bin/ln -sf waftlib/build && \
-[ ! -e initial-database ] && /bin/ln -sf waftlib/initial-database && \
-[ ! -e install ] && /bin/ln -sf waftlib/install && \
-[ ! -e upgrade ] && /bin/ln -sf waftlib/upgrade && \
-[ ! -e run ] && /bin/ln -sf waftlib/run
+cd $ODOO_WORK_DIR && [ ! -e build ] && /bin/ln -sf waftlib/build
+cd $ODOO_WORK_DIR && [ ! -e initial-database ] && /bin/ln -sf waftlib/initial-database
+cd $ODOO_WORK_DIR && [ ! -e install ] && /bin/ln -sf waftlib/install
+cd $ODOO_WORK_DIR && [ ! -e upgrade ] && /bin/ln -sf waftlib/upgrade
+cd $ODOO_WORK_DIR && [ ! -e run ] && /bin/ln -sf waftlib/run
 
 # set permissions
 /bin/chmod 750 $ODOO_WORK_DIR || true
