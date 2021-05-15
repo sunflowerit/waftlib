@@ -22,20 +22,18 @@ fi
 /bin/mkdir -p $ODOO_WORK_DIR/common/entrypoint.d/
 /bin/mkdir -p $ODOO_WORK_DIR/custom/src/private/
 
-if [ -f $ODOO_WORK_DIR/.env-shared ]; then
-  . $ODOO_WORK_DIR/.env-shared
-else
+if [ ! -f $ODOO_WORK_DIR/.env-shared ]; then
   if [ -f $ODOO_WORK_DIR/.env-secret ]; then
     . $ODOO_WORK_DIR/.env-secret
     if [ "$ODOO_VERSION" != "" ]; then
-      /bin/cp -f $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared $ODOO_WORK_DIR/
+      /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared $ODOO_WORK_DIR/
     else
       /bin/echo "You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
       exit 1
     fi
   else
     if [ "$ODOO_VERSION" != "" ]; then
-      /bin/cp -f $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared $ODOO_WORK_DIR/
+      /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared $ODOO_WORK_DIR/
     else
       /bin/echo "Copy $ODOO_WORK_DIR/waftlib/templates/ODOO_VERSION/.env-shared to $ODOO_WORK_DIR manually"
       /bin/echo "or define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
