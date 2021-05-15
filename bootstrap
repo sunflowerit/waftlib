@@ -107,6 +107,7 @@ cd $ODOO_WORK_DIR && [ ! -e initial-database ] && /bin/ln -sf waftlib/initial-da
 cd $ODOO_WORK_DIR && [ ! -e install ] && /bin/ln -sf waftlib/install
 cd $ODOO_WORK_DIR && [ ! -e upgrade ] && /bin/ln -sf waftlib/upgrade
 cd $ODOO_WORK_DIR && [ ! -e run ] && /bin/ln -sf waftlib/run
+cd $ODOO_WORK_DIR && [ ! -e shell ] && /bin/ln -sf waftlib/shell
 
 # set permissions
 /bin/chmod 750 $ODOO_WORK_DIR || true
@@ -117,6 +118,7 @@ cd $ODOO_WORK_DIR && [ ! -e run ] && /bin/ln -sf waftlib/run
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/run || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/install || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/upgrade || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/shell || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/initial-database || true
 /bin/chmod 740 $ODOO_WORK_DIR/waftlib/bin/* || true
 /bin/chmod 750 $ODOO_WORK_DIR/common || true
