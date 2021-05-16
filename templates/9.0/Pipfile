@@ -58,6 +58,7 @@ beautifulsoup = "==3.2.1"
 bs4 = "==0.0.1"
 unidecode = "==1.1.1"
 python-dotenv = "==0.17.0"
+openupgradelib = {git = "https://github.com/OCA/openupgradelib.git", ref = "master"}
 
 [requires]
 python_version = "2.7"
