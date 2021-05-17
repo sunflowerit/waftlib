@@ -6,14 +6,22 @@ SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
 ODOO_WORK_DIR=$(cd $SCRIPT_PATH/.. && /bin/pwd)
 cd $ODOO_WORK_DIR
 
-if [ ! -f $HOME/.local/bin/pipenv ]; then
-    /bin/echo 'pipenv python pip package is not installed, Install it by running:'
-    /bin/echo 'pip install pipenv --user'
-    /bin/echo 'then add this line to $HOME/.bashrc:'
-    /bin/echo 'export PATH="${HOME}/.local/bin:$PATH"'
-    /bin/echo 'then issue this command:'
-    /bin/echo 'source $HOME/.bashrc'
-    exit 1
+if [ ! -f $ODOO_WORK_DIR/pipenv ]; then
+  if [ -e $HOME/.local/bin/pipenv ]; then
+    cd $ODOO_WORK_DIR && /bin/ln -sf $HOME/.local/bin/pipenv
+  else
+    if [ -e $(command -v pipenv) ]; then
+      cd $ODOO_WORK_DIR && /bin/ln -sf $(command -v pipenv)
+    else
+        /bin/echo 'pipenv python pip package is not installed, Install it by running:'
+        /bin/echo 'pip install pipenv --user'
+        /bin/echo 'then add this line to $HOME/.bashrc:'
+        /bin/echo 'export PATH="${HOME}/.local/bin:$PATH"'
+        /bin/echo 'then issue this command:'
+        /bin/echo 'source $HOME/.bashrc'
+        command -v pipenv
+    fi
+  fi
 fi
 
 /bin/mkdir -p $ODOO_WORK_DIR/auto/addons/
@@ -78,7 +86,7 @@ if [ ! -d $ODOO_WORK_DIR/.pyenv ]; then
 fi
 
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
-  PYENV_ROOT="$ODOO_WORK_DIR/.pyenv" PATH="$PYENV_ROOT/bin:$PATH" PIPENV_VENV_IN_PROJECT="enabled" PIPENV_YES="1" $HOME/.local/bin/pipenv install
+  PYENV_ROOT="$ODOO_WORK_DIR/.pyenv" PATH="$PYENV_ROOT/bin:$PATH" PIPENV_VENV_IN_PROJECT="enabled" PIPENV_YES="1" $ODOO_WORK_DIR/pipenv install
 fi
 
 # in .gitignore so not overridable

@@ -9,4 +9,4 @@ if [ $# -eq 0 ]; then
   exit
 fi
 
-cd $ODOO_WORK_DIR && pipenv run odoo -c ./auto/odoo.conf -u "$1" --xmlrpc-port 18069 --stop-after-init
+cd $ODOO_WORK_DIR && $ODOO_WORK_DIR/pipenv run odoo -c ./auto/odoo.conf -u "$1" --xmlrpc-port 18069 --stop-after-init

@@ -3,5 +3,5 @@
 SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
 ODOO_WORK_DIR=$SCRIPT_PATH
 
-cd $ODOO_WORK_DIR && pipenv run click-odoo -c ./auto/odoo.conf
+cd $ODOO_WORK_DIR && $ODOO_WORK_DIR/pipenv run click-odoo -c ./auto/odoo.conf
 
