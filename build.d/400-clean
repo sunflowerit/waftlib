@@ -35,6 +35,10 @@ for directory, subdirectories, subfiles in os.walk(SRC_DIR):
     if directory.endswith("/.git") and not CLEAN:
         subdirectories[:] = []
         continue
+    # Leave .github directories unless we are really CLEAN-ing
+    if directory.endswith("/.github") and not CLEAN:
+        subdirectories[:] = []
+        continue
     # Leave '__xxxxxxx__' folders unless we are really CLEAN-ing
     if directory.endswith("__") and not CLEAN:
         subdirectories[:] = []
