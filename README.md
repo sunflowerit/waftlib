@@ -17,8 +17,8 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 ## What does it do
 
 - Install Python dependencies in a virtual environment
-- Collect Odoo modules from different Git repositories
-- Select some modules and not others
+- Collect Odoo modules from different Git repositories (repos.yaml)
+- Select some modules and not others (addons.yaml)
 - Generate the Odoo config file
 - Offer some handy scripts to do things
 
@@ -53,7 +53,11 @@ cp waftlib/templates/13.0/.env-shared .env-secret
 When successful, now we can prepare for building Odoo:
 
 ```
-vi .env-secret  # override some vars such as DBFILTER, PGDATABASE, PGUSER etc
+vi common/conf.d/odoo.conf  # Odoo config file template. You can use ENVIRONMENT variables here.
+vi .env-shared              # Shared defaults that apply for all clones of this instance
+vi .env-secret              # local overrides such as DBFILTER, PGDATABASE, PGUSER etc
+vi custom/src/repos.yaml    # https://github.com/Tecnativa/doodba#optodoocustomsrcreposyaml
+vi custom/sec/addons.yaml   # https://github.com/Tecnativa/doodba#optodoocustomsrcaddonsyaml
 ./build
 ```
 
