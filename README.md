@@ -80,9 +80,28 @@ git add remote origin git@github.com/mycompany/myproject
 git push origin build
 ```
 
-Now everyone who wants to work with your project can clone it, edit `.env-secret` to match their local environment (Postgres connection details, etc), run `./bootstrap` and `./build`, and get going.
+Now everyone who wants to work with your project can:
+
+- Clone it
+- Edit `.env-secret` to match their local environment (Postgres connection details, etc)
+- Run `./bootstrap` and `./build`, and get going.
 
 ## Usage
+
+To add a new Python module:
+
+```
+pipenv install --keep-outdated mypythonpackagename
+# Then commit and push to share the new Pipfile with colleagues
+```
+
+To add a new Odoo module:
+
+```
+vi custom/src/repos.yaml
+vi custom/src/addons.yaml
+./build
+```
 
 To start an Odoo shell:
 
