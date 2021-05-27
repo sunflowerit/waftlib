@@ -20,6 +20,7 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 - Collect Odoo modules from different Git repositories
 - Select some modules and not others
 - Generate the Odoo config file
+- Offer some handy scripts to do things
 
 ## What it does not do
 
@@ -31,7 +32,7 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 
 You'll need to take care of these yourself.
 
-## Usage
+## Setup a waft project
 
 Clone the [waft template project](https://github.com/sunflowerit/waft) and run bootstrap:
 
@@ -62,3 +63,56 @@ Now we can create database and run Odoo:
 ./install mydatabase web
 ./run
 ```
+
+At this point when you know the project configuration is complete, you can push it back to Git, but not to the `waft` repository, but to your project's repository, for example to a branch named `build`:
+
+```
+git rm -Rf .git
+git init
+git add .
+git commit -a "[ADD] Initial project commit"
+git checkout -b build
+git add remote origin git@github.com/mycompany/myproject
+git push origin build
+```
+
+Now everyone who wants to work with your project can clone it, edit `.env-secret` to match their local environment (Postgres connection details, etc), run `./bootstrap` and `./build`, and get going.
+
+## Usage
+
+To start an Odoo shell:
+
+```
+./shell
+# Now you get a shell that has `env` object
+```
+
+To start a [click-odoo](https://github.com/acsone/click-odoo) script:
+
+```
+./pipenv run click-odoo -c ./auto/odoo.conf my-script.sh
+```
+
+To run any other custom Odoo command:
+
+```
+./pipenv run odoo -c auto/odoo.conf --help
+```
+
+## What if I still want to use Docker?
+
+You can! Just define a `Dockerfile` at the root of your project and do all things you need to do to get a working OS that supports Waft. For example: use `Ubuntu 20.04` base image, install `npm`, `lessc`, `libpython-dev`, `wkhtmltopdf`, `Postgres`, `pipenv`, run `./bootstrap`, `./build`, `./run`.
+
+## What if I don't like the `waftlib` scripts and I want to override them
+
+You can! All scripts are symlinks pointing into waftlib, and the symlinks are stored in the project's Git. Meaning you can delete them and override them with your own script. Example:
+
+```
+git rm ./bootstrap
+cp waftlib/bootstrap .
+vi bootstrap  # edit like you wish
+git add bootstrap
+git commit -m "[UPD] use modified Bootstrap script"
+```
+
+Note that when you do this, you won't subscribe to Waft updates anymore, so if there is a change or fix in `waftlib/bootstrap`, you will need to update it in your project manually.
