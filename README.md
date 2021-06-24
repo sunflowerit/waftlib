@@ -139,3 +139,52 @@ git commit -m "[UPD] use modified Bootstrap script"
 ```
 
 Note that when you do this, you won't subscribe to Waft updates anymore, so if there is a change or fix in `waftlib/bootstrap`, you will need to update it in your project manually.
+
+
+## Setting up a Development Environment (PyCharm)
+
+You Can also set up a dev environment with pycharm.
+This allows you to develop locally if you wish to. Firstly:
+ - Follow the setup step steps and make sure your
+   odoo environment is ready.
+     
+ - Install latest pycharm.
+
+ Once the above steps are set, then do the following
+ under pycharm:
+
+ - Go to your project *settings* (i.e waft folder project) under *File menu* 
+   and select *Python Interpreter.*
+   
+  
+ - Click on Add, select existing environment, this is because,
+   if you followed the setup steps above, you should have a 
+   hidden *.venv* folder under *waft* folder
+   
+   
+ - If you have the hidden *.venv* folder, then select
+   *python* under *bin* folder and save the settings, you can
+   also make it available for other projects *(option)*.
+   
+
+ - Click on The *Add configuration* option, select left *+
+   sign* to add python configuration.
+   
+   
+ - Give the python configuration a name, then select **script path** 
+   option, and add a script from the hidden *.venv* folder, under *bin*, 
+   choose the *odoo.py* file. This is like *odoo-bin.py/openerp.py* 
+   in odoo folders.
+   
+    **NB: You can add a shell script that has all options including 
+    parameters.** 
+   
+   
+ - Add odoo parameters if any e.g `-c odoo-config-path/odoo.conf --workers=0` etc.
+
+ 
+- Lastly and importantly, add the existing virtual env under 
+  *python interpreter*, that you had earlier configured in 
+  the first step, and run.
+
+  
