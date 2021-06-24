@@ -143,15 +143,15 @@ Note that when you do this, you won't subscribe to Waft updates anymore, so if t
 
 ## Setting up a Development Environment (PyCharm)
 
-You can also set up a dev environment with pycharm.
+You can also set up a dev environment with Pycharm.
 This allows you to develop locally if you wish to. Firstly:
- - Follow the setup step steps and make sure your
+ - Follow the setup steps and make sure your
    odoo environment is ready.
      
- - Install latest pycharm.
+ - Install latest Pycharm.
 
  Once the above steps are set, then do the following
- under pycharm:
+ under Pycharm:
 
  - Go to your project *settings* (i.e waft folder project) under *File menu* 
    and select *Python Interpreter.*
