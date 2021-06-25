@@ -148,7 +148,7 @@ This allows you to develop locally if you wish to. Firstly:
  - Follow the setup steps and make sure your
    odoo environment is ready.
      
- - Install latest Pycharm.
+ - Install latest PyCharm.
 
  Once the above steps are set, then do the following
  under Pycharm:
@@ -173,11 +173,9 @@ This allows you to develop locally if you wish to. Firstly:
    
  - Give the python configuration a name, then select **script path** 
    option, and add a script from the hidden *.venv* folder, under *bin*, 
-   choose the *odoo.py* file. This is like *odoo-bin.py/openerp.py* 
-   in odoo folders.
-   
-    **NB: You can add a shell script that has all options including 
-    parameters.** 
+   choose the *odoo* file. This is like *odoo-bin.py/openerp.py* 
+   in odoo folders. You can add **run** script to make work easier, it
+   is a script that runs odoo instance.
    
    
  - Add odoo parameters if any e.g `-c odoo-config-path/odoo.conf --workers=0` etc.
