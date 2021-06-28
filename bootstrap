@@ -10,7 +10,7 @@ if [ ! -f $ODOO_WORK_DIR/pipenv ]; then
   if [ -e $HOME/.local/bin/pipenv ]; then
     cd $ODOO_WORK_DIR && /bin/ln -sf $HOME/.local/bin/pipenv
   else
-    if [ -e $(command -v pipenv) ]; then
+    if [ $(command -v pipenv) ]; then
       cd $ODOO_WORK_DIR && /bin/ln -sf $(command -v pipenv)
     else
         /bin/echo 'pipenv python pip package is not installed, Install it by running:'
