@@ -116,6 +116,7 @@ cd $ODOO_WORK_DIR && [ ! -e install ] && /bin/ln -sf waftlib/install
 cd $ODOO_WORK_DIR && [ ! -e upgrade ] && /bin/ln -sf waftlib/upgrade
 cd $ODOO_WORK_DIR && [ ! -e run ] && /bin/ln -sf waftlib/run
 cd $ODOO_WORK_DIR && [ ! -e shell ] && /bin/ln -sf waftlib/shell
+cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/migrate
 
 # set permissions
 /bin/chmod 750 $ODOO_WORK_DIR || true
