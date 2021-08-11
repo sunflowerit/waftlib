@@ -128,6 +128,7 @@ cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/migrate
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/install || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/upgrade || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/shell || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/migrate || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/initial-database || true
 /bin/chmod 740 $ODOO_WORK_DIR/waftlib/bin/* || true
 /bin/chmod 750 $ODOO_WORK_DIR/common || true
@@ -156,3 +157,4 @@ cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/migrate
 /bin/chmod -f 600 $ODOO_WORK_DIR/Pipfile || true
 /bin/chmod -f 600 $ODOO_WORK_DIR/Pipfile.lock || true
 /bin/chmod 740 $ODOO_WORK_DIR/run || true
+

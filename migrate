@@ -14,7 +14,7 @@ cd $ODOO_WORK_DIR
 . $ODOO_WORK_DIR/.env-secret
 ODOO_EXIST_VERSION=$ODOO_VERSION
 
-ODOO_DESTINATION_VERSION=${ODOO_DESTINATION_VERSION:-$(($(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) + 1))}
+ODOO_DESTINATION_VERSION=${ODOO_DESTINATION_VERSION:-$(($(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) + 1)).0}
 BACKUP_BEFORE_MIGRATION=${BACKUP_BEFORE_MIGRATION:-true}
 
 if [ -f $ODOO_WORK_DIR/.env-migrate ]; then
@@ -53,7 +53,7 @@ else
 fi
 
 if [ ! -f $ODOO_WORK_DIR/.slide ]; then
-  /bin/echo "this script will migrate your odoo from $ODOO_START_FROM_VERSION to $ODOO_DESTINATION_VERSION, if you are sure please touch $ODOO_WORK_DIR/.slide file and run $ODOO_WORK_DIR/migrate script again again"
+  /bin/echo "this script will migrate your odoo from $ODOO_START_FROM_VERSION to $ODOO_DESTINATION_VERSION, if you are sure please touch $ODOO_WORK_DIR/.slide file and run $ODOO_WORK_DIR/migrate script again"
   /bin/echo "/usr/bin/touch $ODOO_WORK_DIR/.slide"
   /bin/echo "$ODOO_WORK_DIR/migrate"
   exit 1
@@ -133,24 +133,24 @@ errors_deal() {
       for DATA in $(/bin/ls -1a $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/code/) ; do
         if [ $DATA != '.' ] && [ $DATA != '..' ] ; then
           /bin/rm -fr $ODOO_WORK_DIR/$DATA
-          /bin/mv $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/code/$DATA $ODOO_WORK_DIR/
+          logexec /bin/mv $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/code/$DATA $ODOO_WORK_DIR/
         fi
       done
       if [ -d $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/filestore/$PGDATABASE ]; then
         /bin/rm -fr $HOME/.local/share/Odoo/filestore/$PGDATABASE
-        /bin/mv $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/filestore/$PGDATABASE $HOME/.local/share/Odoo/filestore/
+        logexec /bin/mv $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/filestore/$PGDATABASE $HOME/.local/share/Odoo/filestore/
       fi
       if [ -f $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/$PGDATABASE.sql ]; then
         /usr/bin/dropdb $PGDATABASE
-        /usr/bin/psql $PGDATABASE < $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/$PGDATABASE.sql
+        logexec /usr/bin/psql $PGDATABASE < $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/$PGDATABASE.sql
       fi
       if [ $(/bin/echo $ODOO_EXIST_VERSION | /usr/bin/cut -d'.' -f1) -ne $(/bin/echo $ODOO_DESTINATION_VERSION | /usr/bin/cut -d'.' -f1) ]; then
-        /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'$ODOO_EXIST_VERSION'"|g' $ODOO_WORK_DIR/.env-secret
+        logexec /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'$ODOO_EXIST_VERSION'"|g' $ODOO_WORK_DIR/.env-secret
       fi
     fi
   fi
-  /usr/bin/sudo /bin/systemctl start odoo || True
-  /usr/bin/sudo /bin/systemctl start monit || True
+  logexec /usr/bin/sudo /bin/systemctl start odoo || True
+  logexec /usr/bin/sudo /bin/systemctl start monit || True
   exit 1
 }
 
@@ -210,53 +210,53 @@ if [ $(/bin/echo $ODOO_EXIST_VERSION | /usr/bin/cut -d'.' -f1) -eq $(/bin/echo $
       fi
     done
   fi
-  eval MIGRATION_TEMPORARY_NAME=$(($(/bin/echo $MIGRATION_TEMPORARY_NAME | /usr/bin/cut -d'.' -f1) + 1 ))
+  eval MIGRATION_TEMPORARY_NAME="$(($(/bin/echo $MIGRATION_TEMPORARY_NAME | /usr/bin/cut -d'.' -f1) + 1 )).0"
   eval ODOO_WORK_DIR=$ODOO_MAIN_WORK_DIR
 fi
 
-until [ $MIGRATION_TEMPORARY_NAME -eq $(/bin/echo $ODOO_DESTINATION_VERSION | /usr/bin/cut -d'.' -f1) ] ; do
-  /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0
-  /bin/cp -pf $ODOO_WORK_DIR/bootstrap $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/
-  if [ ! -f $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/.env-secret ]; then
-    /bin/cp -p $ODOO_WORK_DIR/.env-secret $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/
-    /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'$MIGRATION_TEMPORARY_NAME'.0"|g' $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/.env-secret
+until [ $(/bin/echo $MIGRATION_TEMPORARY_NAME | /usr/bin/cut -d'.' -f1) -eq $(/bin/echo $ODOO_DESTINATION_VERSION | /usr/bin/cut -d'.' -f1) ] ; do
+  /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME
+  /bin/cp -pf $ODOO_WORK_DIR/bootstrap $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
+  if [ ! -f $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/.env-secret ]; then
+    /bin/cp -p $ODOO_WORK_DIR/.env-secret $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
+    /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'$MIGRATION_TEMPORARY_NAME'"|g' $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/.env-secret
   fi
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/.env-shared ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/.env-shared $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/.env-shared ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/.env-shared $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
   fi
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/Pipfile ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/Pipfile $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/Pipfile ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/Pipfile $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
   fi
-  /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/common/conf.d
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/odoo.cfg ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/odoo.cfg $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/common/conf.d/
+  /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/common/conf.d
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/odoo.cfg ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/odoo.cfg $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/common/conf.d/
   fi
-  /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/custom/src
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/repos.yaml ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/repos.yaml $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/custom/src/
+  /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/custom/src
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/repos.yaml ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/repos.yaml $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/custom/src/
   fi
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/addons.yaml ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/addons.yaml $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/custom/src/
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/addons.yaml ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/addons.yaml $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/custom/src/
   fi
-  if [ -d $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/migrate-scripts ]; then
-    /bin/cp -frp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME.0/migrate-scripts $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/
+  if [ -d $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/migrate-scripts ]; then
+    /bin/cp -frp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/migrate-scripts $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
   fi
-  /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/.venv
-  logexec $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/bootstrap
-  logexec $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/build
-  if [ -d $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/migrate-scripts ]; then
-    for MIGRATION_SCRIPT in $(ls -1 $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/migrate-scripts/); do
-      if [ -x $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/migrate-scripts/$MIGRATION_SCRIPT ]; then
-        logexec $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME.0/migrate-scripts/$MIGRATION_SCRIPT
+  /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/.venv
+  logexec $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/bootstrap
+  logexec $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/build
+  if [ -d $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/migrate-scripts ]; then
+    for MIGRATION_SCRIPT in $(ls -1 $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/migrate-scripts/); do
+      if [ -x $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/migrate-scripts/$MIGRATION_SCRIPT ]; then
+        logexec $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/migrate-scripts/$MIGRATION_SCRIPT
       fi
     done
   fi
-  eval MIGRATION_TEMPORARY_NAME=$(($(/bin/echo $MIGRATION_TEMPORARY_NAME | /usr/bin/cut -d'.' -f1) + 1 ))
+  eval MIGRATION_TEMPORARY_NAME="$(($(/bin/echo $MIGRATION_TEMPORARY_NAME | /usr/bin/cut -d'.' -f1) + 1 )).0"
   eval ODOO_WORK_DIR=$ODOO_MAIN_WORK_DIR
 done
 
 if [ $(/bin/echo $ODOO_EXIST_VERSION | /usr/bin/cut -d'.' -f1) -ne $(/bin/echo $ODOO_DESTINATION_VERSION | /usr/bin/cut -d'.' -f1) ]; then
-  /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'$ODOO_DESTINATION_VERSION'.0"|g' $ODOO_WORK_DIR/.env-secret
+  /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'$ODOO_DESTINATION_VERSION'"|g' $ODOO_WORK_DIR/.env-secret
 fi
 if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/.env-shared ]; then
   /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/.env-shared $ODOO_WORK_DIR/
@@ -289,3 +289,4 @@ fi
 
 /usr/bin/sudo /bin/systemctl start odoo || True
 /usr/bin/sudo /bin/systemctl start monit || True
+
