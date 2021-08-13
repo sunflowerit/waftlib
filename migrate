@@ -16,6 +16,7 @@ ODOO_EXIST_VERSION=$ODOO_VERSION
 
 ODOO_DESTINATION_VERSION=${ODOO_DESTINATION_VERSION:-$(($(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) + 1)).0}
 BACKUP_BEFORE_MIGRATION=${BACKUP_BEFORE_MIGRATION:-true}
+RUN_MIGRATION_DEFAULT_SCRIPT=${RUN_MIGRATION_DEFAULT_SCRIPT:-true}
 
 if [ -f $ODOO_WORK_DIR/.env-migrate ]; then
   . $ODOO_WORK_DIR/.env-migrate
@@ -61,9 +62,34 @@ else
   /bin/rm -fr $ODOO_WORK_DIR/.slide
 fi
 
+if [ $RUN_MIGRATION_DEFAULT_SCRIPT != 'true' ] && [ $RUN_MIGRATION_DEFAULT_SCRIPT != 'TRUE' ] && [ $RUN_MIGRATION_DEFAULT_SCRIPT != 'True' ] ; then
+  if [ $RUN_MIGRATION_DEFAULT_SCRIPT != 'false' ] || [ $RUN_MIGRATION_DEFAULT_SCRIPT != 'FALSE' ] || [ $RUN_MIGRATION_DEFAULT_SCRIPT != 'False' ] ; then
+    eval RUN_MIGRATION_DEFAULT_SCRIPT='false'
+  else
+    /bin/echo "RUN_MIGRATION_DEFAULT_SCRIPT variable should be true or false"
+    exit 1
+  fi
+else
+  if [ $RUN_MIGRATION_DEFAULT_SCRIPT == 'true' ] || [ $RUN_MIGRATION_DEFAULT_SCRIPT == 'TRUE' ] || [ $RUN_MIGRATION_DEFAULT_SCRIPT == 'True' ] ; then
+    eval RUN_MIGRATION_DEFAULT_SCRIPT='true'
+  else
+    /bin/echo "RUN_MIGRATION_DEFAULT_SCRIPT variable should be true or false"
+    exit 1
+  fi
+fi
+
 if [ $(/bin/echo $ODOO_EXIST_VERSION | /usr/bin/cut -d'.' -f1) -eq $(/bin/echo $ODOO_START_FROM_VERSION | /usr/bin/cut -d'.' -f1) ]; then
-  if [ $BACKUP_BEFORE_MIGRATION != 'false' ] && [ $BACKUP_BEFORE_MIGRATION != 'FALSE' ] && [ $BACKUP_BEFORE_MIGRATION != 'False' ] ; then
-    if [ $BACKUP_BEFORE_MIGRATION != 'true' ] && [ $BACKUP_BEFORE_MIGRATION != 'TRUE' ] && [ $BACKUP_BEFORE_MIGRATION != 'True' ] ; then
+  if [ $BACKUP_BEFORE_MIGRATION != 'true' ] && [ $BACKUP_BEFORE_MIGRATION != 'TRUE' ] && [ $BACKUP_BEFORE_MIGRATION != 'True' ] ; then
+    if [ $BACKUP_BEFORE_MIGRATION != 'false' ] || [ $BACKUP_BEFORE_MIGRATION != 'FALSE' ] || [ $BACKUP_BEFORE_MIGRATION != 'False' ] ; then
+      eval BACKUP_BEFORE_MIGRATION='false'
+    else
+      /bin/echo "BACKUP_BEFORE_MIGRATION variable should be true or false"
+      exit 1
+    fi
+  else
+    if [ $BACKUP_BEFORE_MIGRATION == 'true' ] || [ $BACKUP_BEFORE_MIGRATION == 'TRUE' ] || [ $BACKUP_BEFORE_MIGRATION == 'True' ] ; then
+      eval BACKUP_BEFORE_MIGRATION='true'
+    else
       /bin/echo "BACKUP_BEFORE_MIGRATION variable should be true or false"
       exit 1
     fi
@@ -110,7 +136,7 @@ logexec() {
 CURRENTLY_DATE_STRING=$(/bin/date "+%d-%H-%M-%S")
 
 if [ $(/bin/echo $ODOO_EXIST_VERSION | /usr/bin/cut -d'.' -f1) -eq $(/bin/echo $ODOO_START_FROM_VERSION | /usr/bin/cut -d'.' -f1) ] ; then
-  if [ "$BACKUP_BEFORE_MIGRATION" == 'true' ] || [ "$BACKUP_BEFORE_MIGRATION" == 'TRUE' ] || [ "$BACKUP_BEFORE_MIGRATION" == 'True' ] ; then
+  if [ "$BACKUP_BEFORE_MIGRATION" == 'true' ] ; then
     /bin/mkdir -p $ODOO_WORK_DIR/migrate-backup
     /bin/mkdir -p $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/code
     /bin/mkdir -p $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/filestore
@@ -129,7 +155,7 @@ fi
 
 errors_deal() {
   if [ $(/bin/echo $ODOO_EXIST_VERSION | /usr/bin/cut -d'.' -f1) -eq $(/bin/echo $ODOO_START_FROM_VERSION | /usr/bin/cut -d'.' -f1) ]; then
-    if [ "$BACKUP_BEFORE_MIGRATION" == 'true' ] || [ "$BACKUP_BEFORE_MIGRATION" == 'TRUE' ] || [ "$BACKUP_BEFORE_MIGRATION" == 'True' ] ; then
+    if [ "$BACKUP_BEFORE_MIGRATION" == 'true' ] ; then
       for DATA in $(/bin/ls -1a $ODOO_WORK_DIR/migrate-backup/$ODOO_START_FROM_VERSION-$CURRENTLY_DATE_STRING/code/) ; do
         if [ $DATA != '.' ] && [ $DATA != '..' ] ; then
           /bin/rm -fr $ODOO_WORK_DIR/$DATA
@@ -193,23 +219,9 @@ if [ $(/bin/echo $ODOO_EXIST_VERSION | /usr/bin/cut -d'.' -f1) -eq $(/bin/echo $
   else
     /bin/cp -fp $ODOO_WORK_DIR/custom/src/addons.yaml $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/
   fi
-  if [ -d $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/migrate-scripts ]; then
-    /bin/cp -frp $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/migrate-scripts $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/
-  else
-    if [ -d $ODOO_WORK_DIR/migrate-scripts ]; then
-      /bin/cp -frp $ODOO_WORK_DIR/migrate-scripts $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/
-    fi
-  fi
   /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/.venv
   logexec $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/bootstrap
   logexec $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/build
-  if [ -d $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/migrate-scripts ]; then
-    for MIGRATION_SCRIPT in $(ls -1 $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/migrate-scripts/); do
-      if [ -x $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/migrate-scripts/$MIGRATION_SCRIPT ]; then
-        logexec $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/migrate-scripts/$MIGRATION_SCRIPT
-      fi
-    done
-  fi
   eval MIGRATION_TEMPORARY_NAME="$(($(/bin/echo $MIGRATION_TEMPORARY_NAME | /usr/bin/cut -d'.' -f1) + 1 )).0"
   eval ODOO_WORK_DIR=$ODOO_MAIN_WORK_DIR
 fi
@@ -244,6 +256,15 @@ until [ $(/bin/echo $MIGRATION_TEMPORARY_NAME | /usr/bin/cut -d'.' -f1) -eq $(/b
   /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/.venv
   logexec $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/bootstrap
   logexec $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/build
+  if [ "$RUN_MIGRATION_DEFAULT_SCRIPT" == 'true' ] ; then
+    if [ -d $ODOO_WORK_DIR/waftlib/templates/to-$MIGRATION_TEMPORARY_NAME-default-migrate-scripts ]; then
+      for MIGRATION_SCRIPT in $(ls -1 $ODOO_WORK_DIR/waftlib/templates/to-$MIGRATION_TEMPORARY_NAME-default-migrate-scripts/); do
+        if [ -x $ODOO_WORK_DIR/waftlib/templates/to-$MIGRATION_TEMPORARY_NAME-default-migrate-scripts/$MIGRATION_SCRIPT ]; then
+          logexec $ODOO_WORK_DIR/waftlib/templates/to-$MIGRATION_TEMPORARY_NAME-default-migrate-scripts/$MIGRATION_SCRIPT
+        fi
+      done
+    fi
+  fi
   if [ -d $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/migrate-scripts ]; then
     for MIGRATION_SCRIPT in $(ls -1 $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/migrate-scripts/); do
       if [ -x $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/migrate-scripts/$MIGRATION_SCRIPT ]; then
@@ -279,6 +300,15 @@ fi
 /bin/rm -fr $ODOO_WORK_DIR/.venv
 logexec $ODOO_WORK_DIR/bootstrap
 logexec $ODOO_WORK_DIR/build
+if [ "$RUN_MIGRATION_DEFAULT_SCRIPT" == 'true' ] ; then
+  if [ -d $ODOO_WORK_DIR/waftlib/templates/to-$ODOO_DESTINATION_VERSION-default-migrate-scripts ]; then
+    for MIGRATION_SCRIPT in $(ls -1 $ODOO_WORK_DIR/waftlib/templates/to-$ODOO_DESTINATION_VERSION-default-migrate-scripts/); do
+      if [ -x $ODOO_WORK_DIR/waftlib/templates/to-$ODOO_DESTINATION_VERSION-default-migrate-scripts/$MIGRATION_SCRIPT ]; then
+        logexec $ODOO_WORK_DIR/waftlib/templates/to-$ODOO_DESTINATION_VERSION-default-migrate-scripts/$MIGRATION_SCRIPT
+      fi
+    done
+  fi
+fi
 if [ -d $ODOO_WORK_DIR/migrate-scripts ]; then
   for MIGRATION_SCRIPT in $(ls -1 $ODOO_WORK_DIR/migrate-scripts/); do
     if [ -x $ODOO_WORK_DIR/migrate-scripts/$MIGRATION_SCRIPT ]; then
