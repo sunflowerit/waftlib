@@ -82,7 +82,7 @@ if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
 fi
 
 if [ ! -d $ODOO_WORK_DIR/.pyenv ]; then
-  /usr/bin/git clone git@github.com:pyenv/pyenv.git $ODOO_WORK_DIR/.pyenv || /usr/bin/git clone https://github.com/pyenv/pyenv $ODOO_WORK_DIR/.pyenv
+  /usr/bin/git clone https://github.com/pyenv/pyenv $ODOO_WORK_DIR/.pyenv
 fi
 
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
