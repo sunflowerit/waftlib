@@ -15,4 +15,4 @@ if [ ! -d $ODOO_WORK_DIR/.venv ]; then
     exit 1
 fi
 
-$ODOO_WORK_DIR/pipenv run ./common/build && $ODOO_WORK_DIR/pipenv run python $ODOO_WORK_DIR/common/entrypoint
+. .venv/bin/activate && pip install -r requirements.txt && ./common/build && python $ODOO_WORK_DIR/common/entrypoint
