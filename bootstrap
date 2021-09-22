@@ -6,22 +6,8 @@ SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
 ODOO_WORK_DIR=$(cd $SCRIPT_PATH/.. && /bin/pwd)
 cd $ODOO_WORK_DIR
 
-if [ ! -f $ODOO_WORK_DIR/pipenv ]; then
-  if [ -e $HOME/.local/bin/pipenv ]; then
-    cd $ODOO_WORK_DIR && /bin/ln -sf $HOME/.local/bin/pipenv
-  else
-    if [ $(command -v pipenv) ]; then
-      cd $ODOO_WORK_DIR && /bin/ln -sf $(command -v pipenv)
-    else
-        /bin/echo 'pipenv python pip package is not installed, Install it by running:'
-        /bin/echo 'pip install pipenv --user'
-        /bin/echo 'then add this line to $HOME/.bashrc:'
-        /bin/echo 'export PATH="${HOME}/.local/bin:$PATH"'
-        /bin/echo 'then issue this command:'
-        /bin/echo 'source $HOME/.bashrc'
-        command -v pipenv
-    fi
-  fi
+if [ -f $ODOO_WORK_DIR/pipenv ]; then
+  rm -f $ODOO_WORK_DIR/pipenv
 fi
 
 /bin/mkdir -p $ODOO_WORK_DIR/auto/addons/
@@ -65,8 +51,12 @@ if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -gt '14' ]; then
   exit 1
 fi
 
-if [ ! -f $ODOO_WORK_DIR/Pipfile ]; then
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/Pipfile $ODOO_WORK_DIR/
+if [ ! -f $ODOO_WORK_DIR/.python-version ]; then
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.python-version $ODOO_WORK_DIR/
+fi
+
+if [ ! -f $ODOO_WORK_DIR/requirements.txt ]; then
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/requirements.txt $ODOO_WORK_DIR/
 fi
 
 if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
@@ -81,12 +71,30 @@ if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
   /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/addons.yaml $ODOO_WORK_DIR/custom/src/
 fi
 
+if [ ! -f "$ODOO_WORK_DIR/.python-version" ]; then
+  /bin/echo "You should create .python-version variable in $ODOO_WORK_DIR"
+  exit 1
+fi
+
 if [ ! -d $ODOO_WORK_DIR/.pyenv ]; then
   /usr/bin/git clone https://github.com/pyenv/pyenv $ODOO_WORK_DIR/.pyenv
 fi
 
+VIRTUALENV=$ODOO_WORK_DIR/.pyenv/bin/virtualenv.pyz
+if [ ! -f $VIRTUALENV ]; then
+wget https://bootstrap.pypa.io/virtualenv.pyz -O $VIRTUALENV
+fi
+
+PYENV_ROOT=$HOME/.pyenv
+PATH=$PYENV_ROOT/shims:$ODOO_WORK_DIR/.pyenv/bin:$PATH
+PYENV=$ODOO_WORK_DIR/.pyenv/bin/pyenv
+
+eval "$($PYENV init -)"
+
+pyenv install -s
+
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
-  PYENV_ROOT="$ODOO_WORK_DIR/.pyenv" PATH="$PYENV_ROOT/bin:$PATH" PIPENV_VENV_IN_PROJECT="enabled" PIPENV_YES="1" $ODOO_WORK_DIR/pipenv install
+  python $VIRTUALENV .venv
 fi
 
 # in .gitignore so not overridable
@@ -154,7 +162,5 @@ cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/migrate
 /bin/chmod 740 $ODOO_WORK_DIR/build || true
 /bin/chmod 740 $ODOO_WORK_DIR/initial-database || true
 /bin/chmod 740 $ODOO_WORK_DIR/install || true
-/bin/chmod -f 600 $ODOO_WORK_DIR/Pipfile || true
-/bin/chmod -f 600 $ODOO_WORK_DIR/Pipfile.lock || true
 /bin/chmod 740 $ODOO_WORK_DIR/run || true
 

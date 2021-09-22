@@ -6,5 +6,4 @@ ODOO_WORK_DIR=$SCRIPT_PATH
 . $SCRIPT_PATH/.env-secret
 cd $ODOO_WORK_DIR
 
-$ODOO_WORK_DIR/pipenv run ./.venv/bin/odoo -c ./auto/odoo.conf --workers=0 $*
-
+. $ODOO_WORK_DIR/.venv/bin/activate && odoo -c ./auto/odoo.conf --workers=0 $*

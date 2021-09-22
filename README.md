@@ -27,7 +27,6 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 - Install postgres
 - Install lessc
 - Install wkhtmltopdf
-- Install pipenv
 - Install system requirements for compiling the necessary Python modules (lxml, yaml etc)
 
 You'll need to take care of these yourself.
@@ -91,8 +90,16 @@ Now everyone who wants to work with your project can:
 To add a new Python module:
 
 ```
-pipenv install --keep-outdated mypythonpackagename
-# Then commit and push to share the new Pipfile with colleagues
+# edit requirements.txt, add the module you want
+./build
+
+OR:
+
+# edit requirements.txt, add the module you want
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# Then commit and push to share the new requirements.txt with colleagues
 ```
 
 To add a new Odoo module:
@@ -113,18 +120,20 @@ To start an Odoo shell:
 To start a [click-odoo](https://github.com/acsone/click-odoo) script:
 
 ```
-./pipenv run click-odoo -c ./auto/odoo.conf my-script.sh
+source .venv/bin/activate
+click-odoo -c ./auto/odoo.conf my-script.sh
 ```
 
 To run any other custom Odoo command:
 
 ```
-./pipenv run odoo -c auto/odoo.conf --help
+source .venv/bin/activate
+odoo -c auto/odoo.conf --help
 ```
 
 ## What if I still want to use Docker?
 
-You can! Just define a `Dockerfile` at the root of your project and do all things you need to do to get a working OS that supports Waft. For example: use `Ubuntu 20.04` base image, install `npm`, `lessc`, `libpython-dev`, `wkhtmltopdf`, `Postgres`, `pipenv`, run `./bootstrap`, `./build`, `./run`.
+You can! Just define a `Dockerfile` at the root of your project and do all things you need to do to get a working OS that supports Waft. For example: use `Ubuntu 20.04` base image, install `npm`, `lessc`, `libpython-dev`, `wkhtmltopdf`, `Postgres`, run `./bootstrap`, `./build`, `./run`.
 
 ## What if I don't like the `waftlib` scripts and I want to override them
 
