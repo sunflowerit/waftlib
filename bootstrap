@@ -7,7 +7,7 @@ ODOO_WORK_DIR=$(cd $SCRIPT_PATH/.. && /bin/pwd)
 cd $ODOO_WORK_DIR
 
 if [ -z "$LIBRARIES_VERSION_BRANCH" ]; then
-  if [ "$(/usr/bin/sha1sum $ODOO_WORK_DIR/bootstrap)" = "7b53eaced73cc36675859da32bdfb6c2c1c428fe" ] || [ "$(/usr/bin/sha1sum $ODOO_WORK_DIR/bootstrap)" = "56f5b836e417fa9c6b1d8cdc2afe5a96c91205a5" ]; then
+  if [ "$(/usr/bin/sha1sum $ODOO_WORK_DIR/bootstrap | /usr/bin/awk '{ print $1}')" = "7b53eaced73cc36675859da32bdfb6c2c1c428fe" ] || [ "$(/usr/bin/sha1sum $ODOO_WORK_DIR/bootstrap | /usr/bin/awk '{ print $1}')" = "56f5b836e417fa9c6b1d8cdc2afe5a96c91205a5" ]; then
     /usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/v.21.05.10/bootstrap -o $ODOO_WORK_DIR/bootstrap
     /bin/sed -i "s/^LIBRARIES_VERSION_BRANCH='.*'/LIBRARIES_VERSION_BRANCH='v.21.05.10'/gI" $ODOO_WORK_DIR/bootstrap
     $ODOO_WORK_DIR/bootstrap
