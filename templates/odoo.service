@@ -1,12 +1,14 @@
 [Unit]
 Description=odoo
 After=network.target
+After=postgresql.service
+Requires=postgresql.service
 
 [Service]
 Type=simple
 User=ubuntu
 WorkingDirectory=/home/ubuntu/odoo
-ExecStart= . /home/ubuntu/odoo/.env-shared && . /home/ubuntu/odoo/.env-secret && . /home/ubuntu/odoo/.venv/bin/activate && /home/ubuntu/odoo/.venv/bin/odoo --logfile /home/ubuntu/odoo/logfile/odoo.log -c /home/ubuntu/odoo/auto/odoo.conf
+ExecStart=/home/ubuntu/odoo/odoo-service
 KillMode=mixed
 
 [Install]

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$SCRIPT_PATH
+. $SCRIPT_PATH/.env-shared && \
+. $SCRIPT_PATH/.env-secret
+cd $ODOO_WORK_DIR
+
+. $ODOO_WORK_DIR/.venv/bin/activate
+
+$ODOO_WORK_DIR/.venv/bin/odoo --logfile $ODOO_WORK_DIR/logfile/odoo.log -c $ODOO_WORK_DIR/auto/odoo.conf

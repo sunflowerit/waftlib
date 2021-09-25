@@ -138,6 +138,7 @@ cd $ODOO_WORK_DIR && [ ! -e upgrade ] && /bin/ln -sf waftlib/upgrade
 cd $ODOO_WORK_DIR && [ ! -e run ] && /bin/ln -sf waftlib/run
 cd $ODOO_WORK_DIR && [ ! -e shell ] && /bin/ln -sf waftlib/shell
 cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/migrate
+cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/odoo-service
 
 # set permissions
 /bin/chmod 750 $ODOO_WORK_DIR || true
@@ -151,6 +152,7 @@ cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/migrate
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/shell || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/migrate || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/initial-database || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/odoo-service || true
 /bin/chmod 740 $ODOO_WORK_DIR/waftlib/bin/* || true
 /bin/chmod 750 $ODOO_WORK_DIR/common || true
 /bin/chmod 750 $ODOO_WORK_DIR/common/build.d || true
@@ -176,4 +178,4 @@ cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/migrate
 /bin/chmod 740 $ODOO_WORK_DIR/initial-database || true
 /bin/chmod 740 $ODOO_WORK_DIR/install || true
 /bin/chmod 740 $ODOO_WORK_DIR/run || true
-
+/bin/chmod 740 $ODOO_WORK_DIR/odoo-service || true
