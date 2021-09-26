@@ -64,8 +64,8 @@ if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -gt '14' ]; then
   exit 1
 fi
 
-if [ ! -f $ODOO_WORK_DIR/.python-version ]; then
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.python-version $ODOO_WORK_DIR/
+if [ ! -e $ODOO_WORK_DIR/.python-version ]; then
+  /bin/ln -sf $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.python-version $ODOO_WORK_DIR/
 fi
 
 if [ ! -e $ODOO_WORK_DIR/requirements.txt ]; then
@@ -98,9 +98,9 @@ if [ ! -f $VIRTUALENV ]; then
 wget https://bootstrap.pypa.io/virtualenv.pyz -O $VIRTUALENV
 fi
 
-PYENV_ROOT=$ODOO_WORK_DIR/.pyenv
-PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
-PYENV=$PYENV_ROOT/bin/pyenv
+export PYENV_ROOT=$ODOO_WORK_DIR/.pyenv
+export PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+export PYENV=$PYENV_ROOT/bin/pyenv
 
 eval "$($PYENV init -)"
 
