@@ -50,26 +50,13 @@ cp waftlib/templates/13.0/.env-shared .env-secret
 ```
 
 When successful, now we can prepare for building Odoo:
-
-```
-vi common/conf.d/odoo.conf  # Take a look at odoo config file template. You can use ENVIRONMENT
-                            # variables here.
-
-vi common/conf.d/override-odoo.conf  # Override odoo config variables as you like. You can use
-                                     # ENVIRONMENT variables here.
-
-vi .env-shared  # Take a look at shared defaults that apply for all clones of this instance,
-                # you can remove it and copy it from waftlib/templates/13.0/.env-shared and
-                # modify it as you like. NOTE: don't put secret variables valus in this file.
-
-vi .env-secret  # local overrides such as DBFILTER, PGDATABASE, PGUSER etc
-
-vi custom/src/repos.yaml  # https://github.com/Tecnativa/doodba#optodoocustomsrcreposyaml
-
-vi custom/sec/addons.yaml  # https://github.com/Tecnativa/doodba#optodoocustomsrcaddonsyaml
-
-./build
-```
+- Take a look at default odoo config file `vi common/conf.d/odoo.conf`.
+- Override odoo config variables as you like `vi common/conf.d/override-odoo.conf`. You can use ENVIRONMENT variables here
+- Take a look at defaults shared variables `vi .env-shared` that apply for all clones of this instance, you can replace the link to templet file with a regular file and modify it as you like. NOTE: don't put secret variables values in this file.
+- You can override variables in `.env-shared` by putting it in `.env-secret` such as DBFILTER, PGDATABASE, PGUSER etc
+- Take a look at default [`custom/src/repos.yaml`](https://github.com/Tecnativa/doodba#optodoocustomsrcreposyaml), if you like to modify it replace the link with a regular file.
+- Take a look at default [`custom/sec/addons.yaml`](https://github.com/Tecnativa/doodba#optodoocustomsrcaddonsyaml), if you like to modify it replace the link with a regular file.
+- Issue build script `./build`
 
 Now we can create database and run Odoo:
 
@@ -146,7 +133,8 @@ odoo -c auto/odoo.conf --help
 
 - Stop odoo.
 - Open shell in your waft project directory.
-- `pipenv run pip freeze > requirements.txt`.
+- Issue `pipenv run pip freeze > requirements.txt`, you don't need to do that if you didn't modify the default Pipfile.
+- Take care about python version, if you don't have the same default python version in `waftlib/templates/13.0/.python-version #for odoo 13.0 in example` you should create a regular `.python-version` file in the main directory with your python version. you don't need to do that if you didn't modify the default Pipfile.
 - Remove `Pipfile`.
 - Remove `Pipfile.lock`.
 - Remove `.venv` directory.
@@ -154,10 +142,10 @@ odoo -c auto/odoo.conf --help
 - If you didn't modify the default `common/conf.d/odoo.cfg` remove it.
 - If you didn't modify the default `custom/src/addons.yaml` remove it.
 - If you didn't modify the default `custom/src/repos.yaml` remove it.
-- `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/bootstrap -o bootstrap`
-- `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/.gitignore -o .gitignore`
-- `./bootstrap`
-- `./build`
+- Issue `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/bootstrap -o bootstrap`
+- Issue `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/.gitignore -o .gitignore`
+- Issue `./bootstrap`
+- Issue `./build`
 - Start odoo.
 
 ## What if I still want to use Docker?
