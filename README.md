@@ -131,6 +131,24 @@ source .venv/bin/activate
 odoo -c auto/odoo.conf --help
 ```
 
+## Upgrade waftlib from `v.21.05.10` to `v.21.09.22` version:
+
+- Stop odoo.
+- Open shell in your waft project directory.
+- `pipenv run pip freeze > requirements.txt`.
+- Remove `Pipfile`.
+- Remove `Pipfile.lock`.
+- Remove `.venv` directory.
+- If you didn't modify the default `.env-shared` remove it.
+- If you didn't modify the default `common/conf.d/odoo.cfg` remove it.
+- If you didn't modify the default `custom/src/addons.yaml` remove it.
+- If you didn't modify the default `custom/src/repos.yaml` remove it.
+- `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/bootstrap -o bootstrap`
+- `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/bootstrap -o bootstrap`
+- `./bootstrap`
+- `./build`
+- Start odoo.
+
 ## What if I still want to use Docker?
 
 You can! Just define a `Dockerfile` at the root of your project and do all things you need to do to get a working OS that supports Waft. For example: use `Ubuntu 20.04` base image, install `npm`, `lessc`, `libpython-dev`, `wkhtmltopdf`, `Postgres`, run `./bootstrap`, `./build`, `./run`.
