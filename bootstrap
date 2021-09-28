@@ -64,7 +64,7 @@ if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -gt '14' ]; then
   exit 1
 fi
 
-if [ ! -f $ODOO_WORK_DIR/.python-version ] || [ -e $ODOO_WORK_DIR/.python-version ]; then
+if [ ! -f $ODOO_WORK_DIR/.python-version ] || [ -L $ODOO_WORK_DIR/.python-version ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.python-version
 fi
 
@@ -94,83 +94,83 @@ if [ ! -d $ODOO_WORK_DIR/.venv ]; then
   python $VIRTUALENV .venv
 fi
 
-if [ ! -f $ODOO_WORK_DIR/build ] || [ -e $ODOO_WORK_DIR/build ]; then
+if [ ! -f $ODOO_WORK_DIR/build ] || [ -L $ODOO_WORK_DIR/build ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/build
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/build.d/); do
-  if [ ! -f $ODOO_WORK_DIR/common/build.d/$fiLe ] || [ -e $ODOO_WORK_DIR/common/build.d/$fiLe ]; then
+  if [ ! -f $ODOO_WORK_DIR/common/build.d/$fiLe ] || [ -L $ODOO_WORK_DIR/common/build.d/$fiLe ]; then
     cd $ODOO_WORK_DIR/common/build.d && /bin/ln -sf ../../waftlib/build.d/$fiLe
     cd $ODOO_WORK_DIR
   fi
 done
 
-if [ ! -f $ODOO_WORK_DIR/common/build ] || [ -e $ODOO_WORK_DIR/common/build ]; then
+if [ ! -f $ODOO_WORK_DIR/common/build ] || [ -L $ODOO_WORK_DIR/common/build ]; then
   cd $ODOO_WORK_DIR/common && /bin/ln -sf ../waftlib/bin/direxec build
   cd $ODOO_WORK_DIR
 fi
 
-if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ] || [ -e $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
+if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ] || [ -L $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
   cd $ODOO_WORK_DIR/common/conf.d && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/odoo.cfg
   cd $ODOO_WORK_DIR
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/entrypoint.d/); do
-  if [ ! -f $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ] || [ -e $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ]; then
+  if [ ! -f $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ] || [ -L $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ]; then
     cd $ODOO_WORK_DIR/common/entrypoint.d && /bin/ln -sf ../../waftlib/entrypoint.d/$fiLe
     cd $ODOO_WORK_DIR
   fi
 done
 
-if [ ! -f $ODOO_WORK_DIR/common/entrypoint ] || [ -e $ODOO_WORK_DIR/common/entrypoint ]; then
+if [ ! -f $ODOO_WORK_DIR/common/entrypoint ] || [ -L $ODOO_WORK_DIR/common/entrypoint ]; then
   cd $ODOO_WORK_DIR/common && /bin/ln -sf ../waftlib/bin/direxec entrypoint
   cd $ODOO_WORK_DIR
 fi
 
-if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ] || [ -e $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
+if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ] || [ -L $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
   cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/addons.yaml
   cd $ODOO_WORK_DIR
 fi
 
-if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ] || [ -e $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
+if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ] || [ -L $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
   cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/repos.yaml
   cd $ODOO_WORK_DIR
 fi
 
-if [ ! -f $ODOO_WORK_DIR/initial-database ] || [ -e $ODOO_WORK_DIR/initial-database ]; then
+if [ ! -f $ODOO_WORK_DIR/initial-database ] || [ -L $ODOO_WORK_DIR/initial-database ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/initial-database
 fi
 
-if [ ! -f $ODOO_WORK_DIR/install ] || [ -e $ODOO_WORK_DIR/install ]; then
+if [ ! -f $ODOO_WORK_DIR/install ] || [ -L $ODOO_WORK_DIR/install ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/install
 fi
 
-if [ ! -f $ODOO_WORK_DIR/migrate ] || [ -e $ODOO_WORK_DIR/migrate ]; then
+if [ ! -f $ODOO_WORK_DIR/migrate ] || [ -L $ODOO_WORK_DIR/migrate ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/migrate
 fi
 
-if [ ! -f $ODOO_WORK_DIR/odoo-service ] || [ -e $ODOO_WORK_DIR/odoo-service ]; then
+if [ ! -f $ODOO_WORK_DIR/odoo-service ] || [ -L $ODOO_WORK_DIR/odoo-service ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/odoo-service
 fi
 
-if [ ! -f $ODOO_WORK_DIR/requirements.txt ] || [ -e $ODOO_WORK_DIR/requirements.txt ]; then
+if [ ! -f $ODOO_WORK_DIR/requirements.txt ] || [ -L $ODOO_WORK_DIR/requirements.txt ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/requirements.txt
 fi
 
-if [ ! -f $ODOO_WORK_DIR/run ] || [ -e $ODOO_WORK_DIR/run ]; then
+if [ ! -f $ODOO_WORK_DIR/run ] || [ -L $ODOO_WORK_DIR/run ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/run
 fi
 
-if [ ! -f $ODOO_WORK_DIR/shell ] || [ -e $ODOO_WORK_DIR/shell ]; then
+if [ ! -f $ODOO_WORK_DIR/shell ] || [ -L $ODOO_WORK_DIR/shell ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/shell
 fi
 
-if [ ! -f $ODOO_WORK_DIR/upgrade ] || [ -e $ODOO_WORK_DIR/upgrade ]; then
+if [ ! -f $ODOO_WORK_DIR/upgrade ] || [ -L $ODOO_WORK_DIR/upgrade ]; then
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/upgrade
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/bin/); do
-  if [ ! -f $ODOO_WORK_DIR/.venv/bin/$fiLe ] || [ -e $ODOO_WORK_DIR/.venv/bin/$fiLe ]; then
+  if [ ! -f $ODOO_WORK_DIR/.venv/bin/$fiLe ] || [ -L $ODOO_WORK_DIR/.venv/bin/$fiLe ]; then
     cd $ODOO_WORK_DIR/.venv/bin && /bin/ln -sf ../../waftlib/bin/$fiLe
     cd $ODOO_WORK_DIR
   fi
@@ -180,7 +180,7 @@ done
 cd $ODOO_WORK_DIR/.venv/lib/*/site-packages && /bin/mkdir -p waftlib
 cd $ODOO_WORK_DIR
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/waftlib/); do
-  if [ ! -f $ODOO_WORK_DIR/waftlib/waftlib/$fiLe ] || [ -e $ODOO_WORK_DIR/waftlib/waftlib/$fiLe ]; then
+  if [ ! -f $ODOO_WORK_DIR/waftlib/waftlib/$fiLe ] || [ -L $ODOO_WORK_DIR/waftlib/waftlib/$fiLe ]; then
     cd $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib && /bin/ln -sf ../../../../../waftlib/waftlib/$fiLe
     cd $ODOO_WORK_DIR
   fi
