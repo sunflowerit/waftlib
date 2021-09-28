@@ -180,7 +180,7 @@ done
 cd $ODOO_WORK_DIR/.venv/lib/*/site-packages && /bin/mkdir -p waftlib
 cd $ODOO_WORK_DIR
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/waftlib/); do
-  if [ ! -f $ODOO_WORK_DIR/waftlib/waftlib/$fiLe ] || [ -L $ODOO_WORK_DIR/waftlib/waftlib/$fiLe ]; then
+  if [ ! -f $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib/$fiLe ] || [ -L $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib/$fiLe ]; then
     cd $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib && /bin/ln -sf ../../../../../waftlib/waftlib/$fiLe
     cd $ODOO_WORK_DIR
   fi
