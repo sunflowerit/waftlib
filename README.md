@@ -54,14 +54,20 @@ When successful, now we can prepare for building Odoo:
 ```
 vi common/conf.d/odoo.conf  # Take a look at odoo config file template. You can use ENVIRONMENT
                             # variables here.
+
 vi common/conf.d/override-odoo.conf  # Override odoo config variables as you like. You can use
                                      # ENVIRONMENT variables here.
+
 vi .env-shared  # Take a look at shared defaults that apply for all clones of this instance,
                 # you can remove it and copy it from waftlib/templates/13.0/.env-shared and
                 # modify it as you like. NOTE: don't put secret variables valus in this file.
+
 vi .env-secret  # local overrides such as DBFILTER, PGDATABASE, PGUSER etc
+
 vi custom/src/repos.yaml  # https://github.com/Tecnativa/doodba#optodoocustomsrcreposyaml
+
 vi custom/sec/addons.yaml  # https://github.com/Tecnativa/doodba#optodoocustomsrcaddonsyaml
+
 ./build
 ```
 
