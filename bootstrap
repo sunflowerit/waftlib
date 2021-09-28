@@ -20,7 +20,7 @@ if [ -z "$LIBRARIES_VERSION_BRANCH" ]; then
 fi
 
 if [ -f $ODOO_WORK_DIR/pipenv ]; then
-  rm -f $ODOO_WORK_DIR/pipenv
+  /bin/rm -f $ODOO_WORK_DIR/pipenv
 fi
 
 /bin/mkdir -p $ODOO_WORK_DIR/auto/addons/
@@ -64,24 +64,8 @@ if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -gt '14' ]; then
   exit 1
 fi
 
-if [ ! -e $ODOO_WORK_DIR/.python-version ]; then
-  /bin/ln -sf $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.python-version $ODOO_WORK_DIR/
-fi
-
-if [ ! -e $ODOO_WORK_DIR/requirements.txt ]; then
-  /bin/ln -sf $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/requirements.txt $ODOO_WORK_DIR/
-fi
-
-if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/odoo.cfg $ODOO_WORK_DIR/common/conf.d/
-fi
-
-if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/repos.yaml $ODOO_WORK_DIR/custom/src/
-fi
-
-if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/addons.yaml $ODOO_WORK_DIR/custom/src/
+if [ ! -f $ODOO_WORK_DIR/.python-version ] || [ -e $ODOO_WORK_DIR/.python-version ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.python-version
 fi
 
 if [ ! -f "$ODOO_WORK_DIR/.python-version" ]; then
@@ -95,7 +79,7 @@ fi
 
 VIRTUALENV=$ODOO_WORK_DIR/.pyenv/bin/virtualenv.pyz
 if [ ! -f $VIRTUALENV ]; then
-wget https://bootstrap.pypa.io/virtualenv.pyz -O $VIRTUALENV
+  /usr/bin/wget https://bootstrap.pypa.io/virtualenv.pyz -O $VIRTUALENV
 fi
 
 export PYENV_ROOT=$ODOO_WORK_DIR/.pyenv
@@ -110,72 +94,137 @@ if [ ! -d $ODOO_WORK_DIR/.venv ]; then
   python $VIRTUALENV .venv
 fi
 
-# in .gitignore so not overridable
-cd $ODOO_WORK_DIR/.venv/lib/*/site-packages && \
-/bin/mkdir -p waftlib && \
-cd waftlib && \
-for f in ../../../../../waftlib/waftlib/*; do /bin/ln -sf $f; done
+if [ ! -f $ODOO_WORK_DIR/build ] || [ -e $ODOO_WORK_DIR/build ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/build
+fi
 
-cd $ODOO_WORK_DIR/.venv/bin && \
-for f in ../../waftlib/bin/*; do /bin/ln -sf $f; done
+for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/build.d/); do
+  if [ ! -f $ODOO_WORK_DIR/common/build.d/$fiLe ] || [ -e $ODOO_WORK_DIR/common/build.d/$fiLe ]; then
+    cd $ODOO_WORK_DIR/common/build.d && /bin/ln -sf ../../waftlib/build.d/$fiLe
+    cd $ODOO_WORK_DIR
+  fi
+done
+
+if [ ! -f $ODOO_WORK_DIR/common/build ] || [ -e $ODOO_WORK_DIR/common/build ]; then
+  cd $ODOO_WORK_DIR/common && /bin/ln -sf ../waftlib/bin/direxec build
+  cd $ODOO_WORK_DIR
+fi
+
+if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ] || [ -e $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
+  cd $ODOO_WORK_DIR/common/conf.d && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/odoo.cfg
+  cd $ODOO_WORK_DIR
+fi
+
+for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/entrypoint.d/); do
+  if [ ! -f $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ] || [ -e $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ]; then
+    cd $ODOO_WORK_DIR/common/entrypoint.d && /bin/ln -sf ../../waftlib/entrypoint.d/$fiLe
+    cd $ODOO_WORK_DIR
+  fi
+done
+
+if [ ! -f $ODOO_WORK_DIR/common/entrypoint ] || [ -e $ODOO_WORK_DIR/common/entrypoint ]; then
+  cd $ODOO_WORK_DIR/common && /bin/ln -sf ../waftlib/bin/direxec entrypoint
+  cd $ODOO_WORK_DIR
+fi
+
+if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ] || [ -e $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
+  cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/addons.yaml
+  cd $ODOO_WORK_DIR
+fi
+
+if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ] || [ -e $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
+  cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/repos.yaml
+  cd $ODOO_WORK_DIR
+fi
+
+if [ ! -f $ODOO_WORK_DIR/initial-database ] || [ -e $ODOO_WORK_DIR/initial-database ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/initial-database
+fi
+
+if [ ! -f $ODOO_WORK_DIR/install ] || [ -e $ODOO_WORK_DIR/install ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/install
+fi
+
+if [ ! -f $ODOO_WORK_DIR/migrate ] || [ -e $ODOO_WORK_DIR/migrate ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/migrate
+fi
+
+if [ ! -f $ODOO_WORK_DIR/odoo-service ] || [ -e $ODOO_WORK_DIR/odoo-service ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/odoo-service
+fi
+
+if [ ! -f $ODOO_WORK_DIR/requirements.txt ] || [ -e $ODOO_WORK_DIR/requirements.txt ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/requirements.txt
+fi
+
+if [ ! -f $ODOO_WORK_DIR/run ] || [ -e $ODOO_WORK_DIR/run ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/run
+fi
+
+if [ ! -f $ODOO_WORK_DIR/shell ] || [ -e $ODOO_WORK_DIR/shell ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/shell
+fi
+
+if [ ! -f $ODOO_WORK_DIR/upgrade ] || [ -e $ODOO_WORK_DIR/upgrade ]; then
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/upgrade
+fi
+
+for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/bin/); do
+  if [ ! -f $ODOO_WORK_DIR/.venv/bin/$fiLe ] || [ -e $ODOO_WORK_DIR/.venv/bin/$fiLe ]; then
+    cd $ODOO_WORK_DIR/.venv/bin && /bin/ln -sf ../../waftlib/bin/$fiLe
+    cd $ODOO_WORK_DIR
+  fi
+done
 /bin/rm -fr $ODOO_WORK_DIR/.venv/bin/direxec
 
-# not in .gitignore so overridable
-cd $ODOO_WORK_DIR/common && \
-[ ! -e build ] && /bin/ln -sf ../waftlib/bin/direxec build && \
-[ ! -e entrypoint ] && /bin/ln -sf ../waftlib/bin/direxec entrypoint
-
-cd $ODOO_WORK_DIR/common/build.d && \
-for f in ../../waftlib/build.d/*; do [ ! -e $(/usr/bin/basename $f) ] && /bin/ln -sf $f $(/usr/bin/basename $f); done
-
-cd $ODOO_WORK_DIR/common/entrypoint.d && \
-for f in ../../waftlib/entrypoint.d/*; do [ ! -e $(/usr/bin/basename $f) ] && /bin/ln -sf $f $(/usr/bin/basename $f); done
-
-cd $ODOO_WORK_DIR && [ ! -e build ] && /bin/ln -sf waftlib/build
-cd $ODOO_WORK_DIR && [ ! -e initial-database ] && /bin/ln -sf waftlib/initial-database
-cd $ODOO_WORK_DIR && [ ! -e install ] && /bin/ln -sf waftlib/install
-cd $ODOO_WORK_DIR && [ ! -e upgrade ] && /bin/ln -sf waftlib/upgrade
-cd $ODOO_WORK_DIR && [ ! -e run ] && /bin/ln -sf waftlib/run
-cd $ODOO_WORK_DIR && [ ! -e shell ] && /bin/ln -sf waftlib/shell
-cd $ODOO_WORK_DIR && [ ! -e migrate ] && /bin/ln -sf waftlib/migrate
-cd $ODOO_WORK_DIR && [ ! -e odoo-service ] && /bin/ln -sf waftlib/odoo-service
+cd $ODOO_WORK_DIR/.venv/lib/*/site-packages && /bin/mkdir -p waftlib
+cd $ODOO_WORK_DIR
+for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/waftlib/); do
+  if [ ! -f $ODOO_WORK_DIR/waftlib/waftlib/$fiLe ] || [ -e $ODOO_WORK_DIR/waftlib/waftlib/$fiLe ]; then
+    cd $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib && /bin/ln -sf ../../../../../waftlib/waftlib/$fiLe
+    cd $ODOO_WORK_DIR
+  fi
+done
 
 # set permissions
 /bin/chmod 750 $ODOO_WORK_DIR || true
 /bin/chmod 750 $ODOO_WORK_DIR/auto || true
 /bin/chmod 750 $ODOO_WORK_DIR/auto/addons || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/bin || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/build || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/run || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/install || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/upgrade || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/shell || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/migrate || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/initial-database || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/odoo-service || true
-/bin/chmod 740 $ODOO_WORK_DIR/waftlib/bin/* || true
+/bin/chmod 740 $ODOO_WORK_DIR/bootstrap || true
+/bin/chmod 740 $ODOO_WORK_DIR/build || true
 /bin/chmod 750 $ODOO_WORK_DIR/common || true
-/bin/chmod 750 $ODOO_WORK_DIR/common/build.d || true
-/bin/chmod 740 $ODOO_WORK_DIR/common/build.d/* || true
 /bin/chmod 750 $ODOO_WORK_DIR/common/conf.d || true
 /bin/chmod -f 640 $ODOO_WORK_DIR/common/conf.d/odoo.cfg || true
 /bin/chmod 750 $ODOO_WORK_DIR/common/entrypoint.d || true
 /bin/chmod 740 $ODOO_WORK_DIR/common/entrypoint.d/* || true
+/bin/chmod 750 $ODOO_WORK_DIR/common/build.d || true
+/bin/chmod 740 $ODOO_WORK_DIR/common/build.d/* || true
 /bin/chmod 750 $ODOO_WORK_DIR/custom || true
 /bin/chmod 750 $ODOO_WORK_DIR/custom/src || true
-/bin/chmod 750 $ODOO_WORK_DIR/custom/src/private/ || true
 /bin/chmod -f 640 $ODOO_WORK_DIR/custom/src/addons.yaml || true
+/bin/chmod 750 $ODOO_WORK_DIR/custom/src/private/ || true
 /bin/chmod -f 640 $ODOO_WORK_DIR/custom/src/repos.yaml || true
-/bin/chmod 750 $ODOO_WORK_DIR/waftlib/waftlib || true
-/bin/chmod 740 $ODOO_WORK_DIR/waftlib/waftlib/* || true
+/bin/chmod -f 600 $ODOO_WORK_DIR/.env-shared || true
+/bin/chmod -f 600 $ODOO_WORK_DIR/.env-secret || true
+/bin/chmod 740 $ODOO_WORK_DIR/initial-database || true
+/bin/chmod 740 $ODOO_WORK_DIR/install || true
+/bin/chmod 740 $ODOO_WORK_DIR/odoo-service || true
+/bin/chmod 640 $ODOO_WORK_DIR/.python-version || true
+/bin/chmod 640 $ODOO_WORK_DIR/requirements.txt || true
+/bin/chmod 740 $ODOO_WORK_DIR/run || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/bin || true
+/bin/chmod 740 $ODOO_WORK_DIR/waftlib/bin/* || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/build || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/initial-database || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/install || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/migrate || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/odoo-service || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/run || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/shell || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/upgrade || true
 /bin/chmod 640 $ODOO_WORK_DIR/waftlib/templates/* || true
 /bin/chmod 740 $ODOO_WORK_DIR/waftlib/templates/*.0 || true
 /bin/chmod 640 $ODOO_WORK_DIR/waftlib/templates/*/* || true
-/bin/chmod -f 600 $ODOO_WORK_DIR/.env-shared || true
-/bin/chmod -f 600 $ODOO_WORK_DIR/.env-secret || true
-/bin/chmod 740 $ODOO_WORK_DIR/bootstrap || true
-/bin/chmod 740 $ODOO_WORK_DIR/build || true
-/bin/chmod 740 $ODOO_WORK_DIR/initial-database || true
-/bin/chmod 740 $ODOO_WORK_DIR/install || true
-/bin/chmod 740 $ODOO_WORK_DIR/run || true
-/bin/chmod 740 $ODOO_WORK_DIR/odoo-service || true
+/bin/chmod 750 $ODOO_WORK_DIR/waftlib/waftlib || true
+/bin/chmod 740 $ODOO_WORK_DIR/waftlib/waftlib/* || true
+
