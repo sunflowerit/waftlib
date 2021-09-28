@@ -144,7 +144,7 @@ odoo -c auto/odoo.conf --help
 - If you didn't modify the default `custom/src/addons.yaml` remove it.
 - If you didn't modify the default `custom/src/repos.yaml` remove it.
 - `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/bootstrap -o bootstrap`
-- `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/bootstrap -o bootstrap`
+- `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/.gitignore -o .gitignore`
 - `./bootstrap`
 - `./build`
 - Start odoo.
