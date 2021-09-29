@@ -1,3 +1,4 @@
+pyyaml==5.4.1
 appdirs==1.4.4
 argcomplete==1.12.3
 argh==0.26.2
@@ -97,7 +98,6 @@ python-openid==2.2.5
 python-stdnum==1.16
 pytz==2016.7
 pyusb==1.0.2
-PyYAML==5.4.1
 qrcode==5.3
 reportlab==3.3.0
 requests==2.20.0
