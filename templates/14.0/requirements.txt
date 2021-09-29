@@ -55,7 +55,6 @@ psutil==5.6.6
 psycopg2==2.8.3
 ptvsd==5.0.0a4
 pudb==2019.1
-pycups==2.0.1
 pydot==1.4.1
 Pygments==2.10.0
 pyldap==2.4.28
