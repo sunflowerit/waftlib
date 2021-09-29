@@ -51,7 +51,6 @@ newrelic==6.8.1.164
 num2words==0.5.6
 ofxparse==0.20
 olefile==0.46
-openupgradelib==2.0.0
 pandas==0.24.2
 parso==0.8.2
 passlib==1.6.5

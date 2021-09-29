@@ -57,7 +57,6 @@ oauthlib==3.1.0
 OdooRPC==0.8.0
 ofxparse==0.20
 olefile==0.46
-openupgradelib==2.0.0
 pandas==0.24.2
 paramiko==2.7.2
 parso==0.7.1
