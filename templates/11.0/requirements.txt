@@ -68,6 +68,7 @@ pudb==2019.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
+pycups==2.0.1
 pydot==1.2.3
 Pygments==2.10.0
 PyJWT==1.7.1
