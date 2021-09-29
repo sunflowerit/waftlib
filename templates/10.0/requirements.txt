@@ -74,7 +74,7 @@ ptvsd==5.0.0a4
 pudb==2019.1
 py-spy==0.3.9
 pyasn1==0.4.8
-pyasn1-modules==0.2.8
+pyasn1-modules==2.8
 pycparser==2.0.1
 pycups==1.9.74
 pydot==1.2.3
