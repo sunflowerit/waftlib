@@ -83,7 +83,6 @@ suds-jurko==0.6
 typing==3.10.0.0
 uncompyle6==3.7.4
 Unidecode==1.1.1
-unidecode==1.1.1
 unittest2==0.5.1
 urllib3==1.26.4
 urwid==2.1.2
