@@ -39,7 +39,6 @@ git+https://github.com/StefanRijnhart/python-magento.git#egg=python-magento
 Mako==1.0.0
 MarkupSafe==0.23
 mock==1.0.1
-models==0.9.3
 numpy==1.16.6
 OdooRPC==0.7.0
 ofxparse==0.20
