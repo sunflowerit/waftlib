@@ -8,19 +8,17 @@ cd $ODOO_WORK_DIR
 
 if [ -z "$LIBRARIES_VERSION_BRANCH" ]; then
   if [ "$(/usr/bin/sha1sum $ODOO_WORK_DIR/bootstrap | /usr/bin/awk '{ print $1}')" = "7b53eaced73cc36675859da32bdfb6c2c1c428fe" ] || [ "$(/usr/bin/sha1sum $ODOO_WORK_DIR/bootstrap | /usr/bin/awk '{ print $1}')" = "56f5b836e417fa9c6b1d8cdc2afe5a96c91205a5" ]; then
-    /usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/master/bootstrap -o $ODOO_WORK_DIR/bootstrap
-    /bin/sed -i "s/^export LIBRARIES_VERSION_BRANCH='.*'/export LIBRARIES_VERSION_BRANCH='v.21.05.10'/gI" $ODOO_WORK_DIR/bootstrap
+    /bin/echo "INFO: Update bootstrap script."
+    /usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/40fa1701a3bd29dd623c2a5a76dedfe66398c28e/bootstrap -o $ODOO_WORK_DIR/bootstrap
+    /bin/echo "INFO: Run bootstrap script again."
     $ODOO_WORK_DIR/bootstrap
+    /bin/echo "INFO: END"
     exit 0
   else
-    /bin/echo "$ODOO_WORK_DIR/bootstrap files does not have 'LIBRARIES_VERSION_BRANCH' variable! update it by this command:"
-    /bin/echo "  /usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/a6d02d7215733c0ac2d32e87ee497b8653b9551f/bootstrap -o $ODOO_WORK_DIR/bootstrap"
+    /bin/echo "ERROR: $ODOO_WORK_DIR/bootstrap files does not have 'LIBRARIES_VERSION_BRANCH' variable! update it by this command:"
+    /bin/echo "  /usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/40fa1701a3bd29dd623c2a5a76dedfe66398c28e/bootstrap -o $ODOO_WORK_DIR/bootstrap"
     exit 1
   fi
-fi
-
-if [ -f $ODOO_WORK_DIR/pipenv ]; then
-  /bin/rm -f $ODOO_WORK_DIR/pipenv
 fi
 
 /bin/mkdir -p $ODOO_WORK_DIR/auto/addons/
@@ -33,53 +31,68 @@ if [ ! -f $ODOO_WORK_DIR/.env-shared ]; then
   if [ -f $ODOO_WORK_DIR/.env-secret ]; then
     . $ODOO_WORK_DIR/.env-secret
     if [ "$ODOO_VERSION" != "" ]; then
-      cd $ODOO_WORK_DIR && /bin/ln -sf $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared
+      /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
+      cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
     else
-      /bin/echo "You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
+      /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
       exit 1
     fi
   else
     if [ "$ODOO_VERSION" != "" ]; then
-      cd $ODOO_WORK_DIR && /bin/ln -sf $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared
+      /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
+      cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
     else
-      /bin/echo "Link $ODOO_WORK_DIR/waftlib/templates/ODOO_VERSION/.env-shared to $ODOO_WORK_DIR manually"
-      /bin/echo "or define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
+      /bin/echo "ERROR: 'ODOO_VERSION' variable does not exist you should:"
+      /bin/echo "    link $ODOO_WORK_DIR/waftlib/templates/ODOO_VERSION/.env-shared to $ODOO_WORK_DIR manually"
+      /bin/echo "    or define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret."
       exit 1
     fi
   fi
 fi
 
-/usr/bin/touch $ODOO_WORK_DIR/.env-secret
+if [ ! -f /usr/bin/touch $ODOO_WORK_DIR/.env-secret ]; then
+  /bin/echo "INFO: Touch $ODOO_WORK_DIR/.env-secret file."
+  /usr/bin/touch $ODOO_WORK_DIR/.env-secret
+fi
 
 . $ODOO_WORK_DIR/.env-shared && \
 . $ODOO_WORK_DIR/.env-secret
 
 if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -lt '8' ]; then
-  /bin/echo "Waft does not support $ODOO_VERSION"
+  /bin/echo "ERROR: Waft does not support $ODOO_VERSION yet."
   exit 1
 fi
 
 if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -gt '14' ]; then
-  /bin/echo "Waft does not support $ODOO_VERSION yet"
+  /bin/echo "ERROR: Waft does not support $ODOO_VERSION yet."
   exit 1
 fi
 
 if [ ! -f $ODOO_WORK_DIR/.python-version ] || [ -L $ODOO_WORK_DIR/.python-version ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.python-version to $ODOO_WORK_DIR/.python-version"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.python-version
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/.python-version not a default link"
 fi
 
 if [ ! -f "$ODOO_WORK_DIR/.python-version" ]; then
-  /bin/echo "You should create .python-version variable in $ODOO_WORK_DIR"
+  /bin/echo "ERROR: You should create .python-version variable in $ODOO_WORK_DIR"
   exit 1
 fi
 
 if [ ! -d $ODOO_WORK_DIR/.pyenv ]; then
+  /bin/echo "INFO: Clone https://github.com/pyenv/pyenv in $ODOO_WORK_DIR/.pyenv"
   /usr/bin/git clone https://github.com/pyenv/pyenv $ODOO_WORK_DIR/.pyenv
+else
+  /bin/echo "INFO: $ODOO_WORK_DIR/.pyenv exist"
 fi
 
 VIRTUALENV=$ODOO_WORK_DIR/.pyenv/bin/virtualenv.pyz
 if [ ! -f $VIRTUALENV ]; then
+  /bin/echo "INFO: Download $VIRTUALENV"
   /usr/bin/wget https://bootstrap.pypa.io/virtualenv.pyz -O $VIRTUALENV
+else
+  /bin/echo "INFO: $VIRTUALENV exist"
 fi
 
 export PYENV_ROOT=$ODOO_WORK_DIR/.pyenv
@@ -91,88 +104,142 @@ eval "$($PYENV init -)"
 pyenv install -s
 
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
+  /bin/echo "INFO: Build virtual environment in $ODOO_WORK_DIR/.venv"
   python $VIRTUALENV .venv
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/.venv exist"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/build ] || [ -L $ODOO_WORK_DIR/build ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/build to $ODOO_WORK_DIR/build"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/build
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/build not a default link"
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/build.d/); do
   if [ ! -f $ODOO_WORK_DIR/common/build.d/$fiLe ] || [ -L $ODOO_WORK_DIR/common/build.d/$fiLe ]; then
+    /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/build.d/$fiLe to $ODOO_WORK_DIR/common/build.d/$fiLe"
     cd $ODOO_WORK_DIR/common/build.d && /bin/ln -sf ../../waftlib/build.d/$fiLe
     cd $ODOO_WORK_DIR
+  else
+    /bin/echo "WARNING: $ODOO_WORK_DIR/common/build.d/$fiLe not a default link"
   fi
 done
 
 if [ ! -f $ODOO_WORK_DIR/common/build ] || [ -L $ODOO_WORK_DIR/common/build ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/bin/direxec to $ODOO_WORK_DIR/common/build"
   cd $ODOO_WORK_DIR/common && /bin/ln -sf ../waftlib/bin/direxec build
   cd $ODOO_WORK_DIR
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/common/build not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ] || [ -L $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/odoo.cfg to $ODOO_WORK_DIR/common/conf.d/odoo.cfg"
   cd $ODOO_WORK_DIR/common/conf.d && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/odoo.cfg
   cd $ODOO_WORK_DIR
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/common/conf.d/odoo.cfg not a default link"
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/entrypoint.d/); do
   if [ ! -f $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ] || [ -L $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ]; then
+    /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/entrypoint.d/$fiLe to $ODOO_WORK_DIR/common/entrypoint.d/$fiLe"
     cd $ODOO_WORK_DIR/common/entrypoint.d && /bin/ln -sf ../../waftlib/entrypoint.d/$fiLe
     cd $ODOO_WORK_DIR
+  else
+    /bin/echo "WARNING: $ODOO_WORK_DIR/common/entrypoint.d/$fiLe not a default link"
   fi
 done
 
 if [ ! -f $ODOO_WORK_DIR/common/entrypoint ] || [ -L $ODOO_WORK_DIR/common/entrypoint ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/bin/direxec to $ODOO_WORK_DIR/common/entrypoint"
   cd $ODOO_WORK_DIR/common && /bin/ln -sf ../waftlib/bin/direxec entrypoint
   cd $ODOO_WORK_DIR
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/common/entrypoint not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ] || [ -L $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/addons.yaml to $ODOO_WORK_DIR/custom/src/addons.yaml"
   cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/addons.yaml
   cd $ODOO_WORK_DIR
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/custom/src/addons.yaml not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ] || [ -L $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/repos.yaml to $ODOO_WORK_DIR/custom/src/repos.yaml"
   cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/repos.yaml
   cd $ODOO_WORK_DIR
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/custom/src/repos.yaml not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/initial-database ] || [ -L $ODOO_WORK_DIR/initial-database ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/initial-database to $ODOO_WORK_DIR/initial-database"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/initial-database
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/initial-database not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/install ] || [ -L $ODOO_WORK_DIR/install ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/install to $ODOO_WORK_DIR/install"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/install
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/install not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/migrate ] || [ -L $ODOO_WORK_DIR/migrate ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/migrate to $ODOO_WORK_DIR/migrate"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/migrate
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/migrate not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/odoo-service ] || [ -L $ODOO_WORK_DIR/odoo-service ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/odoo-service to $ODOO_WORK_DIR/odoo-service"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/odoo-service
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/odoo-service not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/requirements.txt ] || [ -L $ODOO_WORK_DIR/requirements.txt ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/requirements.txt to $ODOO_WORK_DIR/requirements.txt"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/requirements.txt
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/requirements.txt not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/run ] || [ -L $ODOO_WORK_DIR/run ]; then
+  /bin/echo "INFO: Linke $ODOO_WORK_DIR/waftlib/run to $ODOO_WORK_DIR/run"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/run
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/run not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/shell ] || [ -L $ODOO_WORK_DIR/shell ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/shell to $ODOO_WORK_DIR/shell"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/shell
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/shell not a default link"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/upgrade ] || [ -L $ODOO_WORK_DIR/upgrade ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/upgrade to $ODOO_WORK_DIR/upgrade"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/upgrade
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/upgrade not a default link"
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/bin/); do
   if [ ! -f $ODOO_WORK_DIR/.venv/bin/$fiLe ] || [ -L $ODOO_WORK_DIR/.venv/bin/$fiLe ]; then
+    /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/bin/$fiLe to $ODOO_WORK_DIR/.venv/bin/$fiLe"
     cd $ODOO_WORK_DIR/.venv/bin && /bin/ln -sf ../../waftlib/bin/$fiLe
     cd $ODOO_WORK_DIR
+  else
+    /bin/echo "WARNING: $ODOO_WORK_DIR/.venv/bin/$fiLe not a default link"
   fi
 done
 /bin/rm -fr $ODOO_WORK_DIR/.venv/bin/direxec
@@ -181,12 +248,16 @@ cd $ODOO_WORK_DIR/.venv/lib/*/site-packages && /bin/mkdir -p waftlib
 cd $ODOO_WORK_DIR
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/waftlib/); do
   if [ ! -f $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib/$fiLe ] || [ -L $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib/$fiLe ]; then
+    /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/waftlib/$fiLe to $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib/$fiLe"
     cd $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib && /bin/ln -sf ../../../../../waftlib/waftlib/$fiLe
     cd $ODOO_WORK_DIR
+  else
+    /bin/echo "WARNING: $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib/$fiLe not a default link"
   fi
 done
 
 # set permissions
+/bin/echo "INFO: Fix files permissions"
 /bin/chmod 750 $ODOO_WORK_DIR || true
 /bin/chmod 750 $ODOO_WORK_DIR/auto || true
 /bin/chmod 750 $ODOO_WORK_DIR/auto/addons || true
@@ -227,4 +298,4 @@ done
 /bin/chmod 640 $ODOO_WORK_DIR/waftlib/templates/*/* || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/waftlib || true
 /bin/chmod 740 $ODOO_WORK_DIR/waftlib/waftlib/* || true
-
+/bin/echo "INFO: END of bootstrap $ODOO_WORK_DIR/script"
