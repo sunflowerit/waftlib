@@ -143,6 +143,10 @@ else
   /bin/echo "WARNING: $ODOO_WORK_DIR/common/conf.d/odoo.cfg not a default link"
 fi
 
+if [ -f $ODOO_WORK_DIR/common/conf.d/override-odoo.cfg ]; then
+  /bin/echo "INFO: $ODOO_WORK_DIR/common/conf.d/override-odoo.cfg exist"
+fi
+
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/entrypoint.d/); do
   if [ ! -f $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ] || [ -L $ODOO_WORK_DIR/common/entrypoint.d/$fiLe ]; then
     /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/entrypoint.d/$fiLe to $ODOO_WORK_DIR/common/entrypoint.d/$fiLe"
@@ -213,7 +217,7 @@ else
 fi
 
 if [ ! -f $ODOO_WORK_DIR/run ] || [ -L $ODOO_WORK_DIR/run ]; then
-  /bin/echo "INFO: Linke $ODOO_WORK_DIR/waftlib/run to $ODOO_WORK_DIR/run"
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/run to $ODOO_WORK_DIR/run"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/run
 else
   /bin/echo "WARNING: $ODOO_WORK_DIR/run not a default link"
