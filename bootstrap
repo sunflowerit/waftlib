@@ -72,7 +72,7 @@ if [ ! -f $ODOO_WORK_DIR/.python-version ] || [ -L $ODOO_WORK_DIR/.python-versio
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.python-version to $ODOO_WORK_DIR/.python-version"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.python-version
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/.python-version not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/.python-version not a default link!"
 fi
 
 if [ ! -f "$ODOO_WORK_DIR/.python-version" ]; then
@@ -84,7 +84,7 @@ if [ ! -d $ODOO_WORK_DIR/.pyenv ]; then
   /bin/echo "INFO: Clone https://github.com/pyenv/pyenv in $ODOO_WORK_DIR/.pyenv"
   /usr/bin/git clone https://github.com/pyenv/pyenv $ODOO_WORK_DIR/.pyenv
 else
-  /bin/echo "INFO: $ODOO_WORK_DIR/.pyenv exist"
+  /bin/echo "INFO: $ODOO_WORK_DIR/.pyenv exist!"
 fi
 
 VIRTUALENV=$ODOO_WORK_DIR/.pyenv/bin/virtualenv.pyz
@@ -92,7 +92,7 @@ if [ ! -f $VIRTUALENV ]; then
   /bin/echo "INFO: Download $VIRTUALENV"
   /usr/bin/wget https://bootstrap.pypa.io/virtualenv.pyz -O $VIRTUALENV
 else
-  /bin/echo "INFO: $VIRTUALENV exist"
+  /bin/echo "INFO: $VIRTUALENV exist!"
 fi
 
 export PYENV_ROOT=$ODOO_WORK_DIR/.pyenv
@@ -107,14 +107,14 @@ if [ ! -d $ODOO_WORK_DIR/.venv ]; then
   /bin/echo "INFO: Build virtual environment in $ODOO_WORK_DIR/.venv"
   python $VIRTUALENV .venv
 else
-  /bin/echo "INFO: $ODOO_WORK_DIR/.venv exist"
+  /bin/echo "INFO: $ODOO_WORK_DIR/.venv exist!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/build ] || [ -L $ODOO_WORK_DIR/build ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/build to $ODOO_WORK_DIR/build"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/build
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/build not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/build not a default link!"
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/build.d/); do
@@ -123,7 +123,7 @@ for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/build.d/); do
     cd $ODOO_WORK_DIR/common/build.d && /bin/ln -sf ../../waftlib/build.d/$fiLe
     cd $ODOO_WORK_DIR
   else
-    /bin/echo "WARNING: $ODOO_WORK_DIR/common/build.d/$fiLe not a default link"
+    /bin/echo "WARNING: $ODOO_WORK_DIR/common/build.d/$fiLe not a default link!"
   fi
 done
 
@@ -132,7 +132,7 @@ if [ ! -f $ODOO_WORK_DIR/common/build ] || [ -L $ODOO_WORK_DIR/common/build ]; t
   cd $ODOO_WORK_DIR/common && /bin/ln -sf ../waftlib/bin/direxec build
   cd $ODOO_WORK_DIR
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/common/build not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/common/build not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ] || [ -L $ODOO_WORK_DIR/common/conf.d/odoo.cfg ]; then
@@ -140,11 +140,11 @@ if [ ! -f $ODOO_WORK_DIR/common/conf.d/odoo.cfg ] || [ -L $ODOO_WORK_DIR/common/
   cd $ODOO_WORK_DIR/common/conf.d && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/odoo.cfg
   cd $ODOO_WORK_DIR
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/common/conf.d/odoo.cfg not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/common/conf.d/odoo.cfg not a default link!"
 fi
 
 if [ -f $ODOO_WORK_DIR/common/conf.d/override-odoo.cfg ]; then
-  /bin/echo "INFO: $ODOO_WORK_DIR/common/conf.d/override-odoo.cfg exist"
+  /bin/echo "INFO: $ODOO_WORK_DIR/common/conf.d/override-odoo.cfg exist!"
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/entrypoint.d/); do
@@ -153,7 +153,7 @@ for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/entrypoint.d/); do
     cd $ODOO_WORK_DIR/common/entrypoint.d && /bin/ln -sf ../../waftlib/entrypoint.d/$fiLe
     cd $ODOO_WORK_DIR
   else
-    /bin/echo "WARNING: $ODOO_WORK_DIR/common/entrypoint.d/$fiLe not a default link"
+    /bin/echo "WARNING: $ODOO_WORK_DIR/common/entrypoint.d/$fiLe not a default link!"
   fi
 done
 
@@ -162,7 +162,7 @@ if [ ! -f $ODOO_WORK_DIR/common/entrypoint ] || [ -L $ODOO_WORK_DIR/common/entry
   cd $ODOO_WORK_DIR/common && /bin/ln -sf ../waftlib/bin/direxec entrypoint
   cd $ODOO_WORK_DIR
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/common/entrypoint not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/common/entrypoint not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ] || [ -L $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
@@ -170,7 +170,7 @@ if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ] || [ -L $ODOO_WORK_DIR/custom/
   cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/addons.yaml
   cd $ODOO_WORK_DIR
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/custom/src/addons.yaml not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/custom/src/addons.yaml not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ] || [ -L $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
@@ -178,63 +178,63 @@ if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ] || [ -L $ODOO_WORK_DIR/custom/s
   cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/repos.yaml
   cd $ODOO_WORK_DIR
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/custom/src/repos.yaml not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/custom/src/repos.yaml not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/initial-database ] || [ -L $ODOO_WORK_DIR/initial-database ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/initial-database to $ODOO_WORK_DIR/initial-database"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/initial-database
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/initial-database not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/initial-database not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/install ] || [ -L $ODOO_WORK_DIR/install ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/install to $ODOO_WORK_DIR/install"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/install
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/install not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/install not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/migrate ] || [ -L $ODOO_WORK_DIR/migrate ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/migrate to $ODOO_WORK_DIR/migrate"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/migrate
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/migrate not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/migrate not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/odoo-service ] || [ -L $ODOO_WORK_DIR/odoo-service ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/odoo-service to $ODOO_WORK_DIR/odoo-service"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/odoo-service
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/odoo-service not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/odoo-service not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/requirements.txt ] || [ -L $ODOO_WORK_DIR/requirements.txt ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/requirements.txt to $ODOO_WORK_DIR/requirements.txt"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/requirements.txt
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/requirements.txt not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/requirements.txt not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/run ] || [ -L $ODOO_WORK_DIR/run ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/run to $ODOO_WORK_DIR/run"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/run
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/run not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/run not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/shell ] || [ -L $ODOO_WORK_DIR/shell ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/shell to $ODOO_WORK_DIR/shell"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/shell
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/shell not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/shell not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/upgrade ] || [ -L $ODOO_WORK_DIR/upgrade ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/upgrade to $ODOO_WORK_DIR/upgrade"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/upgrade
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/upgrade not a default link"
+  /bin/echo "WARNING: $ODOO_WORK_DIR/upgrade not a default link!"
 fi
 
 for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/bin/); do
@@ -243,7 +243,7 @@ for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/bin/); do
     cd $ODOO_WORK_DIR/.venv/bin && /bin/ln -sf ../../waftlib/bin/$fiLe
     cd $ODOO_WORK_DIR
   else
-    /bin/echo "WARNING: $ODOO_WORK_DIR/.venv/bin/$fiLe not a default link"
+    /bin/echo "WARNING: $ODOO_WORK_DIR/.venv/bin/$fiLe not a default link!"
   fi
 done
 /bin/rm -fr $ODOO_WORK_DIR/.venv/bin/direxec
@@ -256,7 +256,7 @@ for fiLe in $(/bin/ls -1 $ODOO_WORK_DIR/waftlib/waftlib/); do
     cd $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib && /bin/ln -sf ../../../../../waftlib/waftlib/$fiLe
     cd $ODOO_WORK_DIR
   else
-    /bin/echo "WARNING: $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib/$fiLe not a default link"
+    /bin/echo "WARNING: $ODOO_WORK_DIR/.venv/lib/*/site-packages/waftlib/$fiLe not a default link!"
   fi
 done
 
