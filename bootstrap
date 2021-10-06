@@ -107,7 +107,7 @@ if [ ! -d $ODOO_WORK_DIR/.venv ]; then
   /bin/echo "INFO: Build virtual environment in $ODOO_WORK_DIR/.venv"
   python $VIRTUALENV .venv
 else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/.venv exist"
+  /bin/echo "INFO: $ODOO_WORK_DIR/.venv exist"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/build ] || [ -L $ODOO_WORK_DIR/build ]; then
