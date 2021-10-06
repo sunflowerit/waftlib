@@ -50,7 +50,7 @@ if [ ! -f $ODOO_WORK_DIR/.env-shared ]; then
   fi
 fi
 
-if [ ! -f /usr/bin/touch $ODOO_WORK_DIR/.env-secret ]; then
+if [ ! -f $ODOO_WORK_DIR/.env-secret ]; then
   /bin/echo "INFO: Touch $ODOO_WORK_DIR/.env-secret file."
   /usr/bin/touch $ODOO_WORK_DIR/.env-secret
 fi
