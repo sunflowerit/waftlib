@@ -195,29 +195,49 @@ if [ $(/bin/echo $ODOO_EXIST_VERSION | /usr/bin/cut -d'.' -f1) -eq $(/bin/echo $
   if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/.env-shared ]; then
     /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/.env-shared $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/
   else
-    /bin/cp -fp $ODOO_WORK_DIR/.env-shared $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/
+    if [ ! -L $ODOO_WORK_DIR/.env-shared ]; then
+      /bin/cp -fp $ODOO_WORK_DIR/.env-shared $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/
+    else
+      /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/.env-shared
+    fi
   fi
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/Pipfile ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/Pipfile $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/requirements.txt ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/requirements.txt $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/
   else
-    /bin/cp -fp $ODOO_WORK_DIR/Pipfile $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/
+    if [ ! -L $ODOO_WORK_DIR/requirements.txt ]; then
+      /bin/cp -fp $ODOO_WORK_DIR/requirements.txt $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/
+    else
+      /bin/rm -fr $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/requirements.txt
+    fi
   fi
   /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/common/conf.d
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/odoo.cfg ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/odoo.cfg $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/common/conf.d/
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/override-odoo.cfg ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/override-odoo.cfg $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/common/conf.d/
   else
-    /bin/cp -fp $ODOO_WORK_DIR/common/conf.d/odoo.cfg $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/common/conf.d/
+    if [ -f $ODOO_WORK_DIR/common/conf.d/override-odoo.cfg ]; then
+      /bin/cp -fp $ODOO_WORK_DIR/common/conf.d/override-odoo.cfg $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/common/conf.d/
+    else
+      /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/common/conf.d/override-odoo.cfg
+    fi
   fi
   /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src
   if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/repos.yaml ]; then
     /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/repos.yaml $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/
   else
-    /bin/cp -fp $ODOO_WORK_DIR/custom/src/repos.yaml $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/
+    if [ ! -L $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
+      /bin/cp -fp $ODOO_WORK_DIR/custom/src/repos.yaml $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/
+    else
+      /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/repos.yaml
+    fi
   fi
   if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/addons.yaml ]; then
     /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_START_FROM_VERSION/addons.yaml $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/
   else
-    /bin/cp -fp $ODOO_WORK_DIR/custom/src/addons.yaml $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/
+    if [ ! -L $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
+      /bin/cp -fp $ODOO_WORK_DIR/custom/src/addons.yaml $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/
+    else
+      /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/custom/src/addons.yaml
+    fi
   fi
   /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/.venv
   logexec $ODOO_WORK_DIR/migrate-temporary/$ODOO_START_FROM_VERSION/bootstrap
@@ -235,20 +255,31 @@ until [ $(/bin/echo $MIGRATION_TEMPORARY_NAME | /usr/bin/cut -d'.' -f1) -eq $(/b
   fi
   if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/.env-shared ]; then
     /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/.env-shared $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
+  else
+    /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/.env-secret
   fi
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/Pipfile ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/Pipfile $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/requirements.txt ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/requirements.txt $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
+  else
+    /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/requirements.txt
   fi
   /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/common/conf.d
-  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/odoo.cfg ]; then
-    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/odoo.cfg $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/common/conf.d/
+  if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/override-odoo.cfg ]; then
+    /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/override-odoo.cfg $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/common/conf.d/
+  else
+    /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/common/conf.d/override-odoo.cfg
   fi
   /bin/mkdir -p $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/custom/src
   if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/repos.yaml ]; then
     /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/repos.yaml $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/custom/src/
+  else
+    /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/custom/src/repos.yaml
+  fi
   fi
   if [ -f $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/addons.yaml ]; then
     /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/addons.yaml $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/custom/src/
+  else
+    /bin/rm -fr $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/custom/src/addons.yaml
   fi
   if [ -d $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/migrate-scripts ]; then
     /bin/cp -frp $ODOO_WORK_DIR/migrate-templates/$MIGRATION_TEMPORARY_NAME/migrate-scripts $ODOO_WORK_DIR/migrate-temporary/$MIGRATION_TEMPORARY_NAME/
@@ -282,11 +313,11 @@ fi
 if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/.env-shared ]; then
   /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/.env-shared $ODOO_WORK_DIR/
 fi
-if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/Pipfile ]; then
-  /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/Pipfile $ODOO_WORK_DIR/
+if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/requirements.txt ]; then
+  /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/requirements.txt $ODOO_WORK_DIR/
 fi
-if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/odoo.cfg ]; then
-  /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/odoo.cfg $ODOO_WORK_DIR/common/conf.d/
+if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/override-odoo.cfg ]; then
+  /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/override-odoo.cfg $ODOO_WORK_DIR/common/conf.d/
 fi
 if [ -f $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/repos.yaml ]; then
   /bin/cp -fp $ODOO_WORK_DIR/migrate-templates/$ODOO_DESTINATION_VERSION/repos.yaml $ODOO_WORK_DIR/custom/src/
