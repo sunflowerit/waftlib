@@ -6,6 +6,11 @@ ODOO_WORK_DIR=$SCRIPT_PATH
 . $SCRIPT_PATH/.env-secret
 cd $ODOO_WORK_DIR
 
+if [ $(id -u) -eq 0 ]; then
+  echo "Please dont use sudo command with script"
+  exit 1
+fi
+
 #rm -fr ./auto/odoo.conf
 #rm -fr ./auto/addons/*
 #/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|repos.yaml|addons.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
