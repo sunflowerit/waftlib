@@ -92,14 +92,6 @@ else
   /bin/echo "INFO: $ODOO_WORK_DIR/.pyenv exist!"
 fi
 
-VIRTUALENV=$ODOO_WORK_DIR/.pyenv/bin/virtualenv.pyz
-if [ ! -f $VIRTUALENV ]; then
-  /bin/echo "INFO: Download $VIRTUALENV"
-  /usr/bin/wget https://bootstrap.pypa.io/virtualenv.pyz -O $VIRTUALENV
-else
-  /bin/echo "INFO: $VIRTUALENV exist!"
-fi
-
 export PYENV_ROOT=$ODOO_WORK_DIR/.pyenv
 export PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 export PYENV=$PYENV_ROOT/bin/pyenv
@@ -108,9 +100,15 @@ eval "$($PYENV init -)"
 
 pyenv install -s
 
+PYVERSION=$(python -V | /usr/bin/cut -c8-10)
+echo Python version is $PYVERSION
+VIRTUALENV=$ODOO_WORK_DIR/.pyenv/bin/virtualenv.pyz
+
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
+  /bin/echo "INFO: Download $VIRTUALENV"
+  /usr/bin/wget https://bootstrap.pypa.io/virtualenv/$PYVERSION/virtualenv.pyz -O $VIRTUALENV
   /bin/echo "INFO: Build virtual environment in $ODOO_WORK_DIR/.venv"
-  python $VIRTUALENV .venv
+  python $VIRTUALENV .venv || { echo 'Virtualenv creation failed' ; exit 1; }
 else
   /bin/echo "INFO: $ODOO_WORK_DIR/.venv exist!"
 fi
