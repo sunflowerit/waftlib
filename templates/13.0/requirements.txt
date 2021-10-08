@@ -119,7 +119,7 @@ websocket-client==0.56.0
 Werkzeug==0.14.1
 wrapt==1.12.1
 xdis==5.0.12
-xlrd==2.0.1
+xlrd==1.1.0
 XlsxWriter==0.9.3
 xlwt==1.3.0
 zeep==3.1.0

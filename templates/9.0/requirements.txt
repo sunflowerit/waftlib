@@ -114,7 +114,7 @@ wdb==3.3.0
 Werkzeug==0.9.6
 wsgiref==0.1.2
 xdis==5.0.12
-xlrd==2.0.1
+xlrd==1.0.0
 XlsxWriter==0.9.3
 xlwt==0.7.5
 zipp==1.2.0
