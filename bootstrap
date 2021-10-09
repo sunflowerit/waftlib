@@ -21,7 +21,7 @@ if [ -z "$LIBRARIES_VERSION_BRANCH" ]; then
     exit 0
   else
     /bin/echo "ERROR: $ODOO_WORK_DIR/bootstrap files does not have 'LIBRARIES_VERSION_BRANCH' variable! update it by this command:"
-    /bin/echo "  /usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/40fa1701a3bd29dd623c2a5a76dedfe66398c28e/bootstrap -o $ODOO_WORK_DIR/bootstrap"
+    /bin/echo "  /usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/master/bootstrap -o $ODOO_WORK_DIR/bootstrap"
     exit 1
   fi
 fi
