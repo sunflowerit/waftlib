@@ -1,0 +1,12 @@
+# Ignore everything
+**
+
+# Allow files and directories
+!/auto/baseimage
+!bootstrap
+!build
+!common
+!custom/src/repos.yaml
+!custom/src/addons.yaml
+!.env-shared
+!.env-secret

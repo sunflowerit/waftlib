@@ -232,6 +232,28 @@ else
   /bin/echo "WARNING: $ODOO_WORK_DIR/shell not a default link!"
 fi
 
+if [ ! -f $ODOO_WORK_DIR/docker-build ] || [ -L $ODOO_WORK_DIR/docker-build ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/docker-build to $ODOO_WORK_DIR/docker-build"
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/docker-build
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/docker-build not a default link!"
+fi
+
+if [ ! -f $ODOO_WORK_DIR/Dockerfile ] || [ -L $ODOO_WORK_DIR/Dockerfile ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/Dockerfile to $ODOO_WORK_DIR/Dockerfile"
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/Dockerfile
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/Dockerfile not a default link!"
+fi
+
+if [ ! -f $ODOO_WORK_DIR/.dockerignore ] || [ -L $ODOO_WORK_DIR/.dockerignore ]; then
+  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/.dockerignore to $ODOO_WORK_DIR/.dockerignore"
+  cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/.dockerignore
+else
+  /bin/echo "WARNING: $ODOO_WORK_DIR/.dockerignore not a default link!"
+fi
+
+
 if [ ! -f $ODOO_WORK_DIR/upgrade ] || [ -L $ODOO_WORK_DIR/upgrade ]; then
   /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/upgrade to $ODOO_WORK_DIR/upgrade"
   cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/upgrade
