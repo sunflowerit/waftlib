@@ -20,10 +20,11 @@ if [ ! -d $ODOO_WORK_DIR/.venv ]; then
     exit 1
 fi
 
-# pip 20.3+ will not cache packages installed from git
+# pip 20.3 has a neat depenency resolver
+# https://pip.pypa.io/en/latest/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020
 . .venv/bin/activate && \
 pip install "setuptools<58" && \
-pip install "pip<20.3" && \
+pip install "pip>=20.3" && \
 pip install -r requirements.txt && \
 ./common/build && \
 python $ODOO_WORK_DIR/common/entrypoint
