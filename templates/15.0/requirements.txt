@@ -78,7 +78,7 @@ spark-parser==1.8.9
 typing-extensions==3.10.0.2
 uncompyle6==3.7.4
 Unidecode==1.1.1
-urllib3==1.26.6
+urllib3==1.25.*
 urwid==2.1.2
 vobject==0.9.6.1
 watchdog==0.9.0
