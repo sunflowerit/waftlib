@@ -1,0 +1,18 @@
+---
+odoo:
+  defaults:
+    depth: $DEPTH_DEFAULT
+  remotes:
+    origin: $DEFAULT_REPO_PATTERN_ODOO
+  target: origin $ODOO_VERSION
+  merges:
+    - origin $ODOO_VERSION
+
+OCA/web:
+  defaults:
+    depth: $DEPTH_DEFAULT
+  remotes:
+    origin: https://github.com/OCA/web.git
+  target: origin $ODOO_VERSION
+  merges:
+    - origin $ODOO_VERSION
