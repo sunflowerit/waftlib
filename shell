@@ -3,5 +3,5 @@
 SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
 ODOO_WORK_DIR=$SCRIPT_PATH
 
-cd $ODOO_WORK_DIR && . .venv/bin/activate && click-odoo -c ./auto/odoo.conf
-
+# Note: in Odoo 8.0 this requires OCA 'shell' module to be installed.
+cd $ODOO_WORK_DIR && . .venv/bin/activate && odoo shell -c ./auto/odoo.conf --xmlrpc-port=18080
