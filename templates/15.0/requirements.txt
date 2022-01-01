@@ -9,7 +9,7 @@ bs4==0.0.1
 cached-property==1.5.2
 cachetools==4.2.2
 certifi==2021.5.30
-chardet==3.0.4
+chardet==4.0.0
 click==8.0.1
 click-odoo==1.4.3
 click-odoo-contrib==1.12.0
@@ -26,7 +26,7 @@ gevent==20.9.0
 -e git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
 greenlet==0.4.17
 html2text==2020.1.16
-idna==2.8
+idna==2.10
 importlib-metadata==4.8.1
 importlib-resources==5.2.2
 importmagic3==0.2.0
@@ -42,7 +42,7 @@ Mako==1.0.7
 MarkupSafe==1.1.0
 mock==4.0.3
 num2words==0.5.6
-ofxparse==0.19
+ofxparse==0.20
 parso==0.8.2
 passlib==1.7.1
 pathtools==0.1.2
@@ -61,16 +61,16 @@ pyopenssl==19.0.0
 pyparsing==2.2.0
 PyPDF2==1.26.0
 pyserial==3.4
-python-dateutil==2.7.3
+python-dateutil==2.8.2
 python-dotenv==0.17.1
 python-ldap==3.2.0
 python-magic==0.4.24
 python-stdnum==1.16
-pytz==2019.3
+pytz==2021.1
 pyusb==1.0.2
 qrcode==6.1
 reportlab==3.5.59
-requests==2.22.0
+requests==2.26.0
 requests-toolbelt==0.9.1
 six==1.16.0
 soupsieve==1.9.6
@@ -78,7 +78,7 @@ spark-parser==1.8.9
 typing-extensions==3.10.0.2
 uncompyle6==3.7.4
 Unidecode==1.1.1
-urllib3==1.25.*
+urllib3==1.26.6
 urwid==2.1.2
 vobject==0.9.6.1
 watchdog==0.9.0
