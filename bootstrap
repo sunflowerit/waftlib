@@ -97,13 +97,13 @@ fi
 PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 PYENV=$PYENV_ROOT/bin/pyenv
 eval "$($PYENV init -)"
-pyenv install -s
+$PYENV install -s
 
 # Install virtualenv
 PYVERSION=$(python -V 2>&1 | /usr/bin/cut -c8-10)
 
 echo Python version is $PYVERSION
-VIRTUALENV=$ODOO_WORK_DIR/.pyenv/bin/virtualenv.pyz
+VIRTUALENV=$PYENV_ROOT/bin/virtualenv.pyz
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
   /bin/echo "INFO: Download $VIRTUALENV"
   /usr/bin/wget --no-check-certificate https://bootstrap.pypa.io/virtualenv/$PYVERSION/virtualenv.pyz -O $VIRTUALENV || { echo 'Download of virtualenv package failed' ; exit 1; }
