@@ -94,13 +94,14 @@ else
   /bin/echo "INFO: $ODOO_WORK_DIR/.pyenv exist! Upgrading to latest..."
   cd $PYENV_ROOT && /usr/bin/git checkout master && /usr/bin/git pull origin master && cd - || { echo 'Failed to upgrade pyenv'; exit 1; }
 fi
-export PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
-export PYENV=$PYENV_ROOT/bin/pyenv
+PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+PYENV=$PYENV_ROOT/bin/pyenv
 eval "$($PYENV init -)"
 pyenv install -s
 
 # Install virtualenv
-PYVERSION=$(python -V | /usr/bin/cut -c8-10)
+PYVERSION=$(python -V 2>&1 | /usr/bin/cut -c8-10)
+
 echo Python version is $PYVERSION
 VIRTUALENV=$ODOO_WORK_DIR/.pyenv/bin/virtualenv.pyz
 if [ ! -d $ODOO_WORK_DIR/.venv ]; then
