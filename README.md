@@ -16,13 +16,14 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 
 ## What does it do
 
-- Install Python dependencies in a virtual environment
-- Collect Odoo modules from different Git repositories (repos.yaml)
+- Install the Python version in `.python-version` using `pyenv`
+- Install Python dependencies from `requirements.txt` in a virtual environment in `.venv`
+- Use `gitaggregrator` to collect Odoo modules from different `git` repositories and branches as defined in `repos.yaml` in `custom/src/XXX/YYY` folders
 - Select some modules and not others (addons.yaml)
-- Generate the Odoo config file
-- Offer some handy scripts to do things
+- Generate the Odoo config file in `auto/odoo.conf`
+- Offer some handy scripts to do things: `./upgrade`, `./install`, `./shell`, `waftlib/bin/reset-password`, ...
 
-## What it does not do
+## What it does not do (or: prerequisites)
 
 - Install postgres
 - Install lessc
@@ -30,6 +31,8 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 - Install system requirements for compiling the necessary Python modules (lxml, yaml etc)
 
 You'll need to take care of these yourself.
+
+As for the system requirements, take a look at the files in [this folder](https://github.com/sunflowerit/waftlib/tree/master/templates) or also checkout the [pyenv prerequisites](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
 
 ## Setup a waft project
 
