@@ -214,4 +214,51 @@ This allows you to develop locally if you wish to. Firstly:
   *python interpreter*, that you had earlier configured in 
   the first step, and run.
 
+
+## Helper Notes
+
+In case you run into issues while using waft, here are some helper points to check.
+
+- *refusing to merge unrelated histories* - This is mostly due to branches not being updated.
+  You can start by doing a rebase with the original master, then you can increase
+  the **depth** default option in *repos.yaml* related to the repo your updating. 
+  See sample below for clarification:
+
+  Before:
+
+  ```
+  OCA/delivery-carrier:
+  defaults:
+    depth: $DEPTH_DEFAULT # Notice depth is default to say 100
+  remotes:
+    origin: git@github.com:OCA/delivery-carrier.git
+    testbranch: git@github.com:testbranch/delivery-carrier.git # (Fork repo)
+  target: origin $ODOO_VERSION
+  merges:
+    - origin $ODOO_VERSION
+    - testbranch 14.0-mig-delivery_carrier_label_default # conflicting branch
+    - testbranch 14.0-ADD-base_delivery_carrier_files_document # conflicting branch
+  ```
+
+  After:
+
+  ```
+  testbranch/delivery-carrier:
+  defaults:
+    depth: 1000 #Increase manually
+  remotes:
+    origin: git@github.com:OCA/delivery-carrier.git
+    testbranch: git@github.com:testbranch/delivery-carrier.git
+  target: origin $ODOO_VERSION
+  merges:
+    - origin $ODOO_VERSION
+    - testbranch 14.0-mig-delivery_carrier_label_default
+    - testbranch 14.0-ADD-base_delivery_carrier_files_document
+  ```
+
+  so what happens is that `--depth` creates a shallow clone with a history truncated to the 
+  specified number of commits. See [git doc](https://git-scm.com/docs/git-clone) for more info.
+
+
+
   
