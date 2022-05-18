@@ -22,9 +22,16 @@ with open(REPOS_YAML) as yaml_file:
             repos.add(os.path.abspath(os.path.join(SRC_DIR, repo)))
 
 for directory in repos:
+    print(directory)
     if not os.path.isdir(directory):
         continue
     if not os.path.isdir(os.path.join(directory, '.git')):
+        shutil.rmtree(directory)
+        continue
+    if not os.path.isdir(os.path.join(directory, '.git/refs')):
+        shutil.rmtree(directory)
+        continue
+    if not os.path.isdir(os.path.join(directory, '.git/objects')):
         shutil.rmtree(directory)
         continue
     try:
