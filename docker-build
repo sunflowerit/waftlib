@@ -1,0 +1,17 @@
+#!/bin/sh
+if [ "$1" = "help" ]; then
+  echo "Builds the Docker image"
+  echo "Usage: ./docker-build [full]"
+  exit
+fi
+
+if [ "$1" = "full" ]
+then
+  echo Full rebuild
+  mkdir -p auto/baseimage && cp -R bootstrap build common custom/src/addons.yaml custom/src/repos.yaml .env-shared .python-version requirements.txt run shell waftlib auto/baseimage
+  DOCKER_BUILDKIT=1 docker build --no-cache --target rebuild --ssh default .
+else
+  echo Partial rebuild
+  DOCKER_BUILDKIT=1 docker build --target rebuild --ssh default .
+fi
+DOCKER_BUILDKIT=1 docker build --target runtime -t runtime .
