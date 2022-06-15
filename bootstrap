@@ -86,6 +86,7 @@ if [ ! -f "$ODOO_WORK_DIR/.python-version" ]; then
 fi
 
 # Install pyenv
+export CFLAGS="-O2"
 export PYENV_ROOT=$ODOO_WORK_DIR/.pyenv
 if [ ! -d $ODOO_WORK_DIR/.pyenv ]; then
   /bin/echo "INFO: Clone https://github.com/pyenv/pyenv in $PYENV_ROOT"
