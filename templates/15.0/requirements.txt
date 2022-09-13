@@ -57,7 +57,7 @@ pudb==2019.1
 pydot==1.4.1
 Pygments==2.10.0
 pyldap==2.4.28
-pyopenssl==19.0.0
+pyopenssl==22.0.0
 pyparsing==2.2.0
 PyPDF2==1.26.0
 pyserial==3.4
