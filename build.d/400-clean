@@ -60,6 +60,9 @@ for directory, subdirectories, subfiles in os.walk(SRC_DIR):
         if any(repo.startswith(directory) for repo in repos_addons):
             # Then, let's walk in; we'll remove later if needed
             continue
+        else:
+            if not CLEAN:
+                continue
     else:
         # This is an addons repo; do not walk into the enabled ones
         for addon in enabled_addons:
