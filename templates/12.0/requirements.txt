@@ -2,6 +2,7 @@ pyyaml==5.4.1
 appdirs==1.4.4
 argcomplete==1.12.3
 argh==0.26.2
+astor==0.8.1
 Babel==2.3.4
 beautifulsoup4==4.9.3
 boto3==1.18.41
