@@ -101,7 +101,7 @@ eval "$($PYENV init -)"
 $PYENV install -s
 
 # Install virtualenv
-PYVERSION=$(python -V 2>&1 | /usr/bin/cut -c8-10)
+PYVERSION=$(python -V 2>&1 | /bin/sed 's/^Python //; s/\.[0-9]*$//')
 
 echo Python version is $PYVERSION
 VIRTUALENV=$PYENV_ROOT/bin/virtualenv.pyz
