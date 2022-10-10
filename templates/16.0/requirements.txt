@@ -1,4 +1,3 @@
-pyyaml==5.4.1
 appdirs==1.4.4
 argcomplete==1.12.3
 argh==0.26.2
@@ -22,11 +21,16 @@ defusedxml==0.7.1
 docutils==0.16
 ebaysdk==2.1.5
 feedparser==5.2.1
-freezegun==0.3.15
-gevent==21.8.0
+freezegun==0.3.11; python_version < '3.8'
+freezegun==0.3.15; python_version >= '3.8'
+gevent==1.5.0 ; python_version == '3.7'
+gevent==20.9.0 ; python_version > '3.7' and python_version <= '3.9'
+gevent==21.8.0 ; python_version > '3.9'  # (Jammy)
 -e git+https://github.com/janverb/git-aggregator.git@d1685abb2776d255730e90fd22ae3363d83a9e89#egg=git_aggregator
 -e git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
-greenlet==1.1.2
+greenlet==0.4.15 ; python_version == '3.7'
+greenlet==0.4.17 ; python_version > '3.7' and python_version <= '3.9'
+greenlet==1.1.2 ; python_version  > '3.9'  # (Jammy)
 html2text==2020.1.16
 idna==2.10
 importlib-metadata==4.8.1
@@ -37,14 +41,13 @@ jedi==0.18.0
 Jinja2==2.11.3
 kaptan==0.5.12
 libsass==0.18.0
-libxml2-python3==2.9.5
 log-colorizer==1.8.6
 lxml==4.6.5
-Mako==1.0.7
 MarkupSafe==1.1.0
 mock==4.0.3
 num2words==0.5.6
-ofxparse==0.21
+ofxparse==0.19; python_version <= '3.9'
+ofxparse==0.21; python_version > '3.9'  # (Jammy)
 parso==0.8.2
 passlib==1.7.3
 pathtools==0.1.2
@@ -59,7 +62,7 @@ pudb==2019.1
 pydot==1.4.1
 Pygments==2.10.0
 pyldap==2.4.28
-pyopenssl==22.0.0
+pyopenssl==19.0.0
 pyparsing==2.2.0
 PyPDF2==1.26.0
 pyserial==3.4
@@ -70,6 +73,7 @@ python-magic==0.4.24
 python-stdnum==1.13
 pytz==2021.1
 pyusb==1.0.2
+pyyaml==5.4.1
 qrcode==6.1
 reportlab==3.5.59
 requests==2.26.0
@@ -86,10 +90,12 @@ vobject==0.9.6.1
 watchdog==0.9.0
 wdb==3.3.0
 websocket-client==0.56.0
-Werkzeug==2.0.2
+Werkzeug==0.16.1 ; python_version <= '3.9'
+Werkzeug==2.0.2 ; python_version > '3.9'  # (Jammy)
 xdis==5.0.12
-xlrd==1.2.0
+xlrd==1.1.0; python_version < '3.8'
+xlrd==1.2.0; python_version >= '3.8'
 XlsxWriter==1.1.2
-xlwt==1.3.0
+xlwt==1.3.*
 zeep==3.4.0
 zipp==3.5.0
