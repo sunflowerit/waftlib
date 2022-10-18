@@ -131,11 +131,10 @@ def missing_repos_config():
                         repo_path = ODOO_DIR
                     else:
                         repo_path = os.path.abspath(os.path.join(SRC_DIR, repo))
-                    if not os.path.exists(repo_path) or os.path.isdir(
-                        os.path.join(repo_path, ".git")
-                    ):
-                        expected.add(repo_path)
-                        addons_env[repo_path] = env
+                    if not os.path.exists(repo_path):
+                        logger.warning("\n\n\n  %s addons directory does not exist!\n    compare addons.yaml with repos.yaml and correct them.\n\n\n", repo_path)
+                    if len(os.listdir(repo_path)) == 0:
+                        logger.warning("\n\n\n  %s addons directory is empty!\n    compare addons.yaml with repos.yaml and correct them.\n\n\n", repo_path)
     except (IOError, AttributeError):
         logger.debug("No addons are expected to be present")
     # Find the undefined repositories and generate a config for them
