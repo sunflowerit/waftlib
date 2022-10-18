@@ -27,8 +27,6 @@ load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=T
 UMASK = os.environ.get("UMASK")
 UID = int(os.environ.get("UID") or -1)
 GID = int(os.environ.get("GID") or -1)
-DEFAULT_REPO_PATTERN = os.environ.get("DEFAULT_REPO_PATTERN")
-DEFAULT_REPO_PATTERN_ODOO = os.environ.get("DEFAULT_REPO_PATTERN_ODOO")
 log_level = os.environ.get("LOG_LEVEL", "INFO")
 
 
@@ -83,26 +81,6 @@ def aggregate(config):
                             "Error trying to chown on file. Skipping...", exc_info=True
                         )
 
-
-def origin_for(
-    folder,
-    default_repo_pattern=DEFAULT_REPO_PATTERN,
-    odoo_repo_pattern=DEFAULT_REPO_PATTERN_ODOO,
-):
-    """Guess the default git origin for that folder.
-
-    :param str folder:
-        Normally an absolute path to an expected git repo, whose name should
-        match the git repository where it comes from, using the env-supplied
-        pattern.
-    """
-    base = os.path.basename(folder)
-    pattern = default_repo_pattern
-    if base == "odoo":
-        pattern = odoo_repo_pattern
-    return pattern.format(base)
-
-
 def missing_repos_config():
     """Find the undefined repositories and return their default configuration.
 
@@ -132,33 +110,28 @@ def missing_repos_config():
                     else:
                         repo_path = os.path.abspath(os.path.join(SRC_DIR, repo))
                     if not os.path.exists(repo_path):
-                        logger.warning("\n\n\n  %s addons directory does not exist!\n    compare addons.yaml with repos.yaml and correct them.\n\n\n", repo_path)
-                    if len(os.listdir(repo_path)) == 0:
-                        logger.warning("\n\n\n  %s addons directory is empty!\n    compare addons.yaml with repos.yaml and correct them.\n\n\n", repo_path)
+                        expected.add(repo_path)
+                    else:
+                        if os.path.isdir(repo_path):
+                            if len(os.listdir(repo_path)) == 0:
+                                expected.add(repo_path)
+                        else:
+                            expected.add(repo_path)
     except (IOError, AttributeError):
         logger.debug("No addons are expected to be present")
     # Find the undefined repositories and generate a config for them
     missing = expected - defined
-    config = {}
-    for repo_path in missing:
-        env = addons_env.get(repo_path, os.environ)
-        depth = env["DEPTH_DEFAULT"]
-        origin_version = "origin %s" % env["ODOO_VERSION"]
-        config[repo_path] = {
-            "defaults": {"depth": depth},
-            "merges": [origin_version],
-            "remotes": {
-                "origin": origin_for(
-                    repo_path,
-                    env["DEFAULT_REPO_PATTERN"],
-                    env["DEFAULT_REPO_PATTERN_ODOO"],
-                )
-            },
-            "target": origin_version,
-        }
-    logger.debug("Generated missing repos config %r", config)
-    return config
-
+    if missing:
+        for repo_path in missing:
+            if not os.path.exists(repo_path):
+                print("\n\nERROR: " + repo_path + " addons directory does not exist!")
+            else:
+                if os.path.isdir(repo_path):
+                    if len(os.listdir(repo_path)) == 0:
+                        print("\n\nERROR: " + repo_path + " addons directory is empty!")
+                else:
+                    print("\n\nERROR: " + repo_path + " addons not a directory!")
+        sys.exit("\n\n\n compare addons.yaml with repos.yaml and correct them.\n\n\n")
 
 # Aggregate user-specified repos
 if os.path.isfile(REPOS_YAML):
@@ -166,7 +139,3 @@ if os.path.isfile(REPOS_YAML):
 
 # Aggregate unspecified repos
 missing_config = missing_repos_config()
-if missing_config:
-    with open(AUTO_REPOS_YAML, "w") as autorepos:
-        yaml.dump(missing_config, autorepos)
-    aggregate(AUTO_REPOS_YAML)

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#export PYTHONOPTIMIZE=""  # You'll want to `assert` in your scripts
 
 SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
 ODOO_WORK_DIR=$(cd $SCRIPT_PATH/../.. && /bin/pwd)
