@@ -25,6 +25,9 @@ fi
 . .venv/bin/activate && \
 pip install "setuptools<58" && \
 pip install "pip>=20.3" && \
-pip install -r requirements.txt && \
-./common/build && \
+pip install -r $ODOO_WORK_DIR/requirements.txt && \
+if [ -f $ODOO_WORK_DIR/override-requirements.txt ]; then
+  pip install -r $ODOO_WORK_DIR/override-requirements.txt
+fi && \
+$ODOO_WORK_DIR/common/build && \
 python $ODOO_WORK_DIR/common/entrypoint
