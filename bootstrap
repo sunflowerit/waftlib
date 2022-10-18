@@ -7,7 +7,7 @@ ODOO_WORK_DIR=$(cd $SCRIPT_PATH/.. && /bin/pwd)
 cd $ODOO_WORK_DIR
 
 if [ $(id -u) -eq 0 ]; then
-  echo "Please dont use sudo command with script"
+  echo "Please don't use sudo command with script"
   exit 1
 fi
 
@@ -33,31 +33,18 @@ fi
 /bin/mkdir -p $ODOO_WORK_DIR/custom/src/private/
 
 if [ ! -f $ODOO_WORK_DIR/.env-shared ]; then
-  if [ -f $ODOO_WORK_DIR/.env-secret ]; then
-    . $ODOO_WORK_DIR/.env-secret
-    if [ "$ODOO_VERSION" != "" ]; then
-      /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
-      cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
-    else
-      /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
-      exit 1
-    fi
+  if [ "$ODOO_VERSION" != "" ]; then
+    /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
+    cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
   else
-    if [ "$ODOO_VERSION" != "" ]; then
-      /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
-      cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
-    else
-      /bin/echo "ERROR: 'ODOO_VERSION' variable does not exist you should:"
-      /bin/echo "    link $ODOO_WORK_DIR/waftlib/templates/ODOO_VERSION/.env-shared to $ODOO_WORK_DIR manually"
-      /bin/echo "    or define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret."
-      exit 1
-    fi
+    /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/16.0/.env-shared to $ODOO_WORK_DIR/.env-shared"
+    cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/16.0/.env-shared
   fi
 fi
 
 if [ ! -f $ODOO_WORK_DIR/.env-secret ]; then
-  /bin/echo "INFO: Touch $ODOO_WORK_DIR/.env-secret file."
-  /usr/bin/touch $ODOO_WORK_DIR/.env-secret
+  /bin/echo "INFO: Copy $ODOO_WORK_DIR/waftlib/templates/.env-secret to $ODOO_WORK_DIR/.env-secret."
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/.env-secret $ODOO_WORK_DIR/.env-secret
 fi
 
 . $ODOO_WORK_DIR/.env-shared && \
@@ -169,20 +156,16 @@ else
   /bin/echo "WARNING: $ODOO_WORK_DIR/common/entrypoint not a default link!"
 fi
 
-if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ] || [ -L $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
-  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/addons.yaml to $ODOO_WORK_DIR/custom/src/addons.yaml"
-  cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/addons.yaml
+if [ ! -f $ODOO_WORK_DIR/custom/src/addons.yaml ]; then
+  /bin/echo "INFO: Copy $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/addons.yaml to $ODOO_WORK_DIR/custom/src/addons.yaml"
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/addons.yaml $ODOO_WORK_DIR/custom/src/
   cd $ODOO_WORK_DIR
-else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/custom/src/addons.yaml not a default link!"
 fi
 
-if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ] || [ -L $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
-  /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/repos.yaml to $ODOO_WORK_DIR/custom/src/repos.yaml"
-  cd $ODOO_WORK_DIR/custom/src && /bin/ln -sf ../../waftlib/templates/$ODOO_VERSION/repos.yaml
+if [ ! -f $ODOO_WORK_DIR/custom/src/repos.yaml ]; then
+  /bin/echo "INFO: Copy $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/repos.yaml to $ODOO_WORK_DIR/custom/src/repos.yaml"
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/repos.yaml $ODOO_WORK_DIR/custom/src/
   cd $ODOO_WORK_DIR
-else
-  /bin/echo "WARNING: $ODOO_WORK_DIR/custom/src/repos.yaml not a default link!"
 fi
 
 if [ ! -f $ODOO_WORK_DIR/initial-database ] || [ -L $ODOO_WORK_DIR/initial-database ]; then
