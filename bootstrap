@@ -32,19 +32,19 @@ fi
 /bin/mkdir -p $ODOO_WORK_DIR/common/entrypoint.d/
 /bin/mkdir -p $ODOO_WORK_DIR/custom/src/private/
 
-if [ ! -f $ODOO_WORK_DIR/.env-shared ]; then
+if [ ! -f $ODOO_WORK_DIR/.env-secret ]; then
+  /bin/echo "INFO: Copy $ODOO_WORK_DIR/waftlib/templates/.env-secret to $ODOO_WORK_DIR/."
+  /bin/cp $ODOO_WORK_DIR/waftlib/templates/.env-secret $ODOO_WORK_DIR/
+fi
+
+if [ ! -f $ODOO_WORK_DIR/.env-shared ] || [ -L $ODOO_WORK_DIR/.env-shared ]; then
   if [ "$ODOO_VERSION" != "" ]; then
     /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
     cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
   else
-    /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/16.0/.env-shared to $ODOO_WORK_DIR/.env-shared"
-    cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/16.0/.env-shared
+    /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
+    exit 1
   fi
-fi
-
-if [ ! -f $ODOO_WORK_DIR/.env-secret ]; then
-  /bin/echo "INFO: Copy $ODOO_WORK_DIR/waftlib/templates/.env-secret to $ODOO_WORK_DIR/.env-secret."
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/.env-secret $ODOO_WORK_DIR/.env-secret
 fi
 
 . $ODOO_WORK_DIR/.env-shared && \
