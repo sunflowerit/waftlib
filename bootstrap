@@ -38,6 +38,7 @@ if [ ! -f $ODOO_WORK_DIR/.env-secret ]; then
 fi
 
 if [ ! -f $ODOO_WORK_DIR/.env-shared ] || [ -L $ODOO_WORK_DIR/.env-shared ]; then
+  . $ODOO_WORK_DIR/.env-secret
   if [ "$ODOO_VERSION" != "" ]; then
     /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
     cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
