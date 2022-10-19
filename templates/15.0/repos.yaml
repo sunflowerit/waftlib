@@ -3,7 +3,7 @@ odoo:
   defaults:
     depth: $DEPTH_DEFAULT
   remotes:
-    origin: $DEFAULT_REPO_PATTERN_ODOO
+    origin: https://github.com/OCA/OCB.git
   target: origin $ODOO_VERSION
   merges:
     - origin $ODOO_VERSION
