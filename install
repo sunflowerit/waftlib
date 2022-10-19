@@ -15,10 +15,10 @@ fi
 
 if [ "$3" = "nodemo" ]
 then
-   DEMO="--without-demo=1"
+   WITHOUT_DEMO="--without-demo=1"
    echo "Without demo data"
 else
-   DEMO="--without-demo="
+   WITHOUT_DEMO="--without-demo="
    echo "With demo data"
 fi
 
@@ -36,4 +36,4 @@ cd $ODOO_WORK_DIR && . .venv/bin/activate && odoo \
   -i "$2" \
   -d "$1" \
   --stop-after-init \
-  $DEMO
+  $WITHOUT_DEMO
