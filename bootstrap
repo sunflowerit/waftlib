@@ -48,7 +48,7 @@ if [ -f $ODOO_WORK_DIR/.env-secret ]; then
       . $ODOO_WORK_DIR/.env-secret
     fi
   else
-    if [[ $ODOO_VERSION =~ ^[+-]?[0-9]+\.?[0-9]*$ ]] ; then
+    if [ "$(/bin/echo $ODOO_VERSION | /bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
       /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
       cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
     fi
@@ -76,7 +76,7 @@ else
       /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
       exit 1
     else
-      if [[ $ODOO_VERSION =~ ^[+-]?[0-9]+\.?[0-9]*$ ]] ; then
+      if [ "$(/bin/echo $ODOO_VERSION | /bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
         /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
         cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
       fi
