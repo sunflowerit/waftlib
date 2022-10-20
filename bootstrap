@@ -32,63 +32,43 @@ fi
 /bin/mkdir -p $ODOO_WORK_DIR/common/entrypoint.d/
 /bin/mkdir -p $ODOO_WORK_DIR/custom/src/private/
 
-if [ -f $ODOO_WORK_DIR/.env-secret ]; then
-  . $ODOO_WORK_DIR/.env-secret
-  if [ -f $ODOO_WORK_DIR/.env-shared ]; then
-    if [ -L $ODOO_WORK_DIR/.env-shared ]; then
-      if [ ! -d $ODOO_WORK_DIR/waftlib ]; then
-        . $ODOO_WORK_DIR/.env-shared && \
-        . $ODOO_WORK_DIR/.env-secret
-      else
-        ODOO_VERSION="$(/bin/ls -lha | /bin/grep $ODOO_WORK_DIR/.env-shared | /usr/bin/cut -d '/' -f3)" && \
-        . $ODOO_WORK_DIR/.env-secret
-      fi
-    else
-      . $ODOO_WORK_DIR/.env-shared && \
-      . $ODOO_WORK_DIR/.env-secret
-    fi
+
+
+if [ -f $ODOO_WORK_DIR/.env-shared ]; then
+  . $ODOO_WORK_DIR/.env-shared || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-shared!" && exit 1)
+  if [ -f $ODOO_WORK_DIR/.env-secret ]; then
+    . $ODOO_WORK_DIR/.env-secret || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-secret!" && exit 1)
   else
-    if [ "$(/bin/echo $ODOO_VERSION | /bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
-      /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
-      cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
-    fi
-      /bin/echo "ERROR: 'ODOO_VERSION' does not define or it is not a floating number!"
-      exit 1
-    fi
+    /bin/echo "INFO: Copy $ODOO_WORK_DIR/waftlib/templates/.env-secret to $ODOO_WORK_DIR/."
+    /bin/cp $ODOO_WORK_DIR/waftlib/templates/.env-secret $ODOO_WORK_DIR/
+    . $ODOO_WORK_DIR/.env-secret || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-secret!" && exit 1)
   fi
 else
-  /bin/echo "INFO: Copy $ODOO_WORK_DIR/waftlib/templates/.env-secret to $ODOO_WORK_DIR/."
-  /bin/cp $ODOO_WORK_DIR/waftlib/templates/.env-secret $ODOO_WORK_DIR/
-  if [ -f $ODOO_WORK_DIR/.env-shared ]; then
-    if [ -L $ODOO_WORK_DIR/.env-shared ]; then
-      if [ ! -d $ODOO_WORK_DIR/waftlib ]; then
-        . $ODOO_WORK_DIR/.env-shared && \
-        . $ODOO_WORK_DIR/.env-secret
-      else
-        ODOO_VERSION="$(/bin/ls -lha | /bin/grep $ODOO_WORK_DIR/.env-shared | /usr/bin/cut -d '/' -f3)"
-      fi
-    else
-      . $ODOO_WORK_DIR/.env-shared && \
-      . $ODOO_WORK_DIR/.env-secret
-    fi
+  if [ $ODOO_VERSION == '' ] ; then
+    /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
+    exit 1
   else
-    if [[ $ODOO_VERSION == '' ]] ; then
-      /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
+    if [ "$(/bin/echo $ODOO_VERSION | /bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
+      /bin/echo "ERROR: 'ODOO_VERSION' does not a floating number!"
       exit 1
     else
-      if [ "$(/bin/echo $ODOO_VERSION | /bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
-        /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
-        cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
-      fi
-        /bin/echo "ERROR: 'ODOO_VERSION' does not a floating number!"
-        exit 1
-      fi
+      /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
+      cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
+    . $ODOO_WORK_DIR/.env-shared || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-shared!" && exit 1)
+    . $ODOO_WORK_DIR/.env-secret || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-secret!" && exit 1)
     fi
   fi
 fi
 
-. $ODOO_WORK_DIR/.env-shared && \
-. $ODOO_WORK_DIR/.env-secret
+if [ $ODOO_VERSION == '' ] ; then
+  /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
+  exit 1
+else
+  if [ "$(/bin/echo $ODOO_VERSION | /bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" == '' ] ; then
+    /bin/echo "ERROR: 'ODOO_VERSION' does not a floating number!"
+    exit 1
+  fi
+fi
 
 if [ $(/bin/echo $ODOO_VERSION | /usr/bin/cut -d'.' -f1) -lt '8' ]; then
   /bin/echo "ERROR: Waft does not support $ODOO_VERSION yet."
