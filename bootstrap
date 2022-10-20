@@ -44,7 +44,7 @@ if [ -f $ODOO_WORK_DIR/.env-shared ]; then
     . $ODOO_WORK_DIR/.env-secret || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-secret!" && exit 1)
   fi
 else
-  if [ $ODOO_VERSION == '' ] ; then
+  if [ "$ODOO_VERSION" == '' ] ; then
     /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
     exit 1
   else
@@ -54,13 +54,13 @@ else
     else
       /bin/echo "INFO: Link $ODOO_WORK_DIR/waftlib/templates/$ODOO_VERSION/.env-shared to $ODOO_WORK_DIR/.env-shared"
       cd $ODOO_WORK_DIR && /bin/ln -sf waftlib/templates/$ODOO_VERSION/.env-shared
-    . $ODOO_WORK_DIR/.env-shared || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-shared!" && exit 1)
-    . $ODOO_WORK_DIR/.env-secret || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-secret!" && exit 1)
+      . $ODOO_WORK_DIR/.env-shared || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-shared!" && exit 1)
+      . $ODOO_WORK_DIR/.env-secret || (/bin/echo "ERROR: Can't load $ODOO_WORK_DIR/.env-secret!" && exit 1)
     fi
   fi
 fi
 
-if [ $ODOO_VERSION == '' ] ; then
+if [ "$ODOO_VERSION" == '' ] ; then
   /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in $ODOO_WORK_DIR/.env-secret"
   exit 1
 else
