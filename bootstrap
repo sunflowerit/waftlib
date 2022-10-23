@@ -176,6 +176,9 @@ fi
 
 if [ -f "${ODOO_WORK_DIR}/common/conf.d/override-odoo.cfg" ]; then
   /bin/echo "INFO: ${ODOO_WORK_DIR}/common/conf.d/override-odoo.cfg exist!"
+else
+  /bin/echo "INFO: Copy ${ODOO_WORK_DIR}/waftlib/templates/override-odoo.cfg to ${ODOO_WORK_DIR}/common/conf.d/override-odoo.cfg"
+  /bin/cp "${ODOO_WORK_DIR}/waftlib/templates/override-odoo.cfg" "${ODOO_WORK_DIR}/common/conf.d/"
 fi
 
 for fiLe in $(/bin/ls -1 "${ODOO_WORK_DIR}/waftlib/entrypoint.d/"); do
@@ -297,6 +300,7 @@ done
 /bin/chmod 750 "${ODOO_WORK_DIR}/common" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/common/conf.d" || true
 /bin/chmod -f 640 "${ODOO_WORK_DIR}/common/conf.d/odoo.cfg" || true
+/bin/chmod -f 640 "${ODOO_WORK_DIR}/common/conf.d/override-odoo.cfg" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/common/entrypoint.d" || true
 /bin/chmod 740 "${ODOO_WORK_DIR}/common/entrypoint.d/"* || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/common/build.d" || true
@@ -313,6 +317,7 @@ done
 /bin/chmod 740 "${ODOO_WORK_DIR}/install" || true
 /bin/chmod 740 "${ODOO_WORK_DIR}/odoo-service" || true
 /bin/chmod 640 "${ODOO_WORK_DIR}/.python-version" || true
+/bin/chmod 640 "${ODOO_WORK_DIR}/requirements-default.txt" || true
 /bin/chmod 640 "${ODOO_WORK_DIR}/requirements.txt" || true
 /bin/chmod 740 "${ODOO_WORK_DIR}/run" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/bin" || true
