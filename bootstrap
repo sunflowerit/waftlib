@@ -275,15 +275,15 @@ for fiLe in $(/bin/ls -1 "${ODOO_WORK_DIR}/waftlib/bin/"); do
 done
 /bin/rm -fr "${ODOO_WORK_DIR}/.venv/bin/direxec"
 
-cd "${ODOO_WORK_DIR}/.venv/lib/*/site-packages" && /bin/mkdir -p waftlib
+cd "${ODOO_WORK_DIR}/.venv/lib/"*"/site-packages" && /bin/mkdir -p waftlib
 cd "${ODOO_WORK_DIR}"
 for fiLe in $(/bin/ls -1 "${ODOO_WORK_DIR}/waftlib/waftlib/"); do
-  if [ ! -f "${ODOO_WORK_DIR}/.venv/lib/*/site-packages/waftlib/${fiLe}" ] || [ -L "${ODOO_WORK_DIR}/.venv/lib/*/site-packages/waftlib/${fiLe}" ]; then
-    /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/waftlib/${fiLe} to ${ODOO_WORK_DIR}/.venv/lib/*/site-packages/waftlib/${fiLe}"
-    cd "${ODOO_WORK_DIR}/.venv/lib/*/site-packages/waftlib" && /bin/ln -sf "../../../../../waftlib/waftlib/${fiLe}"
+  if [ ! -f "${ODOO_WORK_DIR}/.venv/lib/"*"/site-packages/waftlib/${fiLe}" ] || [ -L "${ODOO_WORK_DIR}/.venv/lib/"*"/site-packages/waftlib/${fiLe}" ]; then
+    /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/waftlib/${fiLe} to ${ODOO_WORK_DIR}/.venv/lib/"*"/site-packages/waftlib/${fiLe}"
+    cd "${ODOO_WORK_DIR}/.venv/lib/"*"/site-packages/waftlib" && /bin/ln -sf "../../../../../waftlib/waftlib/${fiLe}"
     cd "${ODOO_WORK_DIR}"
   else
-    /bin/echo "WARNING: ${ODOO_WORK_DIR}/.venv/lib/*/site-packages/waftlib/${fiLe} not a default link!"
+    /bin/echo "WARNING: ${ODOO_WORK_DIR}/.venv/lib/"*"/site-packages/waftlib/${fiLe} not a default link!"
   fi
 done
 
@@ -298,9 +298,9 @@ done
 /bin/chmod 750 "${ODOO_WORK_DIR}/common/conf.d" || true
 /bin/chmod -f 640 "${ODOO_WORK_DIR}/common/conf.d/odoo.cfg" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/common/entrypoint.d" || true
-/bin/chmod 740 "${ODOO_WORK_DIR}/common/entrypoint.d/*" || true
+/bin/chmod 740 "${ODOO_WORK_DIR}/common/entrypoint.d/"* || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/common/build.d" || true
-/bin/chmod 740 "${ODOO_WORK_DIR}/common/build.d/*" || true
+/bin/chmod 740 "${ODOO_WORK_DIR}/common/build.d/"* || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/custom" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/custom/src" || true
 /bin/chmod -f 640 "${ODOO_WORK_DIR}/custom/src/addons.yaml" || true
@@ -316,7 +316,7 @@ done
 /bin/chmod 640 "${ODOO_WORK_DIR}/requirements.txt" || true
 /bin/chmod 740 "${ODOO_WORK_DIR}/run" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/bin" || true
-/bin/chmod 740 "${ODOO_WORK_DIR}/waftlib/bin/*" || true
+/bin/chmod 740 "${ODOO_WORK_DIR}/waftlib/bin/"* || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/build" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/initial-database" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/install" || true
@@ -324,9 +324,9 @@ done
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/run" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/shell" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/upgrade" || true
-/bin/chmod 640 "${ODOO_WORK_DIR}/waftlib/templates/*" || true
-/bin/chmod 740 "${ODOO_WORK_DIR}/waftlib/templates/*.0" || true
-/bin/chmod 640 "${ODOO_WORK_DIR}/waftlib/templates/*/*" || true
+/bin/chmod 640 "${ODOO_WORK_DIR}/waftlib/templates/"* || true
+/bin/chmod 740 "${ODOO_WORK_DIR}/waftlib/templates/"*.0 || true
+/bin/chmod 640 "${ODOO_WORK_DIR}/waftlib/templates/"*/* || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/waftlib" || true
-/bin/chmod 740 "${ODOO_WORK_DIR}/waftlib/waftlib/*" || true
+/bin/chmod 740 "${ODOO_WORK_DIR}/waftlib/waftlib/"* || true
 /bin/echo "INFO: END of bootstrap ${ODOO_WORK_DIR}/script"
