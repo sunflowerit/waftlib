@@ -298,4 +298,36 @@ done
 /bin/chmod 640 $ODOO_WORK_DIR/waftlib/templates/*/* || true
 /bin/chmod 750 $ODOO_WORK_DIR/waftlib/waftlib || true
 /bin/chmod 740 $ODOO_WORK_DIR/waftlib/waftlib/* || true
-/bin/echo "INFO: END of bootstrap $ODOO_WORK_DIR/script"
+/bin/echo "INFO: END of $ODOO_WORK_DIR/bootstrap script.
+
+
+
+you are using waft version v.21.09.22
+to update to waft version v.22.05.30 issue these commands:
+  /usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/master/bootstrap -o $ODOO_WORK_DIR/bootstrap
+  /bin/mkdir $ODOO_WORK_DIR/logfile/old-waft-version/
+  # Backup your exist files:
+  /bin/mv $ODOO_WORK_DIR/.env-shared $ODOO_WORK_DIR/logfile/old-waft-version/
+  /bin/mv $ODOO_WORK_DIR/.env-secret $ODOO_WORK_DIR/logfile/old-waft-version/
+  /bin/mv $ODOO_WORK_DIR/common/conf.d/odoo.cfg $ODOO_WORK_DIR/logfile/old-waft-version/
+  /bin/mv $ODOO_WORK_DIR/requirements.txt $ODOO_WORK_DIR/logfile/old-waft-version/
+  # Rebuild waft:
+  # In your special scripts replace 'ADMIN_PASSWORD' variable name with 'ODOO_ADMIN_PASSWORD'
+  # In your special scripts replace 'DBFILTER' variable name with 'ODOO_DBFILTER'
+  # In your special scripts replace 'INITIAL_LANG' variable name with 'ODOO_INITIAL_LANG'
+  # In your special scripts replace 'UNACCENT' variable name with 'ODOO_UNACCENT'
+  # In your special scripts replace 'CLEAN' variable name with 'WAFT_CLEAN'
+  # In your special scripts replace 'COMPILE' variable name with 'WAFT_COMPILE'
+  # In your special scripts replace 'DEPTH_DEFAULT' variable name with 'WAFT_DEPTH_DEFAULT'
+  # In your special scripts replace 'DEPTH_MERGE' variable name with 'WAFT_DEPTH_MERGE'
+  # In your special scripts replace 'LOG_LEVEL' variable name with 'WAFT_LOG_LEVEL'
+  # In your special scripts replace 'WAIT_DB' variable name with 'WAFT_WAIT_DB'
+  ODOO_VERSION="$ODOO_VERSION" $ODOO_WORK_DIR/bootstrap
+  /usr/bin/vi $ODOO_WORK_DIR/.env-shared # Adjust your variables.
+  /usr/bin/vi $ODOO_WORK_DIR/.env-secret # Adjust your variables.
+  /usr/bin/vi $ODOO_WORK_DIR/requirements.txt # Put your special PIP modules.
+  # replace 'DEPTH_DEFAULT' variable name with 'WAFT_DEPTH_DEFAULT' and 'DEPTH_MERGE' variable name with 'WAFT_DEPTH_MERGE' in custom/src/repos.yaml file.
+  # Rebuild Odoo code:
+  $ODOO_WORK_DIR/build
+  # commit your changes and push it to your project
+  # Good luck!"
