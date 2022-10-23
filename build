@@ -1,13 +1,15 @@
 #!/bin/sh
+# Version: v.22.05.30
 
-SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
-ODOO_WORK_DIR=$SCRIPT_PATH
-. $SCRIPT_PATH/.env-shared && \
-. $SCRIPT_PATH/.env-secret
-cd $ODOO_WORK_DIR
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIR="${SCRIPT_PATH}"
+. "${ODOO_WORK_DIR}/.env-default" && \
+. "${ODOO_WORK_DIR}/.env-shared" && \
+. "${ODOO_WORK_DIR}/.env-secret"
+cd "${ODOO_WORK_DIR}"
 
-if [ $(id -u) -eq 0 ]; then
-  echo "Please dont use sudo command with script"
+if [ "$(id -u)" -eq 0 ]; then
+  /bin/echo "Please dont use sudo command with script"
   exit 1
 fi
 
@@ -15,7 +17,7 @@ fi
 #rm -fr ./auto/addons/*
 #/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|repos.yaml|addons.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
 
-if [ ! -d $ODOO_WORK_DIR/.venv ]; then
+if [ ! -d "${ODOO_WORK_DIR}/.venv" ]; then
     /bin/echo 'run ./bootstrap first!'
     exit 1
 fi
@@ -25,9 +27,7 @@ fi
 . .venv/bin/activate && \
 pip install "setuptools<58" && \
 pip install "pip>=20.3" && \
-pip install -r $ODOO_WORK_DIR/requirements.txt && \
-if [ -f $ODOO_WORK_DIR/override-requirements.txt ]; then
-  pip install -r $ODOO_WORK_DIR/override-requirements.txt
-fi && \
-$ODOO_WORK_DIR/common/build && \
-python $ODOO_WORK_DIR/common/entrypoint
+pip install -r "${ODOO_WORK_DIR}/requirements-default.txt" && \
+pip install -r "${ODOO_WORK_DIR}/requirements.txt" && \
+"${ODOO_WORK_DIR}/common/build" && \
+python "${ODOO_WORK_DIR}/common/entrypoint"

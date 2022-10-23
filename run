@@ -1,9 +1,11 @@
 #!/bin/sh
+# Version: v.22.05.30
 
-SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
-ODOO_WORK_DIR=$SCRIPT_PATH
-. $SCRIPT_PATH/.env-shared && \
-. $SCRIPT_PATH/.env-secret
-cd $ODOO_WORK_DIR
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIR="${SCRIPT_PATH}"
+. "${ODOO_WORK_DIR}/.env-default" && \
+. "${ODOO_WORK_DIR}/.env-shared" && \
+. "${ODOO_WORK_DIR}/.env-secret"
+cd "${ODOO_WORK_DIR}"
 
-. $ODOO_WORK_DIR/.venv/bin/activate && odoo -c ./auto/odoo.conf --workers=0 $*
+. "${ODOO_WORK_DIR}/.venv/bin/activate" && odoo -c ./auto/odoo.conf --workers=0 $*

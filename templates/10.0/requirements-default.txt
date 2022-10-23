@@ -1,3 +1,7 @@
+# Version: v.22.05.30
+# Default PyPI packages versions.
+# Don't change this file
+# To override a package version in this file add it to requirements.txt file.
 pyyaml==5.4.1
 appdirs==1.4.4
 argcomplete==1.12.3

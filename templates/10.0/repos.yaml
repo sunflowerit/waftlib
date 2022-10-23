@@ -1,18 +1,18 @@
 ---
 odoo:
   defaults:
-    depth: $DEPTH_DEFAULT
+    depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
     origin: https://github.com/OCA/OCB.git
-  target: origin $ODOO_VERSION
+  target: origin ${ODOO_VERSION}
   merges:
-    - origin $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
 OCA/web:
   defaults:
-    depth: $DEPTH_DEFAULT
+    depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
     origin: https://github.com/OCA/web.git
-  target: origin $ODOO_VERSION
+  target: origin ${ODOO_VERSION}
   merges:
-    - origin $ODOO_VERSION
+    - origin ${ODOO_VERSION}

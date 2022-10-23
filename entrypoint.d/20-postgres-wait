@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
+# Version: v.22.05.30
 
-SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
-ODOO_WORK_DIR=$(cd $SCRIPT_PATH/../.. && /bin/pwd)
-. $ODOO_WORK_DIR/.env-shared && \
-. $ODOO_WORK_DIR/.env-secret
-cd $ODOO_WORK_DIR
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIR="$(cd "${SCRIPT_PATH}/../.." && /bin/pwd)"
+. "${ODOO_WORK_DIR}/.env-default" && \
+. "${ODOO_WORK_DIR}/.env-shared" && \
+. "${ODOO_WORK_DIR}/.env-secret"
+cd "${ODOO_WORK_DIR}"
 
-if [ "$WAIT_DB" != true ]; then
+if [ "${WAFT_WAIT_DB}" != true ]; then
     log INFO Not waiting for a postgres server
     exit 0
 fi
 
-log INFO Waiting until postgres is listening at $PGHOST...
+log INFO Waiting until postgres is listening at "${PGHOST}"...
 while true; do
-    psql --list > /dev/null 2>&1 && break
+    /usr/bin/psql --list > /dev/null 2>&1 && break
     sleep 1
 done

@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
+# Version: v.22.05.30
 set -e
 
-SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
-ODOO_WORK_DIR=$(cd $SCRIPT_PATH/../.. && /bin/pwd)
-. $ODOO_WORK_DIR/.env-shared && \
-. $ODOO_WORK_DIR/.env-secret
-cd $ODOO_WORK_DIR
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIR="$(cd "${SCRIPT_PATH}/../.." && /bin/pwd)"
+. "${ODOO_WORK_DIR}/.env-default" && \
+. "${ODOO_WORK_DIR}/.env-shared" && \
+. "${ODOO_WORK_DIR}/.env-secret"
+cd "${ODOO_WORK_DIR}"
 
-if [ "$COMPILE" != true ]; then
+if [ "${WAFT_COMPILE}" != true ]; then
     log WARNING Not compiling Python code
     exit 0
 fi
 
-log INFO Compiling all Python code in $ODOO_WORK_DIR
-python -m compileall -q $ODOO_WORK_DIR/custom
+log INFO Compiling all Python code in "${ODOO_WORK_DIR}"
+python -m compileall -q "${ODOO_WORK_DIR}/custom"

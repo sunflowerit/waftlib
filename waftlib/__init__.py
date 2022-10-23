@@ -10,7 +10,8 @@ import yaml
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../../../../.."))
-load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-default"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"), override=True)
 load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 # Constants needed in scripts
@@ -37,7 +38,7 @@ if os.path.isfile("%s.yml" % AUTO_REPOS_YAML):
 else:
     AUTO_REPOS_YAML = "%s.yaml" % AUTO_REPOS_YAML
 
-CLEAN = os.environ.get("CLEAN") == "true"
+WAFT_CLEAN = os.environ.get("WAFT_CLEAN") == "true"
 LOG_LEVELS = frozenset({"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"})
 PRIVATE = "private"
 CORE = "odoo/addons"
@@ -54,14 +55,14 @@ log_handler = logging.StreamHandler()
 log_formatter = logging.Formatter("%(name)s %(levelname)s: %(message)s")
 log_handler.setFormatter(log_formatter)
 logger.addHandler(log_handler)
-_log_level = os.environ.get("LOG_LEVEL", "")
+_log_level = os.environ.get("WAFT_LOG_LEVEL", "")
 if _log_level.isdigit():
     _log_level = int(_log_level)
 elif _log_level in LOG_LEVELS:
     _log_level = getattr(logging, _log_level)
 else:
     if _log_level:
-        logger.warning("Wrong value in $LOG_LEVEL, falling back to INFO")
+        logger.warning("Wrong value in $WAFT_LOG_LEVEL, falling back to INFO")
     _log_level = logging.INFO
 logger.setLevel(_log_level)
 

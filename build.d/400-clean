@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Version: v.22.05.30
 # -*- coding: utf-8 -*-
 import os
 import shutil
@@ -6,11 +7,12 @@ import sys
 
 from dotenv import load_dotenv
 
-from waftlib import CLEAN, ODOO_DIR, PRIVATE_DIR, SRC_DIR, addons_config, logger
+from waftlib import WAFT_CLEAN, ODOO_DIR, PRIVATE_DIR, SRC_DIR, addons_config, logger
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../.."))
-load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-default"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"), override=True)
 load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 # Get the enabled paths
@@ -32,19 +34,19 @@ for directory, subdirectories, subfiles in os.walk(SRC_DIR):
         subdirectories[:] = []
         continue
     # Leave .git directories unless we are really CLEAN-ing
-    if directory.endswith("/.git") and not CLEAN:
+    if directory.endswith("/.git") and not WAFT_CLEAN:
         subdirectories[:] = []
         continue
     # Leave .github directories unless we are really CLEAN-ing
-    if directory.endswith("/.github") and not CLEAN:
+    if directory.endswith("/.github") and not WAFT_CLEAN:
         subdirectories[:] = []
         continue
     # Leave '__xxxxxxx__' folders unless we are really CLEAN-ing
-    if directory.endswith("__") and not CLEAN:
+    if directory.endswith("__") and not WAFT_CLEAN:
         subdirectories[:] = []
         continue
     # Leave 'setup' directories unless we are really CLEAN-ing
-    if directory.endswith("/setup") and not CLEAN:
+    if directory.endswith("/setup") and not WAFT_CLEAN:
         subdirectories[:] = []
         continue
     # Inside the odoo dir, skip all but addons dir
@@ -61,7 +63,7 @@ for directory, subdirectories, subfiles in os.walk(SRC_DIR):
             # Then, let's walk in; we'll remove later if needed
             continue
         else:
-            if not CLEAN:
+            if not WAFT_CLEAN:
                 continue
     else:
         # This is an addons repo; do not walk into the enabled ones

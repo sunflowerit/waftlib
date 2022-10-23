@@ -9,7 +9,8 @@ from waftlib import logger
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../../../../.."))
-load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-default"))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"), override=True)
 load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 class Installer(object):

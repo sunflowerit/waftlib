@@ -1,24 +1,26 @@
 #!/usr/bin/env bash
+# Version: v.22.05.30
 set -e
 
-SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
-ODOO_WORK_DIR=$(cd $SCRIPT_PATH/../.. && /bin/pwd)
-. $ODOO_WORK_DIR/.env-shared && \
-. $ODOO_WORK_DIR/.env-secret
-cd $ODOO_WORK_DIR
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIR="$(cd "${SCRIPT_PATH}/../.." && /bin/pwd)"
+. "${ODOO_WORK_DIR}/.env-default" && \
+. "${ODOO_WORK_DIR}/.env-shared" && \
+. "${ODOO_WORK_DIR}/.env-secret"
+cd "${ODOO_WORK_DIR}"
 
-src=$ODOO_WORK_DIR/custom/src/odoo
-log INFO Installing Odoo from $src
+src="${ODOO_WORK_DIR}/custom/src/odoo"
+log INFO Installing Odoo from "${src}"
 
 args="--no-cache-dir"
 # Odoo v8 dependencies could crash at install, so we don't use them
-if [ "$ODOO_VERSION" == "8.0" ]; then
-    args="$args --no-deps"
+if [ "${ODOO_VERSION}" == "8.0" ]; then
+    args="${args} --no-deps"
 fi
-pip install $args --editable $src
+pip install "${args}" --editable "${src}"
 
 # Make version 8.0 and 9.0 have an `odoo` executable
-if [ "$ODOO_VERSION" == "8.0" -o "$ODOO_VERSION" == "9.0" ]; then
-    rm -fr $ODOO_WORK_DIR/.venv/bin/odoo
-    ln -s $ODOO_WORK_DIR/.venv/bin/odoo.py $ODOO_WORK_DIR/.venv/bin/odoo
+if [ "${ODOO_VERSION}" == "8.0" -o "${ODOO_VERSION}" == "9.0" ]; then
+    /bin/ -fr "${ODOO_WORK_DIR}/.venv/bin/odoo"
+    /bin/ln -s "${ODOO_WORK_DIR}/.venv/bin/odoo.py" "${ODOO_WORK_DIR}/.venv/bin/odoo"
 fi
