@@ -239,11 +239,9 @@ else
   /bin/echo "WARNING: ${ODOO_WORK_DIR}/requirements-default.txt not a default link!"
 fi
 
-if [ ! -f "${ODOO_WORK_DIR}/requirements.txt" ] || [ -L "${ODOO_WORK_DIR}/requirements.txt" ]; then
+if [ ! -f "${ODOO_WORK_DIR}/requirements.txt" ]; then
   /bin/echo "INFO: Copy ${ODOO_WORK_DIR}/waftlib/templates/requirements.txt to ${ODOO_WORK_DIR}/."
   /bin/cp "${ODOO_WORK_DIR}/waftlib/templates/requirements.txt" "${ODOO_WORK_DIR}/"
-else
-  /bin/echo "WARNING: ${ODOO_WORK_DIR}/requirements.txt not a default link!"
 fi
 
 if [ ! -f "${ODOO_WORK_DIR}/run" ] || [ -L "${ODOO_WORK_DIR}/run" ]; then
