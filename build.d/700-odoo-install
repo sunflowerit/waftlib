@@ -14,7 +14,7 @@ log INFO Installing Odoo from "${src}"
 
 # Odoo v8 dependencies could crash at install, so we don't use them
 if [ "${ODOO_VERSION}" == "8.0" ]; then
-  pip install --no-cache-dir --editable --no-deps "${src}"
+  pip install --no-cache-dir --no-deps --editable "${src}"
 else
   pip install --no-cache-dir --editable "${src}"
 fi
