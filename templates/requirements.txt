@@ -1,4 +1,3 @@
 # Version: v.22.05.30
 # Default PyPI packages versions.
-# Don't change this file
 # Add packages here to override requirements-default.txt file.
