@@ -256,6 +256,13 @@ else
   /bin/echo "WARNING: ${ODOO_WORK_DIR}/shell not a default link!"
 fi
 
+if [ ! -f "${ODOO_WORK_DIR}/translate-modules" ] || [ -L "${ODOO_WORK_DIR}/translate-modules" ]; then
+  /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/bin/translate-modules to ${ODOO_WORK_DIR}/translate-modules"
+  cd "${ODOO_WORK_DIR}" && /bin/ln -sf waftlib/bin/translate-modules
+else
+  /bin/echo "WARNING: ${ODOO_WORK_DIR}/translate-modules not a default link!"
+fi
+
 if [ ! -f "${ODOO_WORK_DIR}/upgrade" ] || [ -L "${ODOO_WORK_DIR}/upgrade" ]; then
   /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/upgrade to ${ODOO_WORK_DIR}/upgrade"
   cd "${ODOO_WORK_DIR}" && /bin/ln -sf waftlib/upgrade
