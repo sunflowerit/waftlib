@@ -35,9 +35,24 @@ fi
 
 if [ -f "${ODOO_WORK_DIR}/.env-shared" ]; then
   if [ -f "${ODOO_WORK_DIR}/.env-default" ]; then
+    if [ -L "${ODOO_WORK_DIR}/.env-default" ]; then
+      . "${ODOO_WORK_DIR}/.env-shared" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-shared"!" && exit 1)
+      /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/.env-default to ${ODOO_WORK_DIR}/.env-default"
+      cd "${ODOO_WORK_DIR}" && /bin/ln -sf "waftlib/templates/${ODOO_VERSION}/.env-default"
+      . "${ODOO_WORK_DIR}/.env-default" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-default"!" && exit 1)
+      . "${ODOO_WORK_DIR}/.env-shared" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-shared"!" && exit 1)
+    else
+      /bin/echo "WARNING: ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/.env-default not a default link!"
+      . "${ODOO_WORK_DIR}/.env-default" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-default"!" && exit 1)
+      . "${ODOO_WORK_DIR}/.env-shared" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-shared"!" && exit 1)
+    fi
+  else
+    . "${ODOO_WORK_DIR}/.env-shared" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-shared"!" && exit 1)
+    /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/.env-default to ${ODOO_WORK_DIR}/.env-default"
+    cd "${ODOO_WORK_DIR}" && /bin/ln -sf "waftlib/templates/${ODOO_VERSION}/.env-default"
     . "${ODOO_WORK_DIR}/.env-default" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-default"!" && exit 1)
+    . "${ODOO_WORK_DIR}/.env-shared" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-shared"!" && exit 1)
   fi
-  . "${ODOO_WORK_DIR}/.env-shared" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-shared"!" && exit 1)
   if [ -f "${ODOO_WORK_DIR}/.env-secret" ]; then
     . "${ODOO_WORK_DIR}/.env-secret" || (/bin/echo "ERROR: Can't load "${ODOO_WORK_DIR}/.env-secret"!" && exit 1)
   else
