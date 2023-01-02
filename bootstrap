@@ -149,7 +149,7 @@ PYVERSION="$(python -V 2>&1 | /bin/sed 's/^Python //; s/\.[0-9]*$//')"
 VIRTUALENV="${PYENV_ROOT}/bin/virtualenv.pyz"
 if [ ! -d "${ODOO_WORK_DIR}/.venv" ]; then
   /bin/echo "INFO: Download ${VIRTUALENV}"
-  /usr/bin/wget --no-check-certificate "https://bootstrap.pypa.io/virtualenv/${PYVERSION}/virtualenv.pyz" -O "${VIRTUALENV}" || { /bon/echo 'Download of virtualenv package failed' ; exit 1; }
+  /usr/bin/wget --no-check-certificate "https://bootstrap.pypa.io/virtualenv/${PYVERSION}/virtualenv.pyz" -O "${VIRTUALENV}" || { /bin/echo 'Download of virtualenv package failed' ; exit 1; }
   /bin/echo "INFO: Build virtual environment in ${ODOO_WORK_DIR}/.venv"
   python "${VIRTUALENV}" .venv || { /bin/echo 'Virtualenv creation failed' ; exit 1; }
 else
