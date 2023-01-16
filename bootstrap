@@ -27,11 +27,12 @@ if [ -z "${LIBRARIES_VERSION_BRANCH}" ]; then
   fi
 fi
 
-/bin/mkdir -p "${ODOO_WORK_DIR}/auto/addons/"
-/bin/mkdir -p "${ODOO_WORK_DIR}/common/build.d/"
-/bin/mkdir -p "${ODOO_WORK_DIR}/common/conf.d/"
-/bin/mkdir -p "${ODOO_WORK_DIR}/common/entrypoint.d/"
-/bin/mkdir -p "${ODOO_WORK_DIR}/custom/src/private/"
+/bin/mkdir -p "${ODOO_WORK_DIR}/auto/addons"
+/bin/mkdir -p "${ODOO_WORK_DIR}/common/build.d"
+/bin/mkdir -p "${ODOO_WORK_DIR}/common/conf.d"
+/bin/mkdir -p "${ODOO_WORK_DIR}/common/entrypoint.d"
+/bin/mkdir -p "${ODOO_WORK_DIR}/custom/src/private"
+/bin/mkdir -p "${ODOO_WORK_DIR}/logfile"
 
 if [ -f "${ODOO_WORK_DIR}/.env-shared" ]; then
   if [ -f "${ODOO_WORK_DIR}/.env-default" ]; then
