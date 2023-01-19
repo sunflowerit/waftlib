@@ -20,6 +20,7 @@ click-odoo==1.4.3
 click-odoo-contrib==1.12.0
 colorama==0.4.4
 cssselect==1.1.0
+dateparser==1.1.1
 decorator==4.3.0
 defusedxml==0.7.1
 docutils==0.14
@@ -51,6 +52,7 @@ ofxparse==0.20
 parso==0.8.2
 passlib==1.7.1
 pathtools==0.1.2
+pdfplumber==0.6.0
 pg-activity==1.5.0
 phonenumbers==8.10.19
 Pillow==6.1.0
@@ -72,6 +74,7 @@ python-stdnum==1.13
 pytz==2021.1
 pyusb==1.0.2
 qrcode==6.1
+regex==2022.3.2
 reportlab==3.5.13
 requests==2.26.0
 requests-toolbelt==0.9.1
