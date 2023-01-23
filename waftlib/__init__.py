@@ -89,7 +89,7 @@ def addons_config(filtered=True, strict=False):
     config = dict()
     missing_glob = set()
     missing_manifest = set()
-    all_globs = {}
+    all_globs = addons_in_repos_config()
     try:
         with open(ADDONS_YAML) as addons_file:
             for doc in yaml.safe_load_all(addons_file):
@@ -177,3 +177,19 @@ except ImportError:
     # Custom which implementation for Python 2
     def which(binary):
         return check_output(["which", binary]).strip()
+
+def addons_in_repos_config():
+    globs = {}
+    try:
+        with open(REPOS_YAML) as repos_file:
+            for doc in yaml.safe_load_all(repos_file):
+                for repo, object in doc.items():
+                    if "restrict_modules" in object:
+                        if object["restrict_modules"]:
+                            globs[repo] = object["restrict_modules"]
+                    else:
+                        globs[repo] = ["*"]
+    except IOError:
+        logger.error("Could not find repos configuration yaml.")
+        exit(1)
+    return globs
