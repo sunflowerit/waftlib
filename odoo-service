@@ -10,4 +10,11 @@ cd "${ODOO_WORK_DIR}"
 
 . "${ODOO_WORK_DIR}/.venv/bin/activate"
 
+if [ "${ODOO_WORKERS}" -eq '0' ]; then
+  export ODOO_WORKERS="${ODOO_WORKERS:-8}"
+  export ODOO_XMLRPC_PORT="${ODOO_XMLRPC_PORT:-8069}"
+  export ODOO_LONGPOLLING_PORT="${ODOO_LONGPOLLING_PORT:-8072}"
+  /usr/bin/socat "TCP-LISTEN:${ODOO_LONGPOLLING_PORT},reuseaddr,fork" "TCp:127.0.0.1:${ODOO_XMLRPC_PORT}" &
+fi
+
 ${ODOO_WORK_DIR}/.venv/bin/odoo --logfile "${ODOO_WORK_DIR}/logfile/odoo.log" -c "${ODOO_WORK_DIR}/auto/odoo.conf"
