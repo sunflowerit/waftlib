@@ -101,6 +101,7 @@ python-stdnum==1.13
 pytz==2016.7
 pyusb==1.0.2
 qrcode==5.3
+raven==6.10.0
 reportlab==3.3.0
 requests==2.26.0
 requests-oauthlib==1.3.0
