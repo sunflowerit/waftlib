@@ -14,6 +14,7 @@ auto/*
 auto/addons/*
 !auto/addons/.gitkeep
 odoo-variables
+datadir
 logfile
 qa/*
 !qa/artifacts
