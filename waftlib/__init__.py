@@ -108,8 +108,7 @@ def addons_config(filtered=True, strict=False):
                     if repo == "ENV":
                         continue
                     logger.debug("Processing %s repo", repo)
-                    all_globs.setdefault(repo, set())
-                    all_globs[repo].update(partial_globs)
+                    all_globs[repo] = partial_globs
     except IOError:
         logger.debug("Could not find addons configuration yaml.")
     # Add default values for special sections
@@ -178,17 +177,14 @@ except ImportError:
     def which(binary):
         return check_output(["which", binary]).strip()
 
+
 def addons_in_repos_config():
     globs = {}
     try:
         with open(REPOS_YAML) as repos_file:
             for doc in yaml.safe_load_all(repos_file):
                 for repo, object in doc.items():
-                    if "restrict_modules" in object:
-                        if object["restrict_modules"]:
-                            globs[repo] = object["restrict_modules"]
-                    else:
-                        globs[repo] = ["*"]
+                    globs[repo] = ["*"]
     except IOError:
         logger.error("Could not find repos configuration yaml.")
         exit(1)
