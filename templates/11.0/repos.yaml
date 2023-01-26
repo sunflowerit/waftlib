@@ -3,7 +3,7 @@ odoo:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    origin: https://github.com/OCA/OCB.git
+    origin: https://github.com/odoo/odoo.git
   target: origin ${ODOO_VERSION}
   merges:
     - origin ${ODOO_VERSION}
