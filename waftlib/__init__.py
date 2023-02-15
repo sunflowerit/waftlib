@@ -89,7 +89,7 @@ def addons_config(filtered=True, strict=False):
     config = dict()
     missing_glob = set()
     missing_manifest = set()
-    all_globs = {}
+    all_globs = addons_in_repos_config()
     try:
         with open(ADDONS_YAML) as addons_file:
             for doc in yaml.safe_load_all(addons_file):
@@ -108,8 +108,7 @@ def addons_config(filtered=True, strict=False):
                     if repo == "ENV":
                         continue
                     logger.debug("Processing %s repo", repo)
-                    all_globs.setdefault(repo, set())
-                    all_globs[repo].update(partial_globs)
+                    all_globs[repo] = partial_globs
     except IOError:
         logger.debug("Could not find addons configuration yaml.")
     # Add default values for special sections
@@ -177,3 +176,16 @@ except ImportError:
     # Custom which implementation for Python 2
     def which(binary):
         return check_output(["which", binary]).strip()
+
+
+def addons_in_repos_config():
+    globs = {}
+    try:
+        with open(REPOS_YAML) as repos_file:
+            for doc in yaml.safe_load_all(repos_file):
+                for repo, object in doc.items():
+                    globs[repo] = ["*"]
+    except IOError:
+        logger.error("Could not find repos configuration yaml.")
+        exit(1)
+    return globs
