@@ -27,6 +27,7 @@ contextlib2==0.6.0.post1
 cssselect==1.1.0
 dateparser==1.0.0
 decorator==4.0.10
+deepl==1.14.0; python_version >= "3.6"
 defusedxml==0.7.1
 Deprecated==1.2.12
 docutils==0.14

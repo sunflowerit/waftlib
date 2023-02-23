@@ -1,26 +1,12 @@
-#!/usr/bin/env python
 # Version: v.22.05.30
 # -*- coding: utf-8 -*-
 import os
 import sys
-from dotenv import load_dotenv
-import deepl
 import getopt
 import polib
 import shutil
 import tempfile
 
-from waftlib import (
-    ADDONS_DIR,
-    ODOO_DIR,
-    SRC_DIR,
-)
-
-SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
-os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../.."))
-load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-default"))
-load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-shared"), override=True)
-load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=True)
 
 HELP_TEXT = """
 This script will generate new .po files for certain modules, and certain
@@ -52,6 +38,7 @@ Parameters
 
 arguments = {}
 compendium = {}
+deepl = None
 deepl_secret = None
 temp_file = None
 temp_dir = None
@@ -171,7 +158,7 @@ def parse_arguments():
 
     for opt in optlist:
         arg, value = opt
-        
+
         if arg == '-d' or arg == '--database':
             arguments['database'] = value
         if arg == '-f' or arg == '--module-folder':
@@ -188,7 +175,7 @@ def parse_arguments():
 
 
 def main():
-    global arguments, compendium, temp_file, translator
+    global arguments, compendium, deepl, temp_file, translator
     
     try:
         arguments = parse_arguments()
@@ -196,12 +183,17 @@ def main():
         print("Invalid arguments: ", err, file=sys.stderr)
         return 1
     args = arguments
+    if 'help' in args:
+        print(HELP_TEXT)
+        return 0
+
+    if 'use-translation-service' in args:
+        import deepl
 
     # Load database name
     if not 'database' in args or len(args['database']) == 0:
         database = os.environ['PGDATABASE'] \
             if 'PGDATABASE' in os.environ else None
-        print("DB ", database)
         if not database:
             print("Need to specify the database with -d .", file=sys.stderr)
             return 1

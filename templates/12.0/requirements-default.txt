@@ -23,6 +23,7 @@ colorama==0.4.4
 contextlib2==0.6.0.post1
 cssselect==1.1.0
 decorator==4.0.10
+deepl==1.14.0; python_version >= "3.6"
 docutils==0.14
 ebaysdk==2.1.5
 feedparser==5.2.1
