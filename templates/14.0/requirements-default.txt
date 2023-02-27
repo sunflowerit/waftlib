@@ -22,6 +22,7 @@ colorama==0.4.4
 cssselect==1.1.0
 dateparser==1.1.1
 decorator==4.3.0
+deepl==1.14.0; python_version >= "3.6"
 defusedxml==0.7.1
 docutils==0.14
 ebaysdk==2.1.5
