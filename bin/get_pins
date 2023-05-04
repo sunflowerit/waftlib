@@ -28,9 +28,11 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("--only-base")
 args = parser.parse_args()
+
+
 current_heads = {}
 all_commits = {}
-
+min_depth = {}
 
 class CustomDumper(yaml.Dumper):
     """
@@ -88,7 +90,7 @@ def update_repo_commits_and_heads(repo_path, repo):
     all_commits[repo] = allrev.stdout.decode("utf-8").replace("\n", ",").split(",")
 
 
-def get_merge_type(splitted_merge):
+def get_merge_type(splitted_merge, repo):
     """
     Possible syntaxes for merges:
 
@@ -106,14 +108,40 @@ def get_merge_type(splitted_merge):
             return 1
     return 0  # unreachable.
 
+def process_depth(splitted_merge, branchname):
+        lastrev = (
+            run(
+                [
+                    "git",
+                    "merge-base",
+                    "HEAD",
+                    "".join([splitted_merge[0], "/", branchname]),
+                ],
+                stdout=PIPE,
+                stderr=PIPE,
+            )
+            .stdout.decode("utf-8")
+            .replace("\n", "")
+        )
+        # we now calculate the needed depth of this branch
+        mindepth = (
+            run(
+                ["git", "rev-list", "HEAD", "^$" + lastrev, "--count"],
+                stdout=PIPE,
+                stderr=PIPE,
+            )
+            .stdout.decode("utf-8")
+            .replace("\n", "")
+        )
+        return mindepth
 
-def process_merge(doc, repo, merge, index):
+def process_merge(doc, repo, merge, index, repo_min_depth):
     repo_path, splitted_merge = preprocess_merge(doc, repo, merge)
     # will update all_commits[repo] and current_heads[repo] globals.
     update_repo_commits_and_heads(repo_path, repo)
     env = dict(os.environ, **doc.get("ENV", {}))
     wd = os.getcwd()
-    merge_type = get_merge_type(splitted_merge)
+    merge_type = get_merge_type(splitted_merge, repo)
     if merge_type == 3:
         # merge_type #3
         branchname = get_branchname(splitted_merge)
@@ -126,9 +154,11 @@ def process_merge(doc, repo, merge, index):
             ],
             stdout=PIPE,
             stderr=PIPE,
-        )
+        ).stdout.decode("utf-8").replace("\n", "")
         if splitted_merge[2] != current_pin:
             splitted_merge[2] = current_pin
+        min_depth = process_depth(splitted_merge, branchname)
+        repo_min_depth = min_depth and min_depth > repo_min_depth or repo_min_depth
     if merge_type == 2:
         # <remote> <PIN> merge_type line
         splitted_merge[1] = current_heads.get(repo, "")
@@ -151,11 +181,16 @@ def process_merge(doc, repo, merge, index):
             .replace("\n", "")
         )
         splitted_merge.append(current_pin)
+        process_depth(splitted_merge, branchname)
+        min_depth = process_depth(splitted_merge, branchname)
+        print("++++++++++++" + min_depth)
+        repo_min_depth = min_depth and min_depth > repo_min_depth or repo_min_depth
     os.chdir(wd)
     if merge_type == 0:
         logger.debug("Invalid Repo of unrecognized merge_type: %s" % splitted_merge)
         raise ValueError
-    return " ".join(splitted_merge)
+    print("DEPTH MERGE " + str(repo_min_depth) + '---------' + str(splitted_merge))
+    return " ".join(splitted_merge) , repo_min_depth
 
 
 def main():
@@ -165,16 +200,17 @@ def main():
     """
     with open(REPOS_YAML) as yaml_file:
         for doc in yaml.safe_load_all(yaml_file):
+            min_depth = 0
             for repo in doc:
                 if repo in {PRIVATE, "ONLY", "ENV"}:
                     continue
-                target = doc[repo]["target"] or False
+                target = doc[repo].get("target") or False
                 has_target = target and True or False
                 processed_target = False
                 if has_target:
-                    doc[repo]["target"] = process_merge(doc, repo, target, 0)
+                    doc[repo]["target"], min_depth = process_merge(doc, repo, target, 0, min_depth)
                 # main branch is defined as target or in absence of target, merge[0]
-                main_branch = target or merge[0]
+                main_branch = target or doc[repo]["merges"][0]
                 main_branch = split_line(main_branch)[0]
                 for merge in doc[repo]["merges"]:
                     index = doc[repo]["merges"].index(merge)
@@ -184,38 +220,14 @@ def main():
                         and bool(args.only_base)
                     ) == True:
                         continue
-                    doc[repo]["merges"][index] = process_merge(doc, repo, merge, index)
-                    lastrev = (
-                        run(
-                            [
-                                "git",
-                                "merge-base",
-                                "HEAD",
-                                "".join([splitted_merge[0], "/", branchname]),
-                            ],
-                            stdout=PIPE,
-                            stderr=PIPE,
-                        )
-                        .stdout.decode("utf-8")
-                        .replace("\n", "")
-                    )
-                    # we now calculate the needed depth of this branch
-                    mindepth = (
-                        run(
-                            ["git", "rev-list", "HEAD", "^$" + lastrev, "--count"],
-                            stdout=PIPE,
-                            stderr=PIPE,
-                        )
-                        .stdout.decode("utf-8")
-                        .replace("\n", "")
-                    )
+                    doc[repo]["merges"][index], min_depth = process_merge(doc, repo, merge, index, min_depth)
             CustomDumper.add_representer(
                 dict, CustomDumper.represent_dict_preserve_order
             )
             print(yaml.dump(doc, Dumper=CustomDumper))
 
 
-if os.path.isfile(REPOS_YAML) and __name__ == "main":
+if os.path.isfile(REPOS_YAML) and __name__ == "__main__":
     main()
 else:
     logger.debug("no %s  repository file found" % REPOS_YAML)
