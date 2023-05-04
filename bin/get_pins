@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # Version: v.22.05.30
-# -*- coding: utf-9 -*-
 import os
 import argparse
 from subprocess import run, PIPE
@@ -36,11 +35,12 @@ all_commits = {}
 class CustomDumper(yaml.Dumper):
     """
     We want order of keys intact so that the output is the same order than source.
-    Unfortunately PyYAML orders yaml output alphabetically  on dump.
+    Unfortunately PyYAML orders yaml output alphabetically on dump.
     pyyaml 5.1 has an option to disable alphabetical orderng of dumps, but often our
     wafts have a version < 5.1.
     for this reason i made a custom dumper to have an "unordered" dump, without
     affecting the default behaviour of pyyaml dump. This script supports pyYAML<5.1.
+    Our output will therefore have the same order as given input.
     """
 
     def represent_dict_preserve_order(self, data):
@@ -75,28 +75,48 @@ def preprocess_merge(doc, repo, merge):
     return repo_path, splitted_merge
 
 
-def process_merge(doc, repo, merge, index):
+def get_branchname(splitted_merge):
+    return splitted_merge[1].replace("${ODOO_VERSION}", ODOO_VERSION)
+
+
+def update_repo_commits_and_heads(repo_path, repo):
+    os.chdir(repo_path)
+    allrev = run(["git", "rev-list", "HEAD"], stdout=PIPE, stderr=PIPE)
+    lrev = run(["git", "rev-parse", "HEAD"], stdout=PIPE, stderr=PIPE)
+    # no return updating globals.
+    current_heads[repo] = lrev.stdout.decode("utf-8").replace("\n", "").replace("'", "")
+    all_commits[repo] = allrev.stdout.decode("utf-8").replace("\n", ",").split(",")
+
+
+def get_merge_type(splitted_merge):
     """
     Possible syntaxes for merges:
 
     <remote> <branch>     merge_type=1
     <remote> <PIN>        merge_type=2
     <remote> <branch> <PIN>     merge_type=3
-    merge_type=0 "invalid"
+    merge_type=0  "invalid"
     """
+    if len(splitted_merge) == 3:
+        return 3
+    else:
+        if is_in_history(splitted_merge[1], all_commits.get(repo, [])):
+            return 2
+        else:
+            return 1
+    return 0  # unreachable.
+
+
+def process_merge(doc, repo, merge, index):
     repo_path, splitted_merge = preprocess_merge(doc, repo, merge)
-    merge_type = 0  # invalid
+    # will update all_commits[repo] and current_heads[repo] globals.
+    update_repo_commits_and_heads(repo_path, repo)
     env = dict(os.environ, **doc.get("ENV", {}))
     wd = os.getcwd()
-    os.chdir(repo_path)
-    allrev = run(["git", "rev-list", "HEAD"], stdout=PIPE, stderr=PIPE)
-    lrev = run(["git", "rev-parse", "HEAD"], stdout=PIPE, stderr=PIPE)
-    current_heads[repo] = lrev.stdout.decode("utf-8").replace("\n", "").replace("'", "")
-    all_commits[repo] = allrev.stdout.decode("utf-8").replace("\n", ",").split(",")
-    if len(splitted_merge) == 3:
-        # <remote> <branch> <PIN> merge_type line
-        merge_type = 3
-        branchname = splitted_merge[1].replace("${ODOO_VERSION}", ODOO_VERSION)
+    merge_type = get_merge_type(splitted_merge)
+    if merge_type == 3:
+        # merge_type #3
+        branchname = get_branchname(splitted_merge)
         current_pin = run(
             [
                 "git",
@@ -109,38 +129,36 @@ def process_merge(doc, repo, merge, index):
         )
         if splitted_merge[2] != current_pin:
             splitted_merge[2] = current_pin
-    else:
-        if is_in_history(splitted_merge[1], all_commits.get(repo, [])):
-            # <remote> <PIN> merge_type line
-            merge_type = 2
-            splitted_merge[1] = current_heads.get(repo, "")
-        else:
-            # <remote> <branch> merge_type line
-            merge_type = 1
-            branchname = splitted_merge[1].replace("${ODOO_VERSION}", ODOO_VERSION)
-            current_pin = (
-                run(
-                    [
-                        "git",
-                        "merge-base",
-                        "HEAD",
-                        "".join([splitted_merge[0], "/", branchname]),
-                    ],
-                    stdout=PIPE,
-                    stderr=PIPE,
-                )
-                .stdout.decode("utf-8")
-                .replace("\n", "")
+    if merge_type == 2:
+        # <remote> <PIN> merge_type line
+        splitted_merge[1] = current_heads.get(repo, "")
+    if merge_type == 1:
+        # <remote> <branch> merge_type line
+        # merge_type #1
+        branchname = get_branchname(splitted_merge)
+        current_pin = (
+            run(
+                [
+                    "git",
+                    "merge-base",
+                    "HEAD",
+                    "".join([splitted_merge[0], "/", branchname]),
+                ],
+                stdout=PIPE,
+                stderr=PIPE,
             )
-            splitted_merge.append(current_pin)
-        os.chdir(wd)
-        if merge_type == 0:
-            logger.debug("Invalid Repo of unrecognized merge_type: %s" % splitted_merge)
-            raise ValueError
+            .stdout.decode("utf-8")
+            .replace("\n", "")
+        )
+        splitted_merge.append(current_pin)
+    os.chdir(wd)
+    if merge_type == 0:
+        logger.debug("Invalid Repo of unrecognized merge_type: %s" % splitted_merge)
+        raise ValueError
     return " ".join(splitted_merge)
 
 
-def update_pins():
+def main():
     """
     parsing directly repos.yaml, if something is not in addons.yaml, branch will still
     be in folder, but may not be included in addons. Nothing changes.
@@ -155,6 +173,9 @@ def update_pins():
                 processed_target = False
                 if has_target:
                     doc[repo]["target"] = process_merge(doc, repo, target, 0)
+                # main branch is defined as target or in absence of target, merge[0]
+                main_branch = target or merge[0]
+                main_branch = split_line(main_branch)[0]
                 for merge in doc[repo]["merges"]:
                     index = doc[repo]["merges"].index(merge)
                     # if target exists and only base is selected , just pin target.
@@ -164,12 +185,38 @@ def update_pins():
                     ) == True:
                         continue
                     doc[repo]["merges"][index] = process_merge(doc, repo, merge, index)
-
+                    lastrev = (
+                        run(
+                            [
+                                "git",
+                                "merge-base",
+                                "HEAD",
+                                "".join([splitted_merge[0], "/", branchname]),
+                            ],
+                            stdout=PIPE,
+                            stderr=PIPE,
+                        )
+                        .stdout.decode("utf-8")
+                        .replace("\n", "")
+                    )
+                    # we now calculate the needed depth of this branch
+                    mindepth = (
+                        run(
+                            ["git", "rev-list", "HEAD", "^$" + lastrev, "--count"],
+                            stdout=PIPE,
+                            stderr=PIPE,
+                        )
+                        .stdout.decode("utf-8")
+                        .replace("\n", "")
+                    )
             CustomDumper.add_representer(
                 dict, CustomDumper.represent_dict_preserve_order
             )
             print(yaml.dump(doc, Dumper=CustomDumper))
 
 
-if os.path.isfile(REPOS_YAML):
-    update_pins()
+if os.path.isfile(REPOS_YAML) and __name__ == "main":
+    main()
+else:
+    logger.debug("no %s  repository file found" % REPOS_YAML)
+    raise ValueError
