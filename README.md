@@ -34,6 +34,10 @@ You'll need to take care of these yourself.
 
 As for the system requirements, take a look at the files in [this folder](https://github.com/sunflowerit/waftlib/tree/master/templates) or also checkout the [pyenv prerequisites](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
 
+Note: when you do want to use an existing python version or system python, you can create a
+virtual environment in the root directory by using `$ python -m venv .venv` or
+if you have an existing virtualenv binary: `$ virtualenv .venv.
+
 ## Setup a waft project
 
 Clone the [waft template project](https://github.com/sunflowerit/waft) and run bootstrap:
