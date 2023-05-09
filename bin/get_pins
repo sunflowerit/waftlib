@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Version: v.22.05.30
+# Version: v.21.05.30
 import os
 import argparse
 from subprocess import run, PIPE
@@ -79,8 +79,10 @@ def preprocess_merge(doc, repo, merge):
     return repo_path, splitted_merge
 
 
-def get_branchname(splitted_merge):
-    return splitted_merge[1].replace("${ODOO_VERSION}", ODOO_VERSION)
+def get_branchname(splitted_merge, merge_type):
+    if merge_type in (1,3):
+       return splitted_merge[1].replace("${ODOO_VERSION}", ODOO_VERSION)
+    return False
 
 
 def update_repo_commits_and_heads(repo_path, repo):
@@ -111,7 +113,8 @@ def get_merge_type(splitted_merge, repo):
     return 0  # unreachable.
 
 
-def process_depth(splitted_merge, branchname, main_branch, main_branch_name, repo_path):
+def process_depth(splitted_merge, branchname,
+                  main_branch, main_branch_name, repo_path):
     os.chdir(repo_path)
     lastrev = (
         run(
@@ -155,7 +158,7 @@ def process_merge(doc, repo, merge, index):
     merge_type = get_merge_type(splitted_merge, repo)
     if merge_type == 3:
         # merge_type #3
-        branchname = get_branchname(splitted_merge)
+        branchname = get_branchname(splitted_merge, merge_type)
         current_pin = (
             run(
                 [
@@ -178,22 +181,23 @@ def process_merge(doc, repo, merge, index):
     if merge_type == 1:
         # <remote> <branch> merge_type line
         # merge_type #1
-        branchname = get_branchname(splitted_merge)
-        current_pin = (
-            run(
-                [
-                    "git",
-                    "merge-base",
-                    "HEAD",
-                    "".join([splitted_merge[0], "/", branchname]),
-                ],
-                stdout=PIPE,
-                stderr=PIPE,
+        branchname = get_branchname(splitted_merge, merge_type)
+        if branchname:
+            current_pin = (
+                run(
+                    [
+                        "git",
+                        "merge-base",
+                        "HEAD",
+                        "".join([splitted_merge[0], "/", branchname]),
+                    ],
+                    stdout=PIPE,
+                    stderr=PIPE,
+                )
+                .stdout.decode("utf-8")
+                .replace("\n", "")
             )
-            .stdout.decode("utf-8")
-            .replace("\n", "")
-        )
-        splitted_merge.append(current_pin)
+            splitted_merge.append(current_pin)
     os.chdir(wd)
     if merge_type == 0:
         logger.debug("Invalid Repo of unrecognized merge_type: %s" % splitted_merge)
@@ -209,6 +213,7 @@ def main():
     with open(REPOS_YAML) as yaml_file:
         for doc in yaml.safe_load_all(yaml_file):
             for repo in doc:
+                print("processing repo %s" % repo)
                 repo_min_depth[repo] = 0
                 if repo in {PRIVATE, "ONLY", "ENV"}:
                     continue
@@ -220,8 +225,10 @@ def main():
                 # main branch is defined as target or in absence of target, merge[0]
                 main_branch = target or doc[repo]["merges"][0]
                 main_branch = split_line(main_branch)
-                main_branch_name = get_branchname(main_branch)
+                merge_type = get_merge_type(main_branch, repo)
+                main_branch_name = get_branchname(main_branch, merge_type )
                 for merge in doc[repo]["merges"]:
+                    print("processing merge %s of repo %s" % (merge, repo))
                     index = doc[repo]["merges"].index(merge)
                     # if target exists and only base is selected , just pin target.
                     if (
@@ -231,29 +238,32 @@ def main():
                         continue
                     doc[repo]["merges"][index] = process_merge(doc, repo, merge, index)
                     repo_path, splitted_merge = preprocess_merge(doc, repo, merge)
-                    branchname = get_branchname(splitted_merge)
-                    min_depth = process_depth(
-                        splitted_merge,
-                        branchname,
-                        main_branch,
-                        main_branch_name,
-                        repo_path,
-                    )
-                    repo_min_depth[repo] = (
-                        min_depth > repo_min_depth[repo]
-                        and min_depth
-                        or repo_min_depth[repo]
-                    )
-                if repo_min_depth[repo] > 0:
-                    waft_depth = doc[repo]["defaults"].get("depth")
-                    if waft_depth == "${WAFT_DEPTH_MERGE}":
-                        # waft_depth_merge, if not specified in env defaults to 100
-                        waft_depth = os.environ.get("WAFT_DEPTH_MERGE") or 100
-                    if waft_depth == "${WAFT_DEPTH_DEFAULT}":
-                        waft_depth = os.environ.get("WAFT_DEPTH_DEFAULT") or 1
-                    waft_depth = int(waft_depth)
-                    if repo_min_depth[repo] > waft_depth:
-                        doc[repo]["defaults"]["depth"] = str(repo_min_depth[repo])
+                    merge_type = get_merge_type(splitted_merge, repo)
+                    branchname = get_branchname(splitted_merge, merge_type)
+                    if branchname:
+                        # compute depth only for merges with branchname
+                        min_depth = process_depth(
+                            splitted_merge,
+                            branchname,
+                            main_branch,
+                            main_branch_name,
+                            repo_path,
+                        )
+                        repo_min_depth[repo] = (
+                            min_depth > repo_min_depth[repo]
+                            and min_depth
+                            or repo_min_depth[repo]
+                        )
+                        if repo_min_depth[repo] > 0:
+                            waft_depth = doc[repo]["defaults"].get("depth")
+                            if waft_depth == "${WAFT_DEPTH_MERGE}":
+                                # waft_depth_merge, if not specified in env defaults to 100
+                                waft_depth = os.environ.get("WAFT_DEPTH_MERGE") or 100
+                            if waft_depth == "${WAFT_DEPTH_DEFAULT}":
+                                waft_depth = os.environ.get("WAFT_DEPTH_DEFAULT") or 1
+                            waft_depth = int(waft_depth)
+                            if repo_min_depth[repo] > waft_depth:
+                                doc[repo]["defaults"]["depth"] = str(repo_min_depth[repo])
 
             CustomDumper.add_representer(
                 dict, CustomDumper.represent_dict_preserve_order
