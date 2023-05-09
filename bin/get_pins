@@ -174,6 +174,8 @@ def process_merge(doc, repo, merge, index):
             .replace("\n", "")
         )
         if splitted_merge[2] != current_pin:
+            print("\t\t Updating pin on repo %s , branchname %s, from %s to %s" % 
+                  (repo , branchname, splitted_merge[2], current_pin ))
             splitted_merge[2] = current_pin
     if merge_type == 2:
         # <remote> <PIN> merge_type line
@@ -198,6 +200,9 @@ def process_merge(doc, repo, merge, index):
                 .replace("\n", "")
             )
             splitted_merge.append(current_pin)
+            print("\t\t Adding pin to previously unpinned branch:  on repo %s , branchname %s,  %s" % 
+                  (repo , branchname,  current_pin )
+            )
     os.chdir(wd)
     if merge_type == 0:
         logger.debug("Invalid Repo of unrecognized merge_type: %s" % splitted_merge)
@@ -213,7 +218,7 @@ def main():
     with open(REPOS_YAML) as yaml_file:
         for doc in yaml.safe_load_all(yaml_file):
             for repo in doc:
-                print("processing repo %s" % repo)
+                print("===>processing repo %s" % repo)
                 repo_min_depth[repo] = 0
                 if repo in {PRIVATE, "ONLY", "ENV"}:
                     continue
@@ -228,7 +233,7 @@ def main():
                 merge_type = get_merge_type(main_branch, repo)
                 main_branch_name = get_branchname(main_branch, merge_type )
                 for merge in doc[repo]["merges"]:
-                    print("processing merge %s of repo %s" % (merge, repo))
+                    print("\t===>processing merge %s of repo %s" % (merge, repo))
                     index = doc[repo]["merges"].index(merge)
                     # if target exists and only base is selected , just pin target.
                     if (
@@ -263,11 +268,16 @@ def main():
                                 waft_depth = os.environ.get("WAFT_DEPTH_DEFAULT") or 1
                             waft_depth = int(waft_depth)
                             if repo_min_depth[repo] > waft_depth:
+                                print("\t\t Increasing depth of %s from %s to %s" % (
+                                    repo, doc[repo]["defaults"]["depth"], 
+                                    str(repo_min_depth[repo]))
+                                )
                                 doc[repo]["defaults"]["depth"] = str(repo_min_depth[repo])
 
             CustomDumper.add_representer(
                 dict, CustomDumper.represent_dict_preserve_order
             )
+            print("===>=================SCRIPT RESULTS======================\n\n\n")
             print(yaml.dump(doc, Dumper=CustomDumper))
 
 
