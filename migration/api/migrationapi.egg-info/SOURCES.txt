@@ -1,0 +1,7 @@
+setup.py
+./__init__.py
+migrationapi.egg-info/PKG-INFO
+migrationapi.egg-info/SOURCES.txt
+migrationapi.egg-info/dependency_links.txt
+migrationapi.egg-info/requires.txt
+migrationapi.egg-info/top_level.txt
