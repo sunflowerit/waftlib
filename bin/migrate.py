@@ -744,7 +744,7 @@ def run_enterprise_upgrade(version):
 def run_migration(start_version, target_version):
     global params, db_version, progress
 
-    db_version = params['start-version']
+    start_version = db_version = params['start-version']
     will_jump = params['enterprise-enabled'] and (float(start_version) + 1.0) < float(ENTERPRISE_MINIMUM_TARGET)
     from_start = False
 
@@ -810,8 +810,7 @@ def run_migration(start_version, target_version):
     # If not running from the start, we may need to call the
     # the post-upgrade scripts of the previous version.
     for version in available_build_versions(start_version):
-        print("YYYYYY", version, db_version, float(version) - float(db_version))
-        if float(db_version) - float(version) > 0.999 or (
+        if version == start_version or float(db_version) - float(version) > 0.999 or (
             params['enterprise-enabled'] and \
             not version in available_enterprise_build_versions(start_version)
         ):
@@ -824,19 +823,19 @@ def run_migration(start_version, target_version):
                 openupgrade_done = progress[version]['upgrade']
         if enterprise_done or openupgrade_done:
             db_version = version
-        print("XXXXXXXXXXX", version, enterprise_done, openupgrade_done)
+        
         init_progress(version)
         if not enterprise_done and not openupgrade_done:
             run_scripts(version, "pre-upgrade")
         if params['enterprise-enabled']:
             if not enterprise_done and \
-               float(version) - float(ENTERPRISE_MINIMUM_TARGET) >= -0.001:
+               float(version) - float(ENTERPRISE_MINIMUM_TARGET) > 0.001:
                 run_scripts(version, "enterprise/pre-upgrade")
                 run_enterprise_upgrade(version)
                 db_version = version
                 mark_enterprise_done(version)
-            if not openupgrade_done:
-                run_scripts(version, "enterprise/post-upgrade")
+                if not openupgrade_done:
+                    run_scripts(version, "enterprise/post-upgrade")
         if not openupgrade_done:
             run_scripts(version, "pre-openupgrade")
             logging.info("Running OpenUpgrade to %s..." % version)
