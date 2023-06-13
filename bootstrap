@@ -303,6 +303,13 @@ else
   /bin/echo "WARNING: ${ODOO_WORK_DIR}/upgrade not a default link!"
 fi
 
+if [ ! -f "${ODOO_WORK_DIR}/migrate" ] || [ -L "${ODOO_WORK_DIR}/migrate" ]; then
+  /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/migrate to ${ODOO_WORK_DIR}/migrate"
+  cd "${ODOO_WORK_DIR}" && /bin/ln -sf waftlib/migrate
+else
+  /bin/echo "WARNING: ${ODOO_WORK_DIR}/migrate not a default link!"
+fi
+
 for fiLe in $(/bin/ls -1 "${ODOO_WORK_DIR}/waftlib/bin/"); do
   if [ ! -f "${ODOO_WORK_DIR}/.venv/bin/${fiLe}" ] || [ -L "${ODOO_WORK_DIR}/.venv/bin/${fiLe}" ]; then
     /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/bin/${fiLe} to ${ODOO_WORK_DIR}/.venv/bin/${fiLe}"
