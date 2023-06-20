@@ -6,6 +6,11 @@ import getopt
 import polib
 import shutil
 import tempfile
+from waftlib import (
+    ADDONS_DIR,
+    ODOO_DIR,
+    SRC_DIR,
+)
 
 
 HELP_TEXT = """
@@ -223,7 +228,7 @@ def main():
     if not 'languages' in args:
         print("Warning: no languages specified. Loading all languages, which "
               "may take a long time. To speed up this process, specify "
-              "languages to process less like so: -l nl,de,fr",
+              "languages to process less of them like so: -l nl,de,fr",
             file=sys.stderr)
     langs = args['languages'] if 'languages' in args else None
 
