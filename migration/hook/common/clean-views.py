@@ -9,9 +9,9 @@ from odoo.exceptions import MissingError, ValidationError
 from odoo.modules.module import get_resource_path
 
 try:
-    import psycopg
-except ImportError:
     import psycopg2 as psycopg
+except ImportError:
+    import psycopg
 
 
 def delete_view(view_id):
