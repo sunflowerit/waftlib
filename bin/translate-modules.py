@@ -130,7 +130,7 @@ def load_translations_dict(filename):
 
 def merge_translations(new_translations, old_translations):
     def find_entry(pofile, msgid):
-        for entry in pofile.translated_entries():
+        for entry in pofile:
             if entry.msgid == msgid:
                 return entry
 
