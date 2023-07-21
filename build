@@ -27,7 +27,7 @@ fi
 . .venv/bin/activate && \
 pip install "setuptools<58" && \
 pip install "pip>=20.3" && \
-(pip uninstall -r "${ODOO_WORK_DIR}/requirements-remove-default.txt" 2>/dev/null || /bin/true) && \
+(pip uninstall --yes -r "${ODOO_WORK_DIR}/requirements-remove-default.txt" 2>/dev/null || /bin/true) && \
 pip install --exists-action w -r "${ODOO_WORK_DIR}/requirements-default.txt" && \
 pip install --exists-action w -r "${ODOO_WORK_DIR}/requirements.txt" && \
 "${ODOO_WORK_DIR}/common/build" && \
