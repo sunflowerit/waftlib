@@ -256,6 +256,15 @@ else
   /bin/echo "WARNING: ${ODOO_WORK_DIR}/odoo-service not a default link!"
 fi
 
+if [ -f "${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/requirements-remove-default.txt" ]; then
+  if [ ! -f "${ODOO_WORK_DIR}/requirements-remove-default.txt" ] || [ -L "${ODOO_WORK_DIR}/requirements-remove-default.txt" ]; then
+    /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/requirements-remove-default.txt to ${ODOO_WORK_DIR}/requirements-remove-default.txt"
+    cd "${ODOO_WORK_DIR}" && /bin/ln -sf "waftlib/templates/${ODOO_VERSION}/requirements-remove-default.txt"
+  else
+    /bin/echo "WARNING: ${ODOO_WORK_DIR}/requirements-remove-default.txt not a default link!"
+  fi
+fi
+
 if [ ! -f "${ODOO_WORK_DIR}/requirements-default.txt" ] || [ -L "${ODOO_WORK_DIR}/requirements-default.txt" ]; then
   /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/requirements-default.txt to ${ODOO_WORK_DIR}/requirements-default.txt"
   cd "${ODOO_WORK_DIR}" && /bin/ln -sf "waftlib/templates/${ODOO_VERSION}/requirements-default.txt"
