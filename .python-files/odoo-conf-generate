@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+# Version: v.23.08.03
+# -*- coding: utf-8 -*-
+
+"""Generate Odoo server configuration from templates"""
+
+from contextlib import closing
+from string import Template
+try:
+    from venvwaftlib import *
+except IOError:
+    logger.error("Run 'odoo-conf-generate' python script in '.venv-waft' virtual environment.")
+    exit(1)
+try:
+    # Python 2, where io.StringIO fails because it is unicode-only
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+try:
+    from configparser import RawConfigParser
+    parser = RawConfigParser(strict=False)
+except ImportError:
+    # Python 2, where strict=True doesn't exist
+    from ConfigParser import RawConfigParser
+    parser = RawConfigParser()
+
+AUTO_ODOO_CONF_FILE = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/auto/odoo.conf")
+
+# Read the configurations files.
+logger.info("Import %s configuration file.", os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-default.conf"))
+parser.read(os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-default.conf"))
+logger.info("Import %s configuration file.", os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-code-override-default.conf"))
+parser.read(os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-code-override-default.conf"))
+
+# Write it to a memory string object
+with closing(StringIO()) as generating_odoo_conf_file:
+    parser.write(generating_odoo_conf_file)
+    generating_odoo_conf_file.seek(0)
+    # Obtain the config string
+    generated_odoo_conf_file = generating_odoo_conf_file.read()
+    # Expand environment variables found within
+    generated_odoo_conf_file = Template(generated_odoo_conf_file).substitute(os.environ)
+    logger.debug("Resulting configuration:\n%s", AUTO_ODOO_CONF_FILE)
+    # Write it to destination
+    with open(AUTO_ODOO_CONF_FILE, "w") as auto_odoo_conf_file:
+        auto_odoo_conf_file.write(generated_odoo_conf_file)

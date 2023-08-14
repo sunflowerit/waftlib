@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+# Version: v.23.08.03
+# -*- coding: utf-8 -*-
+
+import __future__
+import argparse
+import ast
+import sys
+import venvwaftlib
+try:
+    from venvodoolib import *
+except IOError:
+    logger.error("Run 'odoo-addons-install' python script in '.venv-odoo' virtual environment.")
+    exit(1)
+
+# Define CLI options
+parser = ArgumentParser(description="Install addons in current environment")
+parser.add_argument("action", choices=("init", "update", "list"), help="What to do with the matched addons.",)
+parser.add_argument("-c", "--core", action="store_true", help="Use all Odoo core addons")
+parser.add_argument("-d", "--dependencies", action="store_true", help="Use only dependencies of selected addons",)
+parser.add_argument("-e", "--extra", action="store_true", help="Use all extra addons")
+parser.add_argument("-f", "--fullpath", action="store_true", help="Print addon's full path, only useful with list mode",)
+parser.add_argument("-i", "--installable", action="store_true", help="Include only installable addons")
+parser.add_argument("-l", "--leftout", action="append", default=[], help="Addons to exclude always.")
+parser.add_argument("-n", "--enterprise", action="store_true", help="Use all enterprise addons")
+parser.add_argument("-p", "--private", action="store_true", help="Use all private addons")
+parser.add_argument("-s", "--separator", type=str, default=",", help="String that separates addons only useful with list mode",)
+parser.add_argument("-t", "--test", action="store_true", help="Run unit tests for these addons, usually combined with update",)
+parser.add_argument("-w", "--with", action="append", dest="with_", default=[], help="Addons to include always.",)
+parser.add_argument("-x", "--explicit", action="store_true", help="Fail if any addon is explicitly declared but not found",)
+
+# Generate the matching addons set
+command_arguments = parser.parse_args()
+dependencies = {"base"}
+addons_with = set(command_arguments.with_)
+addons_left_out = set(command_arguments.leftout)
+addons_list = set()
+
+if addons_with & addons_left_out:
+    sys.exit("Cannot include and exclude the same addon!")
+if command_arguments.dependencies and command_arguments.fullpath:
+    sys.exit("Unsupported combination of --dependencies and --fullpath")
+try:
+    for addon_name, addons_repository_item_path in addons_config(strict_running=command_arguments.explicit):
+        if addon_name in addons_left_out:
+            continue
+        core_ok = command_arguments.core and addons_repository_item_path == "odoo/addons"
+        enterprise_ok = command_arguments.enterprise and addons_repository_item_path == "enterprise"
+        extra_ok = command_arguments.extra and addons_repository_item_path not in {"odoo/addons", "enterprise", "private"}
+        private_ok = command_arguments.private and addons_repository_item_path == "private"
+        manual_ok = addon_name in addons_with
+        if private_ok or core_ok or extra_ok or enterprise_ok or manual_ok:
+            addon_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_item_path, addon_name)
+            manifest_code = {}
+            for manifest_name in ("__manifest__.py", "__openerp__.py"):
+                try:
+                    manifest_path = os.path.join(addon_full_path, manifest_name)
+                    with open(manifest_path, "r") as code:
+                        manifest_code = ast.literal_eval(code.read())
+                        break
+                except IOError:
+                    continue
+            if command_arguments.installable and not manifest_code.get("installable", True):
+                continue
+            dependencies.update(manifest_code.get("depends", []))
+            if command_arguments.fullpath and command_arguments.action == "list":
+                addons_list.add(addon_full_path)
+            else:
+                addons_list.add(addon_name)
+except AddonsConfigError as error:
+    sys.exit(error.message)
+
+# Use dependencies instead, if requested
+if command_arguments.dependencies:
+    addons_list = dependencies - addons_list
+addons_list -= addons_left_out
+
+# Do the required action
+if not addons_list:
+    print("No addons found.", file=sys.stderr)
+    sys.exit("Error: Nothing to do.")
+addons_sorted_list = command_arguments.separator.join(sorted(addons_list))
+
+if command_arguments.action == "list":
+    print(addons_sorted_list)
+else:
+    command = ["odoo", "--stop-after-init", "--{}".format(command_arguments.action), addons_sorted_list]
+    if command_arguments.test:
+        command += ["--test-enable", "--workers", "0"]
+        if os.environ.get("PGDATABASE"):
+            command += ["--db-filter", u"^{}$".format(os.environ.get("PGDATABASE"))]
+    logger.info("Executing %s", " ".join(command))
+    check_call(command)

@@ -1,0 +1,18 @@
+#!/bin/sh
+# Version: v.23.08.03
+
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
+. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
+. "${ODOO_WORK_DIRECTORY}/.env-secret"
+
+if [ "${#}" -eq 0 ] ; then
+  /bin/echo "Upgrade a module"
+  /bin/echo "Usage: ${ODOO_WORK_DIRECTORY}/scripts/odoo-module-upgrade modulename"
+  exit
+fi
+
+cd "${ODOO_WORK_DIRECTORY}" && \
+. "${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/activate" && \
+odoo -c "${ODOO_WORK_DIRECTORY}/.ignore/auto/odoo.conf" -u "${1}" --xmlrpc-port 18069 --stop-after-init --i18n-overwrite

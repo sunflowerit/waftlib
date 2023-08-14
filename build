@@ -1,34 +1,52 @@
 #!/bin/sh
-# Version: v.22.05.30
+# Version: v.23.08.03
 
-SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIR="${SCRIPT_PATH}"
-. "${ODOO_WORK_DIR}/.env-default" && \
-. "${ODOO_WORK_DIR}/.env-shared" && \
-. "${ODOO_WORK_DIR}/.env-secret"
-cd "${ODOO_WORK_DIR}"
+set -e
 
-if [ "$(id -u)" -eq 0 ]; then
-  /bin/echo "Please dont use sudo command with script"
+if [ "$(/bin/id -u)" -eq 0 ] ; then
+  /bin/echo "( ERROR ) : Please refrain from using the sudo command with the script."
   exit 1
 fi
 
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIRECTORY="${SCRIPT_PATH}"
+. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
+. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
+. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
+cd "${ODOO_WORK_DIRECTORY}"
+
 #rm -fr ./auto/odoo.conf
 #rm -fr ./auto/addons/*
-#/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|repos.yaml|addons.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
+#/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|odoo-code.yaml|addons.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
 
-if [ ! -d "${ODOO_WORK_DIR}/.venv" ]; then
-    /bin/echo 'run ./bootstrap first!'
+if [ ! -d "${ODOO_WORK_DIRECTORY}/.venv-odoo" ] ; then
+    /bin/echo '( ERROR ) : run ./bootstrap first!'
     exit 1
 fi
 
-# pip 20.3 has a neat depenency resolver
-# https://pip.pypa.io/en/latest/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020
-. .venv/bin/activate && \
-pip install --quiet "setuptools<58" && \
-pip install --quiet "pip>=20.3" && \
-(pip uninstall --yes -r "${ODOO_WORK_DIR}/requirements-remove-default.txt" 2>/dev/null || /bin/true) && \
-pip install --quiet --exists-action w -r "${ODOO_WORK_DIR}/requirements-default.txt" && \
-pip install --quiet --exists-action w -r "${ODOO_WORK_DIR}/requirements.txt" && \
-"${ODOO_WORK_DIR}/common/build" && \
-python "${ODOO_WORK_DIR}/common/entrypoint"
+if [ ! -d "${ODOO_WORK_DIRECTORY}/.venv-waft" ] ; then
+    /bin/echo '( ERROR ) : run ./bootstrap first!'
+    exit 1
+fi
+
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/requirements-waft-install' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/requirements-waft-install" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/requirements-odoo-install' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/requirements-odoo-install" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-aggregate' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/odoo-code-aggregate" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-clean' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/odoo-code-clean" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-compile' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/odoo-code-compile" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-install' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/odoo-code-install" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/database-postgresql-wait' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/database-postgresql-wait" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/database-unaccent-install' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/database-unaccent-install" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-addons-link' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/odoo-addons-link" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-conf-generate' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/odoo-conf-generate" && \
+/bin/echo "( INFO ) : END of ${ODOO_WORK_DIRECTORY}/build script."

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Version: v.23.08.03
+
+set -e
+
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
+. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
+. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
+cd "${ODOO_WORK_DIRECTORY}"
+
+. "${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/activate" && \
+if [ "${WAFT_COMPILE,,}" != 'true' ] ; then
+    /bin/echo "( WARNING ) '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-compile' script: Not compiling Python code"
+    exit 0
+fi && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-compile' script: Compiling all Python code in ${ODOO_WORK_DIRECTORY}" && \
+python -m compileall -q "${ODOO_WORK_DIRECTORY}/odoo-code"
