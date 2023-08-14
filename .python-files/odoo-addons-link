@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+# Version: v.23.08.03
+# -*- coding: utf-8 -*-
+
+from glob import iglob
+try:
+    from venvwaftlib import *
+except IOError:
+    logger.error("Run 'odoo-addons-link' python script in '.venv-waft' virtual environment.")
+    exit(1)
+
+logger.info("Linking all addons from %s in %s", ADDONS_YAML_FILE, ADDONS_AUTO_DIRECTORY)
+
+# Remove all links in addons dir
+for link in iglob(os.path.join(ADDONS_AUTO_DIRECTORY, "*")):
+    os.remove(link)
+# Add new links
+for addon_name, addons_repository_item_path in addons_config():
+    addon_directory = os.path.relpath(os.path.join(CODE_ODOO_DIRECTORY, addons_repository_item_path, addon_name), ADDONS_AUTO_DIRECTORY)
+    addon_link = os.path.join(ADDONS_AUTO_DIRECTORY, addon_name)
+    os.symlink(addon_directory, addon_link)
+    logger.debug("Linked %s in %s", addon_directory, addon_link)

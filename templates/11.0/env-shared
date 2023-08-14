@@ -1,23 +1,11 @@
 # Version: v.23.08.03
-# Secret variables
+# Shared variables
 # Feel free to tune the variables in this file as you like
-# this variables will override the variables in config/env-default and config/env-shared
-# Don't push this file to your own repository
+# This variables will override the variables in config/env-default
+# Push this file to your own repository
+# The variables in .env-secret will override the variables here, so, use .env-secret for sensitive variables.
 
-#ODOO_VERSION="x.x"
-
-# this variable will effect 'db_name = ${PGDATABASE}' odoo.cfg variable.
-PGDATABASE=""
-# this variable will effect 'db_host = ${PGHOST}' odoo.cfg variable.
-PGHOST=""
-# this variable will effect 'db_port = ${PGPORT}' odoo.cfg variable.
-PGPORT=""
-# this variable will effect 'db_password = ${PGPASSWORD}' odoo.cfg variable.
-PGPASSWORD=""
-# this variable will effect 'db_user = ${PGUSER}' odoo.cfg variable.
-PGUSER=""
-# this variable will set 'admin_passwd = ${ODOO_ADMIN_PASSWORD}' odoo.cfg variable.
-ODOO_ADMIN_PASSWORD=""
+ODOO_VERSION="11.0"
 
 # this variable will set 'dbfilter = ${ODOO_DBFILTER}' odoo.cfg variable.
 #ODOO_DBFILTER=".*"
