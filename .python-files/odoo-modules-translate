@@ -10,7 +10,7 @@ import tempfile
 try:
     from venvodoolib import *
 except IOError:
-    logger.error("Run 'odoo-modules-translate' python script in '.venv-waft' virtual environment.")
+    print("( ERROR ) : Run 'odoo-modules-translate' python script in '.venv-waft' virtual environment.")
     exit(1)
 
 HELP_TEXT = """

@@ -9,7 +9,7 @@ from string import Template
 try:
     from venvwaftlib import *
 except IOError:
-    logger.error("Run 'odoo-conf-generate' python script in '.venv-waft' virtual environment.")
+    print("( ERROR ) : Run 'odoo-conf-generate' python script in '.venv-waft' virtual environment.")
     exit(1)
 try:
     # Python 2, where io.StringIO fails because it is unicode-only
