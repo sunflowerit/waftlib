@@ -9,7 +9,7 @@ if [ "$(/bin/id -u)" -eq 0 ] ; then
 fi
 
 export SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-export ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/../../.." && /bin/pwd)"
+export ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/../.." && /bin/pwd)"
 export DEFAULT_PATH="${PATH}"
 cd "${ODOO_WORK_DIRECTORY}"
 
