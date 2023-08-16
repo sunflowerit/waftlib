@@ -9,7 +9,7 @@ Requires=postgresql.service
 Type=simple
 User=ubuntu
 WorkingDirectory=/home/ubuntu/odoo
-ExecStart=/home/ubuntu/odoo/odoo-service
+ExecStart=/home/ubuntu/odoo/scripts/odoo-service
 KillMode=mixed
 
 [Install]
