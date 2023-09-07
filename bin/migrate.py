@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import copy
 import getopt
 import io
 import json
@@ -647,11 +648,12 @@ def rebuild_sources():
         repos_template_file = WAFT_DIR + "/waftlib/migration/build-" + version + "/repos.yaml"
         repos_file = os.path.join(build_dir, "custom/src/repos.yaml")
         if os.path.exists(repos_file):
-        
-            config = {**default_config, **yaml.load(open(repos_template_file).read(), Loader=yaml.Loader)}
+            if os.path.exists(repos_template_file):
+                config = {**default_config, **yaml.load(open(repos_template_file).read(), Loader=yaml.Loader)}
+            else:
+                config = copy.deepcopy(default_config)
             # The "ocb" entry is a special case that is merged into the "odoo" entry if needed
             prepare_odoo_entry(config)
-                
             limited_config = exclude_repos(config, repos_whitelist)
             # Write down new repos.yaml
             file = open(repos_file, "w")
