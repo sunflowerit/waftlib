@@ -34,7 +34,7 @@ Parameters
             configuration file.
 --enterprise-enabled
 -e          Enable the enterprise migration scripts as well.
---first-version VERSION
+--start-version VERSION
 -f VERSION  Start migration from a database of this Odoo version. This could
             prevent pre-migration scripts from running.
 --help
@@ -595,22 +595,29 @@ def rebuild_sources():
                 new_config[repo_name] = config[repo_name]
         return new_config
 
-    def prepare_odoo_entry(config):
+    def prepare_odoo_entry(config, version):
         if not params["enterprise-enabled"]:
+            odoo_repo_url = "https://github.com/OCA/OpenUpgrade" if float(version) < 13.999 else "https://github.com/OCA/OCB"
             config["odoo"] = {
                 "defaults": {"depth": "${WAFT_DEPTH_DEFAULT}"},
-                "remotes": {"oca": "https://github.com/OCA/OCB"},
+                "remotes": {"oca": odoo_repo_url},
                 "merges": ["oca ${ODOO_VERSION}"],
             }
             if "ocb" in config:
-                if "https://github.com/OCA/OCB" in config["odoo"]["remotes"].values():
-                    additional_remotes = {k:v for k, v in config["ocb"]["remotes"].items() if not v.startswith("https://github.com/OCA/OCB")}
+                if odoo_repo_url in config["odoo"]["remotes"].values():
+                    additional_remotes = {k:v for k, v in config["ocb"]["remotes"].items() if not v.startswith(odoo_repo_url)}
                     additional_merges = [x for x in config["ocb"]["merges"] if x.split()[0] in additional_remotes]
                     config["odoo"]["remotes"].update(additional_remotes)
                     config["odoo"]["merges"] += additional_merges
                     if "defaults" in config["odoo"] and "defaults" in config["ocb"] and "depth" in config["ocb"]["defaults"]:
                         config["odoo"]["defaults"]["depth"] = config["ocb"]["defaults"]["depth"]
                 del config["ocb"]
+            if float(version) < 13.999:
+                config["openupgrade"] = {
+                    "defaults": {"depth": "${WAFT_DEPTH_DEFAULT}"},
+                    "remotes": {"oca": "https://github.com/OCA/OpenUpgrade"},
+                    "merges": ["oca ${ODOO_VERSION}"],
+                }
         else:
             config["odoo"] = {
                 "defaults": {"depth": "${WAFT_DEPTH_DEFAULT}"},
@@ -644,22 +651,25 @@ def rebuild_sources():
         if build_dir != WAFT_DIR:
             cmd_system(os.path.join(build_dir, 'bootstrap'))
         
-        # Construct a repos.yaml file from templates
-        repos_template_file = WAFT_DIR + "/waftlib/migration/build-" + version + "/repos.yaml"
         repos_file = os.path.join(build_dir, "custom/src/repos.yaml")
-        if os.path.exists(repos_file):
-            if os.path.exists(repos_template_file):
-                config = {**default_config, **yaml.load(open(repos_template_file).read(), Loader=yaml.Loader)}
+        if not os.path.exists(repos_file):
+            if version == params["start-version"]:
+                shutil.copy(os.path.join(WAFT_DIR, "custom/src/old-repos.yaml"), repos_file)
             else:
-                config = copy.deepcopy(default_config)
-            # The "ocb" entry is a special case that is merged into the "odoo" entry if needed
-            prepare_odoo_entry(config)
-            limited_config = exclude_repos(config, repos_whitelist)
-            # Write down new repos.yaml
-            file = open(repos_file, "w")
-            raw_config = yaml.dump(limited_config, Dumper=yaml.Dumper)
-            file.write(raw_config)
-            file.close()
+                # Construct a repos.yaml file from templates
+                repos_template_file = WAFT_DIR + "/waftlib/migration/build-" + version + "/repos.yaml"
+                if os.path.exists(repos_template_file):
+                    config = {**default_config, **yaml.load(open(repos_template_file).read(), Loader=yaml.Loader)}
+                else:
+                    config = copy.deepcopy(default_config)
+                # The "ocb" entry is a special case that is merged into the "odoo" entry if needed
+                prepare_odoo_entry(config, version)
+                limited_config = exclude_repos(config, repos_whitelist)
+                # Write down new repos.yaml
+                file = open(repos_file, "w")
+                raw_config = yaml.dump(limited_config, Dumper=yaml.Dumper)
+                file.write(raw_config)
+                file.close()
 
         # Build the build directory
         cmd_system(os.path.join(build_dir, 'build'))
@@ -1050,6 +1060,7 @@ def main():
         if params['rebuild']:
             logging.info("Rebuilding sources...")
             rebuild_sources()
+            return 0
         
         progress = load_progress()
         logging.debug('Loaded progress: ' + str(progress))
