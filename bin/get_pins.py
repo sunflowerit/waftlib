@@ -147,8 +147,13 @@ def process_depth(splitted_merge, branchname,
         .stdout.decode("utf-8")
         .replace("\n", "")
     )
-    return int(mindepth)
-
+    try:
+        return int(mindepth)
+    except:
+        # if for some reason we have no common ancestor or rev-list errors out
+        import pudb
+        pudb.set_trace()
+        return 5000
 
 def process_merge(doc, repo, merge, index):
     repo_path, splitted_merge = preprocess_merge(doc, repo, merge)
