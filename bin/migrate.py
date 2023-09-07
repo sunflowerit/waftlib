@@ -9,6 +9,7 @@ try:
     import psycopg
 except ImportError:
     import psycopg2 as psycopg
+import yaml
 import shutil
 import subprocess
 import sys
@@ -493,6 +494,12 @@ def pull_customer_database():
     logging.info("Customer database import succeeded.")
 
 
+def parse_repos_config(filename):
+    file = open(filename)
+    config = yaml.load(file.read(), Loader=yaml.Loader)
+    return config.keys()
+
+
 def prepare():
     # Make sure the migration logfile already exists
     log_path = os.path.join(WAFT_DIR, 'logfile')
@@ -579,6 +586,40 @@ def rebuild_sources():
                 file.write('DEFAULT_REPO_PATTERN_ODOO="https://github.com/odoo/odoo.git"')
             elif float(version) < 14.0 and version != params['start-version']:
                 file.write('DEFAULT_REPO_PATTERN_ODOO="https://github.com/OCA/OpenUpgrade.git"')
+
+    def exclude_repos(config, whitelist):
+        new_config = {}
+        for repo_name in config:
+            if repo_name in whitelist:
+                new_config[repo_name] = config[repo_name]
+        return new_config
+
+    def prepare_odoo_entry(config):
+        if not params["enterprise-enabled"]:
+            config["odoo"] = {
+                "defaults": {"depth": "${WAFT_DEPTH_DEFAULT}"},
+                "remotes": {"oca": "https://github.com/OCA/OCB"},
+                "merges": ["oca ${ODOO_VERSION}"],
+            }
+            if "ocb" in config:
+                if "https://github.com/OCA/OCB" in config["odoo"]["remotes"].values():
+                    additional_remotes = {k:v for k, v in config["ocb"]["remotes"].items() if not v.startswith("https://github.com/OCA/OCB")}
+                    additional_merges = [x for x in config["ocb"]["merges"] if x.split()[0] in additional_remotes]
+                    config["odoo"]["remotes"].update(additional_remotes)
+                    config["odoo"]["merges"] += additional_merges
+                    if "defaults" in config["odoo"] and "defaults" in config["ocb"] and "depth" in config["ocb"]["defaults"]:
+                        config["odoo"]["defaults"]["depth"] = config["ocb"]["defaults"]["depth"]
+                del config["ocb"]
+        else:
+            config["odoo"] = {
+                "defaults": {"depth": "${WAFT_DEPTH_DEFAULT}"},
+                "remotes": {"odoo": "https://github.com/odoo/odoo"},
+                "merges": ["odoo ${ODOO_VERSION}"],
+            }
+
+    repos_whitelist = parse_repos_config(os.path.join(WAFT_DIR, 'custom/src/old-repos.yaml'))
+    default_repos_template_file = os.path.join(WAFT_DIR, "waftlib/migration/default-repos.yaml")
+    default_config = yaml.load(open(default_repos_template_file).read(), Loader=yaml.Loader)
     
     versions = available_build_versions(params['start-version'])
     for version in versions:
@@ -590,10 +631,10 @@ def rebuild_sources():
         cmd("mkdir -p \"%s\"" % build_dir)
         cmd("git init", cwd=build_dir)
         try:
-            cmd("git remote add sunflowerit https://github.com/sunflowerit/waft.git", cwd=build_dir)
+            cmd("git remote add sunflowerit https://github.com/sunflowerit/waft", cwd=build_dir)
         except:
             pass
-        #cmd("git pull --rebase sunflowerit master", cwd=build_dir)
+        cmd("git pull sunflowerit master", cwd=build_dir)
 
         logging.info("Rebuilding build-%s..." % version)
 
@@ -602,7 +643,23 @@ def rebuild_sources():
         if build_dir != WAFT_DIR:
             cmd_system(os.path.join(build_dir, 'bootstrap'))
         
-        #combine_repos(build_dir, version)
+        # Construct a repos.yaml file from templates
+        repos_template_file = WAFT_DIR + "/waftlib/migration/build-" + version + "/repos.yaml"
+        repos_file = os.path.join(build_dir, "custom/src/repos.yaml")
+        if os.path.exists(repos_file):
+        
+            config = {**default_config, **yaml.load(open(repos_template_file).read(), Loader=yaml.Loader)}
+            # The "ocb" entry is a special case that is merged into the "odoo" entry if needed
+            prepare_odoo_entry(config)
+                
+            limited_config = exclude_repos(config, repos_whitelist)
+            # Write down new repos.yaml
+            file = open(repos_file, "w")
+            raw_config = yaml.dump(limited_config, Dumper=yaml.Dumper)
+            file.write(raw_config)
+            file.close()
+
+        # Build the build directory
         cmd_system(os.path.join(build_dir, 'build'))
         cmd_system(os.path.join(build_dir, '.venv/bin/pip') +
             ' install ' +
