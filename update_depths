@@ -1,0 +1,15 @@
+#!/bin/sh
+
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIR="${SCRIPT_PATH}"
+. "${ODOO_WORK_DIR}/.env-default" ; \
+. "${ODOO_WORK_DIR}/.env-shared" ; \
+. "${ODOO_WORK_DIR}/.env-secret"; cd "${ODOO_WORK_DIR}"
+
+if [ "$(id -u)" -eq 0 ]; then
+  /bin/echo "Please dont use sudo command with script"
+  exit 1
+fi
+echo "updating pin depth in repos.yaml"
+. .venv/bin/activate && python bin/update_depths.py $@
+    
