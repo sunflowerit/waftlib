@@ -113,6 +113,18 @@ def get_merge_type(splitted_merge, repo):
 
 def process_depth(splitted_merge, branchname, main_branch, main_branch_name, repo_path):
     os.chdir(repo_path)
+    # make sure we have the latest branch available.
+    run(
+        [
+            "git",
+            "fetch",
+            splitted_merge[0],
+            branchname,
+        ],
+        stdout=PIPE,
+        stderr=PIPE,
+    )
+    # look at most recent common commit.
     lastrev = (
         run(
             [
@@ -127,6 +139,8 @@ def process_depth(splitted_merge, branchname, main_branch, main_branch_name, rep
         .stdout.decode("utf-8")
         .replace("\n", "")
     )
+    if not lastrev:
+        return 1024  # Can happen when remote not yet added.
     # we now calculate the needed depth of this branch
     mindepth = (
         run(
@@ -143,7 +157,11 @@ def process_depth(splitted_merge, branchname, main_branch, main_branch_name, rep
         .stdout.decode("utf-8")
         .replace("\n", "")
     )
-    return int(mindepth)
+    try:
+        return int(mindepth)
+    except Exception:
+        # Should log/print some error here.
+        return 1024
 
 
 def main():
@@ -166,8 +184,8 @@ def main():
                 main_branch_name = get_branchname(main_branch, merge_type)
                 for merge in doc[repo]["merges"]:
                     repo_path, splitted_merge = preprocess_merge(doc, repo, merge)
-                    # this script cannot work on new ./builds it is written to keep 
-                    # depths of instances that have been built at least once with 
+                    # this script cannot work on new ./builds it is written to keep
+                    # depths of instances that have been built at least once with
                     # if one source folder is missing we skip it.
                     if not os.path.exists(repo_path):
                         continue
@@ -218,7 +236,7 @@ def main():
         print(changes)
         print("=======================================")
         yaml_file = open(REPOS_YAML, "w")
-        yaml_file.write(yaml.dump(doc, Dumper=CustomDumper))  
+        yaml_file.write(yaml.dump(doc, Dumper=CustomDumper))
         yaml_file.close()
 
 if os.path.isfile(REPOS_YAML) and __name__ == "__main__":
