@@ -50,6 +50,13 @@ class CustomDumper(yaml.Dumper):
     def represent_dict_preserve_order(self, data):
         return self.represent_dict(data.items())
 
+    def write_line_break(self, data=None):
+        # we override this dumper method to also insert
+        # a blank line for all top level lines.
+        super().write_line_break(data)
+        if len(self.indents) == 1:
+            super().write_line_break()
+
 
 def split_line(line):
     splitted_lines = line.split(" ")
