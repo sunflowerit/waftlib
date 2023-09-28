@@ -340,12 +340,12 @@ fi
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.ignore"
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/logfiles"
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files"
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-addons-install" || /bin/true
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-addons-link" || /bin/true
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-code-aggregate" || /bin/true
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-code-clean" || /bin/true
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-conf-generate" || /bin/true
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-code-pre-clean" || /bin/true
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-addons-install" || /bin/true
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-addons-link" || /bin/true
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-code-aggregate" || /bin/true
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-code-clean" || /bin/true
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-conf-generate" || /bin/true
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-code-pre-clean" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-modules-translate" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/scripts"
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/scripts/"* || /bin/true

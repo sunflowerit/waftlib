@@ -104,7 +104,7 @@ To add a new Python module:
 OR:
 
 # Edit config/requirements-odoo-override-install.txt, add the module you want, then:
-./scripts/requirements-odoo-install
+./scripts/odoo-requirements-install
 
 OR:
 

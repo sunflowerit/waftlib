@@ -9,11 +9,11 @@ ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
 cd "${ODOO_WORK_DIRECTORY}"
 
 if [ "${WAFT_WAIT_DB,,}" != 'true' ] ; then
-    /bin/echo "( WARNING ) '${ODOO_WORK_DIRECTORY}/scripts/database-postgresql-wait' script: Not waiting for a postgres server."
+    /bin/echo "( WARNING ) '${ODOO_WORK_DIRECTORY}/scripts/waft-database-postgresql-wait' script: Not waiting for a postgres server."
     exit 0
 fi
 
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/database-postgresql-wait' script: Waiting until postgres is listening at ${PGHOST}..."
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/waft-database-postgresql-wait' script: Waiting until postgres is listening at ${PGHOST}..."
 while true; do
     /usr/bin/psql --list > /dev/null 2>&1 && break
     sleep 1

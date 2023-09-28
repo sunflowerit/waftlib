@@ -12,7 +12,7 @@ cd "${ODOO_WORK_DIRECTORY}"
 
 if [ "${#}" -le 1 ] ; then
   /bin/echo "Installs a new empty database"
-  /bin/echo "Usage: ${ODOO_WORK_DIRECTORY}/scripts/database-install-new-empty databasename modulename [nodemo]"
+  /bin/echo "Usage: ${ODOO_WORK_DIRECTORY}/scripts/odoo-database-install-new-empty databasename modulename [nodemo]"
   exit
 fi
 
@@ -32,5 +32,5 @@ else
 fi
 
 cd "${ODOO_WORK_DIRECTORY}" && \
-. "${ODOO_WORK_DIRECTORY}/venv/bin/activate" && \
+. "${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/activate" && \
 odoo -c "${ODOO_WORK_DIRECTORY}/.ignore/auto/odoo.conf" --load-language=en_US,nl_NL -i "${2}" -d "${1}" --stop-after-init "${WITHOUT_DEMO}"

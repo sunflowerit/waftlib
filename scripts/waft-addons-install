@@ -6,5 +6,5 @@ set -e
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
 ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
 cd "${ODOO_WORK_DIRECTORY}" && \
-. "${ODOO_WORK_DIRECTORY}/.venv-waft/bin/activate" && \
-"${ODOO_WORK_DIRECTORY}/.python-files/odoo-addons-link"
+. "${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/activate" && \
+"${ODOO_WORK_DIRECTORY}/.python-files/waft-addons-install"

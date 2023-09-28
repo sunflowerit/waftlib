@@ -29,24 +29,24 @@ if [ ! -d "${ODOO_WORK_DIRECTORY}/.venv-waft" ] ; then
     exit 1
 fi
 
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/requirements-waft-install' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/requirements-waft-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/requirements-odoo-install' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/requirements-odoo-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-aggregate' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/odoo-code-aggregate" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-clean' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/odoo-code-clean" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-compile' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/odoo-code-compile" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-requirements-install' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-requirements-install" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-requirements-install' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/odoo-requirements-install" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-code-aggregate' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-code-aggregate" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-code-clean' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-code-clean" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile" && \
 /bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-install' script." && \
 "${ODOO_WORK_DIRECTORY}/scripts/odoo-code-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/database-postgresql-wait' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/database-postgresql-wait" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/database-unaccent-install' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/database-unaccent-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-addons-link' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/odoo-addons-link" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-conf-generate' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/odoo-conf-generate" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-database-postgresql-wait' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-database-postgresql-wait" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-database-unaccent-install' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-database-unaccent-install" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-addons-link' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-addons-link" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-conf-generate' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-conf-generate" && \
 /bin/echo "( INFO ) : END of ${ODOO_WORK_DIRECTORY}/build script."

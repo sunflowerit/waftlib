@@ -6,7 +6,7 @@ from glob import iglob
 try:
     from venvwaftlib import *
 except IOError:
-    print("( ERROR ) : Run 'odoo-addons-link' python script in '.venv-waft' virtual environment.")
+    print("( ERROR ) : Run 'waft-addons-link' python script in '.venv-waft' virtual environment.")
     exit(1)
 
 logger.info("Linking all addons from %s in %s", ADDONS_YAML_FILE, ADDONS_AUTO_DIRECTORY)

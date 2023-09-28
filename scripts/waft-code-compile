@@ -12,8 +12,8 @@ cd "${ODOO_WORK_DIRECTORY}"
 
 . "${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/activate" && \
 if [ "${WAFT_COMPILE,,}" != 'true' ] ; then
-    /bin/echo "( WARNING ) '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-compile' script: Not compiling Python code"
+    /bin/echo "( WARNING ) '${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile' script: Not compiling Python code"
     exit 0
 fi && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-compile' script: Compiling all Python code in ${ODOO_WORK_DIRECTORY}" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile' script: Compiling all Python code in ${ODOO_WORK_DIRECTORY}" && \
 python -m compileall -q "${ODOO_WORK_DIRECTORY}/odoo-code"

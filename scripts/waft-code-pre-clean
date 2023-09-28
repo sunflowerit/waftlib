@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Version: v.23.08.03
-
+# Shortcut to run Odoo in unit testing mode
 set -e
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
 ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
 cd "${ODOO_WORK_DIRECTORY}" && \
 . "${ODOO_WORK_DIRECTORY}/.venv-waft/bin/activate" && \
-"${ODOO_WORK_DIRECTORY}/.python-files/odoo-code-clean"
+"${ODOO_WORK_DIRECTORY}/.python-files/waft-code-pre-clean"
