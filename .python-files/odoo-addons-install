@@ -6,11 +6,10 @@ import __future__
 import argparse
 import ast
 import sys
-import venvwaftlib
 try:
     from venvodoolib import *
 except IOError:
-    print("( ERROR ) : Run 'waft-addons-install' python script in '.venv-odoo' virtual environment.")
+    print("( ERROR ) : Run 'odoo-addons-install' python script in '.venv-odoo' virtual environment.")
     exit(1)
 
 # Define CLI options
