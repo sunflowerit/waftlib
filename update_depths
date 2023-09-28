@@ -11,5 +11,5 @@ if [ "$(id -u)" -eq 0 ]; then
   exit 1
 fi
 echo "updating pin depth in repos.yaml"
-. .venv/bin/activate && python bin/update_depths.py $@
+. .venv/bin/activate && python bin/update_depths.py
     
