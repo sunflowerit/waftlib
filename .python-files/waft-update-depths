@@ -10,28 +10,6 @@ except IOError:
     print("( ERROR ) : Run 'waft-addons-link' python script in '.venv-waft' virtual environment.")
     exit(1)
 
-class CustomDumper(yaml.Dumper):
-    """
-    We want order of keys intact so that the output is the same order than source.
-    Unfortunately PyYAML orders yaml output alphabetically on dump.
-    pyyaml 5.1 has an option to disable alphabetical orderng of dumps, but often our
-    wafts have a version < 5.1.
-    for this reason i made a custom dumper to have an "unordered" dump, without
-    affecting the default behaviour of pyyaml dump. This script supports pyYAML<5.1.
-    Our output will therefore have the same order as given input.
-    """
-
-    def represent_dict_preserve_order(self, data):
-        return self.represent_dict(data.items())
-
-    def write_line_break(self, data=None):
-        # we override this dumper method to also insert
-        # a blank line for all top level lines.
-        super().write_line_break(data)
-        if len(self.indents) == 1:
-            super().write_line_break()
-
-
 def split_line(line):
     splitted_lines = line.split(" ")
     for sl in splitted_lines:
@@ -210,16 +188,12 @@ def main():
                                 )
                                 doc[repo]["defaults"]["depth"] = repo_min_depth[repo]
 
-            CustomDumper.add_representer(
-                dict, CustomDumper.represent_dict_preserve_order
-            )
-
     if changes:
         print("========Applying Depth changes to repos.yaml:")
         print(changes)
         print("=======================================")
         yaml_file = open(REPOS_YAML, "w")
-        yaml_file.write(yaml.dump(doc, Dumper=CustomDumper))
+        yaml_file.write(yaml.dump(doc, default_flow_style=True, default_style='|', sort_keys=False))
         yaml_file.close()
 
 if os.path.isfile(REPOS_YAML) and __name__ == "__main__":

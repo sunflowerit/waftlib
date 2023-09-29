@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from glob import glob
 import logging
 import os
-from subprocess import check_output, check_call, run, PIPE
+from subprocess import check_output, check_call
 import yaml
 try:
     from shutil import which
