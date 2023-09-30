@@ -11,11 +11,11 @@ except IOError:
     exit(1)
 
 def split_line(line):
-    splitted_lines = line.split(" ")
-    for sl in splitted_lines:
+    split_lines = line.split(" ")
+    for sl in split_lines:
         if sl == "":
-            splitted_lines.pop(splitted_lines.index(sl))
-    return splitted_lines
+            split_lines.pop(split_lines.index(sl))
+    return split_lines
 
 
 def is_in_history(value, history):
@@ -25,33 +25,32 @@ def is_in_history(value, history):
     return False
 
 
-def decode_variables(string):
+def decode_variables(decode_string_variables):
     """
     pass a string and return variables replaced in it.
     @returns string
     """
     # may be int, str
-    string = str(string)
-    yaml_substituted = Template(string)
+    decode_string_variables = str(decode_string_variables)
+    yaml_substituted = Template(decode_string_variables)
     return yaml_substituted.substitute(os.environ)
 
 
-def preprocess_merge(doc, repo, merge):
-    remotes = doc[repo]["remotes"].keys()
-    splitted_merge = [x for x in merge.split(" ") if x != ""]
-    if splitted_merge[0] not in remotes:
-        logger.debug("Invalid Remote on line: %s" % merge)
+def preprocess_merge(addons_repositories_paths, addons_repository_path, addons_repository_merge):
+    remotes = addons_repositories_paths[addons_repository_path]["remotes"].keys()
+    addons_repository_split_merge = [x for x in addons_repository_merge.split(" ") if x != ""]
+    if addons_repository_split_merge[0] not in remotes:
+        logger.debug("Invalid Remote on line: %s" % addons_repository_merge)
         raise ValueError
-    repo_path = os.path.abspath(os.path.join(SRC_DIR, repo))
-    return repo_path, splitted_merge
+    repo_path = os.path.abspath(os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path))
+    return repo_path, addons_repository_split_merge
 
-
-def get_branchname(splitted_merge, merge_type):
+def get_branch_name(addons_repository_split_merge, merge_type):
     if merge_type in (1, 3):
-        return decode_variables(splitted_merge[1])
+        return decode_variables(addons_repository_split_merge[1])
     return False
 
-def get_merge_type(splitted_merge, repo):
+def get_merge_type(addons_repository_split_merge, addons_repository_path):
     """
     Possible syntaxes for merges:
 
@@ -61,24 +60,24 @@ def get_merge_type(splitted_merge, repo):
     merge_type=0  "invalid"
     """
     all_commits = {}
-    if len(splitted_merge) == 3:
+    if len(addons_repository_split_merge) == 3:
         return 3
     else:
-        if is_in_history(splitted_merge[1], all_commits.get(repo, [])):
+        if is_in_history(addons_repository_split_merge[1], all_commits.get(addons_repository_path, [])):
             return 2
         else:
             return 1
     return 0  # unreachable.
 
 
-def process_depth(splitted_merge, branchname, main_branch, main_branch_name, repo_path):
+def process_depth(addons_repository_split_merge, branchname, main_branch, main_branch_name, repo_path):
     os.chdir(repo_path)
     # make sure we have the latest branch available.
     run(
         [
             "git",
             "fetch",
-            splitted_merge[0],
+            addons_repository_split_merge[0],
             branchname,
         ],
         stdout=PIPE,
@@ -91,7 +90,7 @@ def process_depth(splitted_merge, branchname, main_branch, main_branch_name, rep
                 "git",
                 "merge-base",
                 "".join([main_branch[0], "/", main_branch_name]),
-                "".join([splitted_merge[0], "/", branchname]),
+                "".join([addons_repository_split_merge[0], "/", branchname]),
             ],
             stdout=PIPE,
             stderr=PIPE,
@@ -132,43 +131,43 @@ def main():
     repo_min_depth = {}
     changes = ''
     with open(REPOS_YAML) as yaml_file:
-        for doc in yaml.safe_load_all(yaml_file):
-            for repo in doc:
-                print("===>processing repo %s" % repo)
-                repo_min_depth[repo] = 0
-                if repo in {PRIVATE, "ONLY", "ENV"}:
+        for addons_repositories_paths in yaml.safe_load_all(yaml_file):
+            for addons_repository_path in addons_repositories_paths:
+                print("===>processing repo %s" % addons_repository_path)
+                repo_min_depth[addons_repository_path] = 0
+                if addons_repository_path in {PRIVATE, "ONLY", "ENV"}:
                     continue
-                target = doc[repo].get("target") or False
+                target = addons_repositories_paths[addons_repository_path].get("target") or False
                 # main branch is defined as target or in absence of target, merge[0]
-                main_branch = split_line(target or doc[repo]["merges"][0])
-                merge_type = get_merge_type(main_branch, repo)
-                main_branch_name = get_branchname(main_branch, merge_type)
-                for merge in doc[repo]["merges"]:
-                    repo_path, splitted_merge = preprocess_merge(doc, repo, merge)
+                main_branch = split_line(target or addons_repositories_paths[addons_repository_path]["merges"][0])
+                merge_type = get_merge_type(main_branch, addons_repository_path)
+                main_branch_name = get_branch_name(main_branch, merge_type)
+                for merge in addons_repositories_paths[addons_repository_path]["merges"]:
+                    repo_path, addons_repository_split_merge = preprocess_merge(addons_repositories_paths, addons_repository_path, merge)
                     # this script cannot work on new ./builds it is written to keep
                     # depths of instances that have been built at least once with
                     # if one source folder is missing we skip it.
                     if not os.path.exists(repo_path):
                         continue
-                    merge_type = get_merge_type(splitted_merge, repo)
-                    branchname = get_branchname(splitted_merge, merge_type)
+                    merge_type = get_merge_type(addons_repository_split_merge, addons_repository_path)
+                    branchname = get_branch_name(saddons_repository_plitted_merge, merge_type)
                     if branchname:
                         # compute depth only for merges with branchname
                         min_depth = process_depth(
-                            splitted_merge,
+                            addons_repository_split_merge,
                             branchname,
                             main_branch,
                             main_branch_name,
                             repo_path,
                         )
-                        repo_min_depth[repo] = (
-                            min_depth > repo_min_depth[repo]
+                        repo_min_depth[addons_repository_path] = (
+                            min_depth > repo_min_depth[addons_repository_path]
                             and min_depth
-                            or repo_min_depth[repo]
+                            or repo_min_depth[addons_repository_path]
                         )
-                        if repo_min_depth[repo] > 0:
+                        if repo_min_depth[addons_repository_path] > 0:
                             waft_depth = decode_variables(
-                                doc[repo]["defaults"].get("depth")
+                                addons_repositories_paths[addons_repository_path]["defaults"].get("depth")
                             )
                             # just in case the substitution didn't happen because variables
                             # are not explicitly loaded in env...
@@ -178,22 +177,22 @@ def main():
                             if waft_depth == "${WAFT_DEPTH_DEFAULT}":
                                 waft_depth = os.environ.get("WAFT_DEPTH_DEFAULT") or 1
                             waft_depth = int(waft_depth)
-                            if repo_min_depth[repo] > waft_depth:
+                            if repo_min_depth[addons_repository_path] > waft_depth:
                                 changes += ("\n\t Increasing depth of %s from %s to %s"
                                     % (
-                                        repo,
-                                        doc[repo]["defaults"]["depth"],
-                                        str(repo_min_depth[repo]),
+                                        addons_repository_path,
+                                        addons_repositories_paths[addons_repository_path]["defaults"]["depth"],
+                                        str(repo_min_depth[addons_repository_path]),
                                     )
                                 )
-                                doc[repo]["defaults"]["depth"] = repo_min_depth[repo]
+                                addons_repositories_paths[addons_repository_path]["defaults"]["depth"] = repo_min_depth[addons_repository_path]
 
     if changes:
         print("========Applying Depth changes to repos.yaml:")
         print(changes)
         print("=======================================")
         yaml_file = open(REPOS_YAML, "w")
-        yaml_file.write(yaml.dump(doc, default_flow_style=True, default_style='|', sort_keys=False))
+        yaml_file.write(yaml.dump(addons_repositories_paths, default_flow_style=True, default_style='|', sort_keys=False))
         yaml_file.close()
 
 if os.path.isfile(REPOS_YAML) and __name__ == "__main__":
