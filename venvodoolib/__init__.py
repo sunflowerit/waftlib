@@ -164,6 +164,28 @@ CODE_ODOO_YAML_FILE = os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-code.yaml")
 ODOO_MAIN_CODE_PATH = os.path.join(ODOO_WORK_DIRECTORY, "odoo-code/odoo")
 ADDONS_AUTO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/auto/addons")
 
+if not os.path.exists(CODE_ODOO_YAML_FILE):
+    logger.error("Could not find '%s' Odoo code configuration file.", CODE_ODOO_YAML_FILE)
+    exit(1)
+
+try:
+    with open(CODE_ODOO_YAML_FILE) as code_ODOO_YAML_file:
+        code_odoo_yaml_file = yaml.safe_load(code_ODOO_YAML_file)
+except IOError:
+    logger.error("Could not load '%s' Odoo code configuration file.", CODE_ODOO_YAML_FILE)
+    exit(1)
+
+if not os.path.exists(ADDONS_YAML_FILE):
+    logger.error("Could not find '%s' addons configuration yaml.", ADDONS_YAML_FILE)
+    exit(1)
+
+try:
+    with open(ADDONS_YAML_FILE) as addons_YAML_file:
+        addons_yaml_file = yaml.safe_load(addons_YAML_file)
+except IOError:
+    logger.error("Could not load '%s' addons configuration yaml.", ADDONS_YAML_FILE)
+    exit(1)
+
 class AddonsConfigError(Exception):
     def __init__(self, message, *args):
         super(AddonsConfigError, self).__init__(message, *args)
@@ -187,22 +209,12 @@ def addons_config(strict_running=False):
     addons_repositories_paths.setdefault("odoo/addons", {"*"})
     addons_repositories_paths.setdefault("enterprise", {"*"})
     addons_repositories_paths.setdefault("private", {"*"})
-    try:
-        with open(CODE_ODOO_YAML_FILE) as code_odoo_yaml_file:
-            for addons_repository_path in yaml.safe_load(code_odoo_yaml_file):
-                addons_repositories_paths.setdefault(addons_repository_path , "*")
-    except IOError:
-        logger.error("Could not find odoo-code.yaml configuration file.")
-        exit(1)
-    try:
-        with open(ADDONS_YAML_FILE) as addons_yaml_file:
-            # Flatten all sections in a single dict
-            addons_repository_entry = yaml.safe_load(addons_yaml_file)
-            for addons_repository_path, addons_partial_paths in addons_repository_entry.items():
-                logger.debug("Processing %s repository", addons_repository_path)
-                addons_repositories_paths[addons_repository_path] = addons_partial_paths
-    except IOError:
-        logger.debug("Could not find addons configuration yaml.")
+    for addons_repository_path in code_odoo_yaml_file:
+        addons_repositories_paths.setdefault(addons_repository_path , "*")
+    # Flatten all sections in a single dict
+    for addons_repository_path, addons_partial_paths in addons_yaml_file:
+        logger.debug("Processing %s repository", addons_repository_path)
+        addons_repositories_paths[addons_repository_path] = addons_partial_paths
     logger.debug("Merged addons definition before expanding: %r", addons_repositories_paths)
     # Expand all addons paths and store config
     for addons_repository_path, addons_partial_paths in addons_repositories_paths.items():
