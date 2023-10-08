@@ -212,7 +212,7 @@ def addons_config(strict_running=False):
     for addons_repository_path in code_odoo_yaml_file:
         addons_repositories_paths.setdefault(addons_repository_path , "*")
     # Flatten all sections in a single dict
-    for addons_repository_path, addons_partial_paths in addons_yaml_file:
+    for addons_repository_path, addons_partial_paths in addons_yaml_file.items():
         logger.debug("Processing %s repository", addons_repository_path)
         addons_repositories_paths[addons_repository_path] = addons_partial_paths
     logger.debug("Merged addons definition before expanding: %r", addons_repositories_paths)
