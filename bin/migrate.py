@@ -496,6 +496,8 @@ def pull_customer_database():
 
 
 def parse_repos_config(filename):
+    if not os.path.exists(filename):
+        return []
     file = open(filename)
     config = yaml.load(file.read(), Loader=yaml.Loader)
     return config.keys()
