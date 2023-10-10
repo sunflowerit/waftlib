@@ -644,7 +644,8 @@ def rebuild_sources():
             cmd("git remote add sunflowerit https://github.com/sunflowerit/waft", cwd=build_dir)
         except:
             pass
-        cmd("git pull sunflowerit master", cwd=build_dir)
+        if build_dir != WAFT_DIR:
+            cmd("git pull sunflowerit master", cwd=build_dir)
 
         logging.info("Rebuilding build-%s..." % version)
 
@@ -877,7 +878,8 @@ def run_migration(start_version, target_version):
                     run_scripts(ENTERPRISE_MINIMUM_TARGET, "post-upgrade")
         elif abs(float(progress_version) - float(ENTERPRISE_MINIMUM_TARGET)) < 0.001:
             db_version = ENTERPRISE_MINIMUM_TARGET
-            run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/post-jump")
+            if will_jump:
+                run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/post-jump")
             run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/post-upgrade")
             run_scripts(ENTERPRISE_MINIMUM_TARGET, "post-upgrade")
 
@@ -1079,6 +1081,8 @@ def main():
         target_version = os.environ["ODOO_VERSION"]
         logging.info("Starting migration from %s to %s...", start_version, target_version)
         run_migration(start_version, target_version)
+        # Quickfix to reset the odoo.conf file
+        cmd_system(WAFT_DIR + "/build")
         logging.info("Migration completed.")
     except Exception as e:
         _, name, tb = sys.exc_info()
