@@ -7,7 +7,7 @@ from string import Template
 try:
     from venvwaftlib import *
 except IOError:
-    print("( ERROR ) : Run 'waft-addons-link' python script in '.venv-waft' virtual environment.")
+    print("( ERROR ) : Run 'waft-update-depths' python script in '.venv-waft' virtual environment.")
     exit(1)
 
 def split_line(line):

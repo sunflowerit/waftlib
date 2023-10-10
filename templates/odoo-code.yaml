@@ -1,12 +1,16 @@
 ---
 odoo:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
     origin: https://github.com/odoo/odoo.git
   target: origin ${ODOO_VERSION}
   merges:
-    - origin ${ODOO_VERSION}
+    -
+      remote: origin
+      branch: ${ODOO_VERSION}
+      pin: latest
+      depth: default
+#  filtered_addons:
+#    - *
 
 OCA/web:
   defaults:
