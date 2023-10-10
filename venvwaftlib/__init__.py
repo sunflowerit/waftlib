@@ -4,6 +4,7 @@
 
 from dotenv import load_dotenv
 from glob import glob
+from importlib import reload
 import logging
 import os
 from subprocess import check_output, check_call, run, PIPE
@@ -23,6 +24,8 @@ load_dotenv(os.path.join(ODOO_WORK_DIRECTORY, "config/env-shared"), override=Tru
 load_dotenv(os.path.join(ODOO_WORK_DIRECTORY, ".env-secret"), override=True)
 
 # Customize Waft logging
+logging.shutdown()
+reload(logging)
 WAFT_LOG_LEVEL = os.environ["WAFT_LOG_LEVEL"]
 logger = logging.getLogger("Waft")
 log_handler = logging.StreamHandler()
@@ -262,21 +265,21 @@ for addons_repository_path in code_odoo_yaml_file:
             continue
         else:
             waft_auto_merge_remote = code_odoo_yaml_merge_tmp_dictionary['remote']
-        waft_auto_merge_dictionary[remote] = waft_auto_merge_remote
+        waft_auto_merge_dictionary['remote'] = waft_auto_merge_remote
         if 'branch' not in code_odoo_yaml_merge_tmp_dictionary:
             waft_auto_merge_branch = ODOO_VERSION
         elif code_odoo_yaml_merge_tmp_dictionary['branch'] == '':
             waft_auto_merge_branch = ODOO_VERSION
         else:
             waft_auto_merge_branch = code_odoo_yaml_merge_tmp_dictionary['branch']
-        waft_auto_merge_dictionary[branch] = waft_auto_merge_branch
+        waft_auto_merge_dictionary['branch'] = waft_auto_merge_branch
         if 'pin' not in code_odoo_yaml_merge_tmp_dictionary:
             waft_auto_merge_pin = ''
         elif code_odoo_yaml_merge_tmp_dictionary['pin'] == 'latest':
             waft_auto_merge_pin = ''
         else:
             waft_auto_merge_pin = code_odoo_yaml_merge_tmp_dictionary['pin']
-        waft_auto_merge_dictionary[pin] = waft_auto_merge_pin
+        waft_auto_merge_dictionary['pin'] = waft_auto_merge_pin
         if 'depth' not in code_odoo_yaml_merge_tmp_dictionary:
             if merge_remote_counter[waft_auto_merge_remote] == 1 :
                 waft_auto_merge_depth = 1
@@ -284,7 +287,7 @@ for addons_repository_path in code_odoo_yaml_file:
                 waft_auto_merge_depth = WAFT_DEPTH_MERGE
         else:
             waft_auto_merge_depth = code_odoo_yaml_merge_tmp_dictionary['depth']
-        waft_auto_merge_dictionary[depth] = waft_auto_merge_depth
+        waft_auto_merge_dictionary['depth'] = waft_auto_merge_depth
 
 class AddonsConfigError(Exception):
     def __init__(self, message, *args):
