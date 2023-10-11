@@ -841,8 +841,9 @@ def run_migration(start_version, target_version):
     logging.info("Disabling dangerous stuff...")
     disable_dangerous_stuff()
 
+    skip_initial_upgrade = os.environ["SKIP_INITIAL_UPGRADE"] == "1" if "SKIP_INITIAL_UPGRADE" in os.environ else False
     if from_start:
-        if not start_version in progress or not 'upgrade' in progress[start_version] or not progress[start_version]['upgrade']:
+        if not skip_initial_upgrade and (not start_version in progress or not 'upgrade' in progress[start_version] or not progress[start_version]['upgrade']):
             logging.info("Running initial upgrade...")
             run_upgrade(start_version)
             mark_upgrade_done(start_version)
