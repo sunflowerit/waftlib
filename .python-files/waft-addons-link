@@ -2,7 +2,6 @@
 # Version: v.23.08.03
 # -*- coding: utf-8 -*-
 
-from glob import iglob
 try:
     from venvwaftlib import *
 except IOError:
@@ -11,12 +10,31 @@ except IOError:
 
 logger.info("Linking all addons from %s in %s", ADDONS_YAML_FILE, ADDONS_AUTO_DIRECTORY)
 
-# Remove all links in addons dir
-for link in iglob(os.path.join(ADDONS_AUTO_DIRECTORY, "*")):
-    os.remove(link)
-# Add new links
-for addon_name, addons_repository_item_path in addons_config():
-    addon_directory = os.path.relpath(os.path.join(CODE_ODOO_DIRECTORY, addons_repository_item_path, addon_name), ADDONS_AUTO_DIRECTORY)
-    addon_link = os.path.join(ADDONS_AUTO_DIRECTORY, addon_name)
-    os.symlink(addon_directory, addon_link)
-    logger.debug("Linked %s in %s", addon_directory, addon_link)
+addons_links = glob(os.path.join(ADDONS_AUTO_DIRECTORY, "*"))
+for addon_link in addons_links:
+    os.remove(addon_link)
+
+for addons_repository_full_path in waft_auto_yaml_dictionary:
+    addons_full_paths_list = []
+    if waft_auto_yaml_dictionary[addons_repository_full_path][addons] == [os.path.join(addons_repository_full_path, '*')]:
+        if addons_repository_full_path == ODOO_MAIN_CODE_PATH:
+            for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_PATH, 'addons/*')):
+                addons_full_paths_list.append(addon_partial_full_path)
+            if ODOO_VERSION not in {'8.0', '9.0'}:
+                for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_PATH, 'openerp/addons/*')):
+                    addons_full_paths_list.append(addon_partial_full_path)
+            else:
+                for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_PATH, 'odoo/addons/*')):
+                    addons_full_paths_list.append(addon_partial_full_path)
+        else:
+            for addon_partial_full_path in glob(os.path.join(addons_repository_full_path, '*')):
+                addons_full_paths_list.append(addon_partial_full_path)
+    else:
+        for addon_full_path in waft_auto_yaml_dictionary[addons_repository_full_path][addons]:
+            for addon_partial_full_path in glob(addon_full_path):
+                addons_full_paths_list.append(addon_partial_full_path)
+    for addon_full_path in addons_full_paths_list:
+        auto_directory_addon_relpath = os.path.relpath(addon_full_path, ADDONS_AUTO_DIRECTORY)
+        addon_link = os.path.join(ADDONS_AUTO_DIRECTORY, os.path.join(os.path.relpath(addon_full_path, addons_repository_full_path)))
+        os.symlink(auto_directory_addon_relpath, addon_link)
+        logger.debug("Linked %s in %s", auto_directory_addon_relpath, addon_link)

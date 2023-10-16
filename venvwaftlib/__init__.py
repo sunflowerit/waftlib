@@ -398,7 +398,7 @@ for addons_repository_path in code_odoo_yaml_file:
         if len(waft_auto_merges_list) > 1:
             waft_auto_merges_tmp_list = []
             for waft_auto_merge_tmp_dictionary in waft_auto_merges_list:
-                if waft_auto_merge_tmp_dictionary['depth'] == 1 :
+                if waft_auto_merge_tmp_dictionary['depth'] == 1:
                     waft_auto_merge_tmp_dictionary['depth'] = WAFT_DEPTH_MERGE
                 waft_auto_merges_tmp_list.append(waft_auto_merge_tmp_dictionary)
             waft_auto_merges_list = waft_auto_merges_tmp_list
@@ -465,18 +465,18 @@ for addons_repository_path in code_odoo_yaml_file:
             "'addons' list does not exist in '%s' dictionary, so, all addons will be linked!",
             addons_repository_path
             )
-        waft_auto_repository_dictionary['addons'] = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path, '*')
+        waft_auto_repository_dictionary['addons'] = [os.path.join(addons_repository_full_path, '*')]
     if not waft_auto_default_addons:
         if type(addons_repository_dictionary['addons']) != list:
             logger.warning(
                 "'addons: %s' is not a list in '%s' dictionary in '%s' file, so, all addons will be linked!",
                 addons_repository_dictionary['addons'], addons_repository_path, CODE_ODOO_YAML_FILE
                 )
-            waft_auto_repository_dictionary['addons'] = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path, '*')
+            waft_auto_repository_dictionary['addons'] = [os.path.join(addons_repository_full_path, '*')]
         else:
             waft_auto_repository_addons_list = []
             for addon_sub_path in addons_repository_dictionary['addons']:
-                addon_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path, addon_sub_path)
+                addon_full_path = os.path.join(addons_repository_full_path, addon_sub_path)
                 waft_auto_repository_addons_list.append(addon_full_path)
             waft_auto_repository_dictionary['addons'] = waft_auto_repository_addons_list
     waft_auto_addons_default_except = False
@@ -486,18 +486,18 @@ for addons_repository_path in code_odoo_yaml_file:
             "'addons_except' list does not exist in '%s' dictionary, so, addons_except will be nothing!",
             addons_repository_path
             )
-        waft_auto_repository_dictionary['addons_except'] = ''
+        waft_auto_repository_dictionary['addons_except'] = []
     if not waft_auto_addons_default_except:
         if type(addons_repository_dictionary['addons_except']) != list:
             logger.warning(
                 "'addons_except: %s' is not a list, so, addons_except will be nothing!",
                 addons_repository_dictionary['addons_except'], addons_repository_path, CODE_ODOO_YAML_FILE
                 )
-            waft_auto_repository_dictionary['addons_except'] = ''
+            waft_auto_repository_dictionary['addons_except'] = []
         else:
             waft_auto_repository_addons_except_list = []
             for addon_except_sub_path in addons_repository_dictionary['addons_except']:
-                addon_except_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path, addon_except_sub_path)
+                addon_except_full_path = os.path.join(addons_repository_full_path, addon_except_sub_path)
                 waft_auto_repository_addons_except_list.append(addon_except_full_path)
             waft_auto_repository_dictionary['addons_except'] = waft_auto_repository_addons_except_list
     waft_auto_yaml_tmp_dictionary[addons_repository_full_path] = waft_auto_repository_dictionary
@@ -532,19 +532,18 @@ for addons_repository_path in {'enterprise', 'private'}:
                 "'addons' list does not exist in '%s' dictionary, so, all addons will be linked!",
                 addons_repository_path
                 )
-            waft_auto_repository_dictionary['addons'] = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path, '*')
+            waft_auto_repository_dictionary['addons'] = [os.path.join(addons_repository_full_path, '*')]
         if not waft_auto_default_addons:
             if type(addons_repository_dictionary['addons']) != list:
                 logger.warning(
                     "'addons: %s' is not a list in '%s' dictionary in '%s' file, so, all addons will be linked!",
                     addons_repository_dictionary['addons'], addons_repository_path, CODE_ODOO_YAML_FILE
                     )
-                waft_auto_repository_dictionary['addons'] = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path,
-                                                                         '*')
+                waft_auto_repository_dictionary['addons'] = [os.path.join(addons_repository_full_path, '*')]
             else:
                 waft_auto_repository_addons_list = []
                 for addon_sub_path in addons_repository_dictionary['addons']:
-                    addon_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path, addon_sub_path)
+                    addon_full_path = os.path.join(addons_repository_full_path, addon_sub_path)
                     waft_auto_repository_addons_list.append(addon_full_path)
                 waft_auto_repository_dictionary['addons'] = waft_auto_repository_addons_list
         waft_auto_addons_default_except = False
@@ -554,18 +553,18 @@ for addons_repository_path in {'enterprise', 'private'}:
                 "'addons_except' list does not exist in '%s' dictionary, so, addons_except will be nothing!",
                 addons_repository_path
                 )
-            waft_auto_repository_dictionary['addons_except'] = ''
+            waft_auto_repository_dictionary['addons_except'] = []
         if not waft_auto_addons_default_except:
             if type(addons_repository_dictionary['addons_except']) != list:
                 logger.warning(
                     "'addons_except: %s' is not a list, so, addons_except will be nothing!",
                     addons_repository_dictionary['addons_except'], addons_repository_path, CODE_ODOO_YAML_FILE
                     )
-                waft_auto_repository_dictionary['addons_except'] = ''
+                waft_auto_repository_dictionary['addons_except'] = []
             else:
                 waft_auto_repository_addons_except_list = []
                 for addon_except_sub_path in addons_repository_dictionary['addons_except']:
-                    addon_except_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path,
+                    addon_except_full_path = os.path.join(addons_repository_full_path,
                                                           addon_except_sub_path)
                     waft_auto_repository_addons_except_list.append(addon_except_full_path)
                 waft_auto_repository_dictionary['addons_except'] = waft_auto_repository_addons_except_list
@@ -573,6 +572,40 @@ for addons_repository_path in {'enterprise', 'private'}:
 
 for addons_repository_full_path in waft_auto_yaml_tmp_dictionary:
     waft_auto_yaml_dictionary[addons_repository_full_path] = waft_auto_yaml_tmp_dictionary[addons_repository_full_path]
+
+addons_repository_path = ''
+addons_repository_full_path = ''
+addons_repository_dictionary = dict()
+waft_auto_repository_dictionary = dict()
+code_odoo_yaml_remotes_dictionary = dict()
+waft_auto_remotes_tmp_dictionary = dict()
+waft_auto_remotes_dictionary = dict()
+code_odoo_yaml_remote_key = ''
+waft_auto_remote_key = ''
+code_odoo_yaml_merges_list = []
+waft_auto_merges_tmp_list = []
+waft_auto_merges_list = []
+code_odoo_yaml_merge_dictionary = dict()
+waft_auto_merge_tmp_dictionary = dict()
+waft_auto_merge_dictionary = dict()
+default_merges_generated = False
+waft_auto_merge_remote = ''
+waft_auto_merge_branch = ''
+waft_auto_merge_pin = ''
+waft_auto_merge_depth = 1
+code_odoo_yaml_target_list = []
+waft_auto_default_target = False
+code_odoo_yaml_target_value = ''
+waft_auto_target_value = ''
+waft_auto_target_default_value = ''
+waft_auto_default_addons = False
+addon_sub_path = ''
+addon_full_path = ''
+addon_except_sub_path = ''
+addon_except_full_path = ''
+waft_auto_repository_addons_except_list = []
+waft_auto_addons_default_except = False
+waft_auto_repository_addons_list = []
 
 class AddonsConfigError(Exception):
     def __init__(self, message, *args):
