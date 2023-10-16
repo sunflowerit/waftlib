@@ -1,5 +1,3 @@
-# X-Modules: database_cleanup
-
 from odoo.exceptions import UserError
 
 cleanup_module = env['ir.module.module'].search([('name', '=', 'database_cleanup')])
