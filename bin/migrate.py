@@ -1082,8 +1082,6 @@ def main():
         target_version = os.environ["ODOO_VERSION"]
         logging.info("Starting migration from %s to %s...", start_version, target_version)
         run_migration(start_version, target_version)
-        # Quickfix to reset the odoo.conf file
-        cmd_system(WAFT_DIR + "/build")
         logging.info("Migration completed.")
     except Exception as e:
         _, name, tb = sys.exc_info()
