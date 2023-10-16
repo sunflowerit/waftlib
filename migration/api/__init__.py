@@ -89,7 +89,7 @@ def purge_model(env, model_id, careful=True):
         env.cr.execute("DELETE FROM ir_model WHERE id = %s",
                 [model_id])
 
-    env.cr.execute("SELECT name FROM ir_model WHERE id = %s", [model_id])
+    env.cr.execute("SELECT model FROM ir_model WHERE id = %s", [model_id])
     model_name = env.cr.fetchone()[0]
     env.cr.commit()
     try:
