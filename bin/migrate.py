@@ -581,7 +581,7 @@ def rebuild_sources():
         with open(os.path.join(build_dir, '.env-secret'), 'wt') as file:
             file.write('ODOO_VERSION="%s"\n' % version)
             file.write('PGDATABASE="%s"\n' % os.environ['PGDATABASE'])
-            file.write('DBFILTER="^%s$"\n' % os.environ['PGDATABASE'])
+            file.write('ODOO_DBFILTER="^%s$"\n' % os.environ['PGDATABASE'])
             if 'PGPASSWORD' in os.environ:
                 file.write('PGPASSWORD="%s"\n' % os.environ['PGPASSWORD'])
             file.write('LOG_LEVEL="DEBUG"\n')
