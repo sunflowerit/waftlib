@@ -13,28 +13,34 @@ logger.info("Linking all addons from %s in %s", ADDONS_YAML_FILE, ADDONS_AUTO_DI
 addons_links = glob(os.path.join(ADDONS_AUTO_DIRECTORY, "*"))
 for addon_link in addons_links:
     os.remove(addon_link)
-
+addons_full_paths_list = []
 for addons_repository_full_path in waft_auto_yaml_dictionary:
-    addons_full_paths_list = []
+    addons_full_paths_tmp_list = []
     if waft_auto_yaml_dictionary[addons_repository_full_path][addons] == [os.path.join(addons_repository_full_path, '*')]:
         if addons_repository_full_path == ODOO_MAIN_CODE_PATH:
             for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_PATH, 'addons/*')):
-                addons_full_paths_list.append(addon_partial_full_path)
+                addons_full_paths_tmp_list.append(addon_partial_full_path)
             if ODOO_VERSION not in {'8.0', '9.0'}:
                 for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_PATH, 'openerp/addons/*')):
-                    addons_full_paths_list.append(addon_partial_full_path)
+                    addons_full_paths_tmp_list.append(addon_partial_full_path)
             else:
                 for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_PATH, 'odoo/addons/*')):
-                    addons_full_paths_list.append(addon_partial_full_path)
+                    addons_full_paths_tmp_list.append(addon_partial_full_path)
         else:
             for addon_partial_full_path in glob(os.path.join(addons_repository_full_path, '*')):
-                addons_full_paths_list.append(addon_partial_full_path)
+                addons_full_paths_tmp_list.append(addon_partial_full_path)
     else:
-        for addon_full_path in waft_auto_yaml_dictionary[addons_repository_full_path][addons]:
-            for addon_partial_full_path in glob(addon_full_path):
-                addons_full_paths_list.append(addon_partial_full_path)
+        for addon_full_tmp_path in waft_auto_yaml_dictionary[addons_repository_full_path][addons]:
+            for addon_partial_full_path in glob(addon_full_tmp_path):
+                addons_full_paths_tmp_list.append(addon_partial_full_path)
+    if waft_auto_yaml_dictionary[addons_repository_full_path][addons_except] == '':
+        addons_full_paths_list = addons_full_paths_tmp_list
+    else:
+        for addon_full_tmp_path in addons_full_paths_tmp_list:
+            if addon_full_tmp_path not in waft_auto_yaml_dictionary[addons_repository_full_path][addons_except]:
+                addons_full_paths_list.append(addon_full_tmp_path)
     for addon_full_path in addons_full_paths_list:
         auto_directory_addon_relpath = os.path.relpath(addon_full_path, ADDONS_AUTO_DIRECTORY)
         addon_link = os.path.join(ADDONS_AUTO_DIRECTORY, os.path.join(os.path.relpath(addon_full_path, addons_repository_full_path)))
         os.symlink(auto_directory_addon_relpath, addon_link)
-        logger.debug("Linked %s in %s", auto_directory_addon_relpath, addon_link)
+        logger.debug("Linked %s in %s", addon_full_path, addon_link)
