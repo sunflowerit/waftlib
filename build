@@ -33,10 +33,8 @@ fi
 "${ODOO_WORK_DIRECTORY}/scripts/waft-requirements-install" && \
 /bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-requirements-install' script." && \
 "${ODOO_WORK_DIRECTORY}/scripts/odoo-requirements-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-code-aggregate' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-code-aggregate" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-code-clean' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-code-clean" && \
+/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-build' script." && \
+"${ODOO_WORK_DIRECTORY}/scripts/waft-build" && \
 /bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile' script." && \
 "${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile" && \
 /bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/odoo-code-install' script." && \
@@ -46,7 +44,3 @@ fi
 /bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-database-unaccent-install' script." && \
 "${ODOO_WORK_DIRECTORY}/scripts/waft-database-unaccent-install" && \
 /bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-addons-link' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-addons-link" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-conf-generate' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-conf-generate" && \
-/bin/echo "( INFO ) : END of ${ODOO_WORK_DIRECTORY}/build script."
