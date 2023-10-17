@@ -10,8 +10,19 @@ class UnresolvableForeignReferenceError(Exception):
 
 
 DESTRUCTION_TABLE_WHITELIST = [
+    "ir_act_client",
+    "ir_act_report_xml",
+    "ir_act_server",
+    "ir_act_server_group_rel",
+    "ir_act_server_res_partner_rel",
+    "ir_act_url",
+    "ir_act_window",
+    "ir_act_window_group_rel",
+    "ir_act_window_view",
+    "ir_actions",
     "ir_cron",
     "ir_model_fields",
+    "ir_model_fields_selection",
     "ir_ui_view",
     "ir_ui_view_custom",
     "ir_ui_view_group_rel",
