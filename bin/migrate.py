@@ -584,7 +584,7 @@ def rebuild_sources():
             file.write('ODOO_DBFILTER="^%s$"\n' % os.environ['PGDATABASE'])
             if 'PGPASSWORD' in os.environ:
                 file.write('PGPASSWORD="%s"\n' % os.environ['PGPASSWORD'])
-            file.write('LOG_LEVEL="DEBUG"\n')
+            file.write('LOG_LEVEL="INFO"\n')
             if params['enterprise-enabled']:
                 file.write('DEFAULT_REPO_PATTERN_ODOO="https://github.com/odoo/odoo.git"')
             elif float(version) < 14.0 and version != params['start-version']:
@@ -726,7 +726,7 @@ def run_enterprise_upgrade(version):
         else:
             if proc.returncode != 0:
                 if proc.returncode == 1:
-                    last_line = read_last_line(proc.stderr).decode('utf-8')
+                    last_line = read_last_li    ne(proc.stderr).decode('utf-8')
                     if last_line.find("<urlopen error timed out>") != -1:
                         raise TimeoutError()
                     raise Exception("Enterprise upgrade failed with exit code " + str(proc.returncode))
