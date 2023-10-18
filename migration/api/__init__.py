@@ -110,7 +110,7 @@ def purge_model(env, model_id, careful=True):
         env.cr.execute("DELETE FROM ir_act_server WHERE model_id = %s", [model_id])
         env.cr.execute("DELETE FROM ir_model_access WHERE model_id = %s", [model_id])
         env.cr.execute("DELETE FROM ir_model_constraint WHERE model = %s", [model_id])
-        env.cr.execute("DELETE FROM ir_model_fields WHERE model_id = %s OR relation_table = %s", [model_id, model_name])
+        env.cr.execute("DELETE FROM ir_model_fields WHERE model_id = %s OR relation = %s", [model_id, model_name])
         env.cr.execute("DELETE FROM ir_model_relation WHERE model = %s", [model_id])
         env.cr.execute("DELETE FROM ir_rule WHERE model_id = %s", [model_id])
         env.cr.execute("DELETE FROM ir_model WHERE id = %s", [model_id])
