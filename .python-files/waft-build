@@ -90,8 +90,8 @@ for addons_repository_full_path in waft_auto_yaml_dictionary:
             "Running gitaggregate with '%s' for '%s'",
             CODE_ODOO_YAML_DUMP_FILE, addons_repository_full_path
             )
-        gitaggregate_cmd = ["gitaggregate", "--expand-env", "--config", config, "--log-level", WAFT_LOG_LEVEL, "--jobs",
-                            str(cpu_count() or 1), "aggregate"]
+        gitaggregate_cmd = ["gitaggregate", "--expand-env", "--config", CODE_ODOO_YAML_DUMP_FILE, "--log-level",
+            WAFT_LOG_LEVEL, "--jobs", str(cpu_count() or 1), "aggregate"]
         logger.info("Running '%s' in '%s'", ' '.join(gitaggregate_cmd), CODE_ODOO_DIRECTORY)
         check_call(
             gitaggregate_cmd,
