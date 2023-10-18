@@ -19,8 +19,10 @@ except ImportError:
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 ODOO_WORK_DIRECTORY = os.path.realpath(os.path.join(SCRIPT_PATH, "../../../../.."))
 os.environ['ODOO_WORK_DIRECTORY'] = ODOO_WORK_DIRECTORY
-load_dotenv(os.path.join(ODOO_WORK_DIRECTORY, "config/env-default"))
-load_dotenv(os.path.join(ODOO_WORK_DIRECTORY, "config/env-shared"), override=True)
+ODOO_CONFIG_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, "config")
+os.environ['ODOO_CONFIG_DIRECTORY'] = ODOO_CONFIG_DIRECTORY
+load_dotenv(os.path.join(ODOO_CONFIG_DIRECTORY, "env-default"))
+load_dotenv(os.path.join(ODOO_CONFIG_DIRECTORY, "env-shared"), override=True)
 load_dotenv(os.path.join(ODOO_WORK_DIRECTORY, ".env-secret"), override=True)
 
 # Customize Waft logging
@@ -202,10 +204,11 @@ if WAFT_WAIT_DB.lower() not in {"true", "false"}:
     os.environ["WAFT_WAIT_DB"] = 'false'
 
 CODE_ODOO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, "odoo-code")
-ADDONS_YAML_FILE = os.path.join(ODOO_WORK_DIRECTORY, "config/addons.yaml")
-CODE_ODOO_YAML_FILE = os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-code.yaml")
+CODE_ODOO_YAML_FILE = os.path.join(ODOO_CONFIG_DIRECTORY, "odoo-code.yaml")
 ODOO_MAIN_CODE_PATH = os.path.join(ODOO_WORK_DIRECTORY, "odoo-code/odoo")
-ADDONS_AUTO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/auto/addons")
+IGNORE_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, ".ignore")
+ODOO_AUTO_DIRECTORY = os.path.join(IGNORE_DIRECTORY, "auto")
+ODOO_ADDONS_AUTO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, "addons")
 
 if not os.path.exists(CODE_ODOO_YAML_FILE):
     logger.error(
@@ -221,23 +224,6 @@ except IOError:
     logger.error(
         "Could not load '%s' Odoo code configuration file.",
         CODE_ODOO_YAML_FILE
-        )
-    exit(1)
-
-if not os.path.exists(ADDONS_YAML_FILE):
-    logger.error(
-        "Could not find '%s' addons configuration yaml.",
-        ADDONS_YAML_FILE
-        )
-    exit(1)
-
-try:
-    with open(ADDONS_YAML_FILE) as addons_YAML_file:
-        addons_yaml_file = yaml.safe_load(addons_YAML_file)
-except IOError:
-    logger.error(
-        "Could not load '%s' addons configuration yaml.",
-        ADDONS_YAML_FILE
         )
     exit(1)
 
@@ -267,8 +253,7 @@ for addons_repository_path in code_odoo_yaml_file:
             default_merges_generated = True
             waft_auto_merge_dictionary = dict()
             waft_auto_merge_dictionary['remote'] = code_odoo_yaml_remote_key
-            waft_auto_merge_dictionary['branch'] = ODOO_VERSION
-            waft_auto_merge_dictionary['pin'] = ''
+            waft_auto_merge_dictionary['ref'] = ODOO_VERSION
             waft_auto_merge_dictionary['depth'] = 1
             waft_auto_merges_list = [waft_auto_merge_dictionary]
             code_odoo_yaml_merges_list = []
@@ -300,7 +285,7 @@ for addons_repository_path in code_odoo_yaml_file:
         for code_odoo_yaml_merge_dictionary in code_odoo_yaml_merges_list:
             waft_auto_merge_dictionary = dict()
             waft_auto_merge_remote = ''
-            waft_auto_merge_branch = ''
+            waft_auto_merge_ref = ''
             if type(code_odoo_yaml_merge_dictionary) != dict:
                 logger.warning(
                     "In '%s' dictionary in '%s' file, Waft will ignore '%s' in 'merges: %s' because it is not a dictionary!",
@@ -337,31 +322,18 @@ for addons_repository_path in code_odoo_yaml_file:
                 continue
             else:
                 waft_auto_merge_remote = code_odoo_yaml_merge_dictionary['remote']
-            if 'branch' not in code_odoo_yaml_merge_dictionary:
-                waft_auto_merge_branch = ODOO_VERSION
-            elif code_odoo_yaml_merge_dictionary['branch'] in {'', 'ODOO_VERSION', '$ODOO_VERSION', '"$ODOO_VERSION"',
+            if 'ref' not in code_odoo_yaml_merge_dictionary:
+                waft_auto_merge_ref = ODOO_VERSION
+            elif code_odoo_yaml_merge_dictionary['ref'] in {'', 'ODOO_VERSION', '$ODOO_VERSION', '"$ODOO_VERSION"',
             '${ODOO_VERSION}', '"${ODOO_VERSION}"'}:
-                waft_auto_merge_branch = ODOO_VERSION
+                waft_auto_merge_ref = ODOO_VERSION
             else:
-                waft_auto_merge_branch = code_odoo_yaml_merge_dictionary['branch']
-            if type(waft_auto_merge_branch) != str:
+                waft_auto_merge_ref = code_odoo_yaml_merge_dictionary['ref']
+            if type(waft_auto_merge_ref) != str:
                 logger.warning(
                     "Waft will ignore 'merges: %s' dictionary from '%s' dictionary in '%s' file "
-                    "because 'branch: %s' is not is not a string!",
-                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_merge_branch
-                    )
-                continue
-            if 'pin' not in code_odoo_yaml_merge_dictionary:
-                waft_auto_merge_pin = ''
-            elif code_odoo_yaml_merge_dictionary['pin'] == 'latest':
-                waft_auto_merge_pin = ''
-            else:
-                waft_auto_merge_pin = code_odoo_yaml_merge_dictionary['pin']
-            if type(waft_auto_merge_pin) != str:
-                logger.warning(
-                    "Waft will ignore 'merges: %s' dictionary from '%s' dictionary in '%s' file "
-                    "because 'pin: %s' is not is not a string!",
-                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_merge_pin
+                    "because 'ref: %s' is not is not a string!",
+                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_merge_ref
                     )
                 continue
             if 'depth' not in code_odoo_yaml_merge_dictionary:
@@ -376,8 +348,7 @@ for addons_repository_path in code_odoo_yaml_file:
                     )
                 continue
             waft_auto_merge_dictionary['remote'] = waft_auto_merge_remote
-            waft_auto_merge_dictionary['branch'] = waft_auto_merge_branch
-            waft_auto_merge_dictionary['pin'] = waft_auto_merge_pin
+            waft_auto_merge_dictionary['ref'] = waft_auto_merge_ref
             waft_auto_merge_dictionary['depth'] = waft_auto_merge_depth
             waft_auto_merges_list.append(waft_auto_merge_dictionary)
         if len(waft_auto_merges_list) == 0:
@@ -385,8 +356,7 @@ for addons_repository_path in code_odoo_yaml_file:
                 default_merges_generated = True
                 waft_auto_merge_dictionary = dict()
                 waft_auto_merge_dictionary['remote'] = code_odoo_yaml_remote_key
-                waft_auto_merge_dictionary['branch'] = ODOO_VERSION
-                waft_auto_merge_dictionary['pin'] = ''
+                waft_auto_merge_dictionary['ref'] = ODOO_VERSION
                 waft_auto_merge_dictionary['depth'] = 1
                 waft_auto_merges_list = [waft_auto_merge_dictionary]
                 code_odoo_yaml_merges_list = []
@@ -416,7 +386,7 @@ for addons_repository_path in code_odoo_yaml_file:
     waft_auto_target_default_value = ''
     for waft_auto_merge_tmp_dictionary in waft_auto_merges_list:
         waft_auto_target_default_value = "{} {}".format(
-            waft_auto_merge_tmp_dictionary['remote'], waft_auto_merge_tmp_dictionary['branch']
+            waft_auto_merge_tmp_dictionary['remote'], waft_auto_merge_tmp_dictionary['ref']
             )
         break
     code_odoo_yaml_target_value = ''
@@ -511,7 +481,7 @@ if ODOO_MAIN_CODE_PATH not in waft_auto_yaml_tmp_dictionary:
         )
     waft_auto_merge_dictionary = dict()
     waft_auto_merge_dictionary['remote'] = origin
-    waft_auto_merge_dictionary['branch'] = ODOO_VERSION
+    waft_auto_merge_dictionary['ref'] = ODOO_VERSION
     waft_auto_merges_list = [waft_auto_merge_dictionary]
     waft_auto_repository_dictionary['merges'] = waft_auto_merges_list
     waft_auto_repository_dictionary['addons'] = [os.path.join(ODOO_MAIN_CODE_PATH, '*')]
@@ -564,8 +534,7 @@ for addons_repository_path in {'enterprise', 'private'}:
             else:
                 waft_auto_repository_addons_except_list = []
                 for addon_except_sub_path in addons_repository_dictionary['addons_except']:
-                    addon_except_full_path = os.path.join(addons_repository_full_path,
-                                                          addon_except_sub_path)
+                    addon_except_full_path = os.path.join(addons_repository_full_path, addon_except_sub_path)
                     waft_auto_repository_addons_except_list.append(addon_except_full_path)
                 waft_auto_repository_dictionary['addons_except'] = waft_auto_repository_addons_except_list
         waft_auto_yaml_dictionary[addons_repository_full_path] = waft_auto_repository_dictionary
@@ -575,6 +544,8 @@ for addons_repository_full_path in waft_auto_yaml_tmp_dictionary:
 
 addons_repository_path = ''
 addons_repository_full_path = ''
+addons_enterprise_full_path = os.path.join(CODE_ODOO_DIRECTORY, 'enterprise')
+addons_private_full_path = os.path.join(CODE_ODOO_DIRECTORY, 'private')
 addons_repository_dictionary = dict()
 waft_auto_repository_dictionary = dict()
 code_odoo_yaml_remotes_dictionary = dict()
@@ -590,8 +561,7 @@ waft_auto_merge_tmp_dictionary = dict()
 waft_auto_merge_dictionary = dict()
 default_merges_generated = False
 waft_auto_merge_remote = ''
-waft_auto_merge_branch = ''
-waft_auto_merge_pin = ''
+waft_auto_merge_ref = ''
 waft_auto_merge_depth = 1
 code_odoo_yaml_target_list = []
 waft_auto_default_target = False
@@ -606,120 +576,3 @@ addon_except_full_path = ''
 waft_auto_repository_addons_except_list = []
 waft_auto_addons_default_except = False
 waft_auto_repository_addons_list = []
-
-class AddonsConfigError(Exception):
-    def __init__(self, message, *args):
-        super(AddonsConfigError, self).__init__(message, *args)
-        self.message = message
-
-def addons_config(strict_running=False):
-    """
-    Yield addon name and path from ``ADDONS_YAML_FILE``.
-
-    :'strict_running' boolean parameter:
-        Use ``True`` to raise an exception if any declared addon is not found.
-
-    :return Iterator[str, str]:
-        A generator that yields ``(addon, repository/addon)`` pairs.
-    """
-    addons_info = dict()
-    addons_missing_paths = set()
-    addons_missing_manifest_paths = set()
-    # Add default values for special sections
-    addons_repositories_paths = {}
-    addons_repositories_paths.setdefault("odoo/addons", {"*"})
-    addons_repositories_paths.setdefault("enterprise", {"*"})
-    addons_repositories_paths.setdefault("private", {"*"})
-    for addons_repository_path in code_odoo_yaml_file:
-        addons_repositories_paths.setdefault(addons_repository_path , "*")
-    # Flatten all sections in a single dict
-    for addons_repository_path, addons_partial_paths in addons_yaml_file.items():
-        logger.debug(
-            "Processing %s repository",
-            addons_repository_path
-            )
-        addons_repositories_paths[addons_repository_path] = addons_partial_paths
-    logger.debug(
-        "Merged addons definition before expanding: %r",
-        addons_repositories_paths
-        )
-    # Expand all addons paths and store config
-    for addons_repository_path, addons_partial_paths in addons_repositories_paths.items():
-        for addon_partial_path in addons_partial_paths:
-            logger.debug(
-                "Expanding in repository %s addon path %s",
-                addons_repository_path, addon_partial_path
-                )
-            addon_partial_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path, addon_partial_path)
-            addon_found_path = glob(addon_partial_full_path)
-            if not addon_found_path:
-                # Projects without enterprise addons should never fail
-                if (addons_repository_path, addon_partial_path) != ("enterprise", "*"):
-                    addons_missing_paths.add(addon_partial_full_path)
-                logger.debug(
-                    "Skipping unexpandable addon path '%s'",
-                    addon_partial_full_path
-                    )
-                continue
-            if not addon_found_path:
-                # Projects without private addons should never fail
-                if (addons_repository_path, addon_partial_path) != ("private", "*"):
-                    addons_missing_paths.add(addon_partial_full_path)
-                logger.debug(
-                    "Skipping unexpandable addon path '%s'",
-                    addon_partial_full_path
-                    )
-                continue
-            for addon_full_path in addon_found_path:
-                if not os.path.isdir(addon_full_path):
-                    continue
-                manifests = (os.path.join(addon_full_path, manifest_file_name) for manifest_file_name in ("__manifest__.py", "__openerp__.py"))
-                if not any(os.path.isfile(manifest_file_name) for manifest_file_name in manifests):
-                    addons_missing_manifest_paths.add(addon_full_path)
-                    logger.debug(
-                        "Skipping '%s' as it is not a valid Odoo module.",
-                        addon_full_path
-                        )
-                    continue
-                logger.debug(
-                    "Registering addon %s",
-                    addon_full_path
-                    )
-                addon_name = os.path.basename(addon_full_path)
-                addons_info.setdefault(addon_name, set())
-                addons_info[addon_name].add(addons_repository_path)
-    if strict_running:
-        missing_error = []
-        if addons_missing_paths:
-            missing_error += ["Addons not found:", pformat(addons_missing_paths)]
-        if addons_missing_manifest_paths:
-            missing_error += ["Addons without manifest:", pformat(addons_missing_manifest_paths)]
-        if missing_error:
-            raise AddonsConfigError("\n".join(missing_error), addons_missing_paths, addons_missing_manifest_paths)
-    logger.debug(
-        "Resulting configuration after expanding: %r",
-        addons_info
-        )
-    for addon_name, addons_repository_path in addons_info.items():
-        # Enterprise addons are most important
-        if addons_repository_path == "enterprise":
-            yield addon_name, "enterprise"
-            continue
-        # Private addons are most important
-        if addons_repository_path == "private":
-            yield addon_name, "private"
-            continue
-        # Odoo core addons are least important
-        if addons_repository_path == {"odoo/addons"}:
-            yield addon_name, "odoo/addons"
-            continue
-        addons_repository_path.discard("odoo/addons")
-        # Other addons fall in between
-        if len(addons_repository_path) != 1:
-            raise AddonsConfigError(
-                "Addon {} defined in several repositories {}".format(
-                    addon_name, addons_repository_path
-                    )
-            )
-        for addons_repository_item_path in addons_repository_path:
-            yield addon_name, addons_repository_item_path

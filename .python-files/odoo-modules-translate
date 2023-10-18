@@ -239,7 +239,7 @@ def main():
 
     temp_file = tempfile.mkstemp(prefix='trans', suffix='.po')[1]
     for module_name in addons:
-        module_path = os.path.join(ADDONS_AUTO_DIRECTORY, module_name)
+        module_path = os.path.join(ODOO_ADDONS_AUTO_DIRECTORY, module_name)
         upgrade_module_translations(module_name, module_path)
 
 

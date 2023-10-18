@@ -6,8 +6,7 @@ odoo:
   merges:
     -
       remote: origin
-      branch: ${ODOO_VERSION}
-      pin: latest
+      ref: ${ODOO_VERSION}
       depth: default
 #  filtered_addons:
 #    - *
