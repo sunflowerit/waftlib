@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Version: v.23.08.03
+
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
+. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
+. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
+cd "${ODOO_WORK_DIRECTORY}"
+
+if [ "${ODOO_UNACCENT,,}" == 'true' ] ; then
+    psql_unaccent_output="$(/usr/bin/psql -qc 'CREATE EXTENSION IF NOT EXISTS unaccent' 2>&1)"
+    ok="${?}"
+    if [ "${ok}" -eq 0 -a -z "${psql_unaccent_output}" ] ; then
+        /bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/waft-database-unaccent-install' script: Unaccent extension installed"
+    elif [ "${ok}" -ne 0 ] ; then
+        /bin/echo "( WARNING ) '${ODOO_WORK_DIRECTORY}/scripts/waft-database-unaccent-install' script: Attempt to install unaccent in ${PGDATABASE}@${PGHOST} failed with this message: ${psql_unaccent_output}"
+    fi
+fi

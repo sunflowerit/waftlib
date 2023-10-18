@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Version: v.23.08.03
+
+set -e
+
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+cd "${ODOO_WORK_DIRECTORY}" && \
+. "${ODOO_WORK_DIRECTORY}/.venv-waft/bin/activate" && \
+(pip uninstall --yes -r "${ODOO_WORK_DIRECTORY}/config/requirements-waft-pre-install-default.txt" 2>/dev/null || /bin/true) && \
+pip install --exists-action w -r "${ODOO_WORK_DIRECTORY}/config/requirements-waft-install-default.txt"

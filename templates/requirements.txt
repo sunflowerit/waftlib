@@ -1,3 +1,0 @@
-# Version: v.22.05.30
-# Special PyPI packages versions.
-# Add packages here to override requirements-default.txt file.

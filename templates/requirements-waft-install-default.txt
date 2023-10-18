@@ -1,0 +1,9 @@
+# Version: v.23.08.03
+# Default PyPI packages versions for gitaggregator virtual environment.
+pyyaml==6.0.1
+argcomplete==1.12.3
+colorama==0.4.4
+requests==2.26.0
+psycopg2==2.8.6
+python-dotenv==0.17.1
+-e git+https://github.com/acsone/git-aggregator.git@4a706d77269ea428a41900da59a9f929eb00a971#egg=git_aggregator

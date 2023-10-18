@@ -1,0 +1,20 @@
+#!/bin/bash
+# Version: v.23.08.03
+
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
+. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
+. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
+cd "${ODOO_WORK_DIRECTORY}"
+
+. "${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/activate"
+
+export ODOO_WORKERS="${ODOO_WORKERS:-8}"
+if [ "${ODOO_WORKERS}" -eq '0' ] ; then
+  export ODOO_XMLRPC_PORT="${ODOO_XMLRPC_PORT:-8069}"
+  export ODOO_LONGPOLLING_PORT="${ODOO_LONGPOLLING_PORT:-8072}"
+  /usr/bin/socat "TCP-LISTEN:${ODOO_LONGPOLLING_PORT},reuseaddr,fork" "TCp:127.0.0.1:${ODOO_XMLRPC_PORT}" &
+fi
+
+${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/odoo --logfile "${ODOO_WORK_DIRECTORY}/logfiles/odoo.log" -c "${ODOO_WORK_DIRECTORY}/.ignore/auto/odoo.conf"
