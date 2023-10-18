@@ -726,7 +726,7 @@ def run_enterprise_upgrade(version):
         else:
             if proc.returncode != 0:
                 if proc.returncode == 1:
-                    last_line = read_last_li    ne(proc.stderr).decode('utf-8')
+                    last_line = read_last_line(proc.stderr).decode('utf-8')
                     if last_line.find("<urlopen error timed out>") != -1:
                         raise TimeoutError()
                     raise Exception("Enterprise upgrade failed with exit code " + str(proc.returncode))
