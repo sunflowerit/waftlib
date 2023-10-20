@@ -51,7 +51,7 @@ def delete_view(view_id):
 
 
 def purge_views():
-    env.cr.execute("SELECT id FROM ir_ui_view")
+    env.cr.execute("SELECT id FROM ir_ui_view WHERE name NOT LIKE 'Odoo Studio:%'")
     result = env.cr.dictfetchall()
     for row in result:
         try:
