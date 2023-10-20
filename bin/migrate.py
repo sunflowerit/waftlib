@@ -103,7 +103,7 @@ def check_modules_installed(modules):
     return True
 
 
-def check_script_support(filename, version, from_version):
+def check_script_support(filename, version):
     comment_prefix = '--' if filename.endswith('.sql') else '#'
     file = open(filename, 'r')
 
@@ -117,10 +117,6 @@ def check_script_support(filename, version, from_version):
         if comment.startswith('X-Supports:'):
             versions = [x.strip() for x in comment[11:].split()]
             if not version in versions:
-                return False
-        elif from_version and comment.startswith('X-Supports-From:'):
-            versions = [x.strip() for x in comment[11:].split()]
-            if not from_version in versions:
                 return False
         elif comment.startswith('X-Modules:'):
             modules = comment[10:].split()
@@ -867,8 +863,6 @@ def run_migration(start_version, target_version):
                     'upgrade' in progress[ENTERPRISE_MINIMUM_TARGET] and \
                     progress[ENTERPRISE_MINIMUM_TARGET]['upgrade']
                 if not enterprise_done:
-                    run_scripts(start_version, "pre-upgrade")
-                    run_scripts(start_version, "enterprise/pre-upgrade")
                     run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/pre-jump", start_version)
                     run_enterprise_upgrade(ENTERPRISE_MINIMUM_TARGET)
                     mark_enterprise_done(ENTERPRISE_MINIMUM_TARGET)
@@ -886,6 +880,7 @@ def run_migration(start_version, target_version):
 
     # If not running from the start, we may need to call the
     # the post-upgrade scripts of the previous version.
+    last_version = start_version
     for version in available_build_versions(start_version):
         if version == start_version or float(db_version) - float(version) > 0.999 or (
             params['enterprise-enabled'] and \
@@ -903,11 +898,11 @@ def run_migration(start_version, target_version):
         
         init_progress(version)
         if not enterprise_done and not openupgrade_done:
-            run_scripts(version, "pre-upgrade")
+            run_scripts(version, "pre-upgrade", last_version)
         if params['enterprise-enabled']:
             if not enterprise_done and \
                float(version) - float(ENTERPRISE_MINIMUM_TARGET) > 0.001:
-                run_scripts(version, "enterprise/pre-upgrade")
+                run_scripts(version, "enterprise/pre-upgrade", last_version)
                 run_enterprise_upgrade(version)
                 db_version = version
                 mark_enterprise_done(version)
@@ -926,14 +921,16 @@ def run_migration(start_version, target_version):
     run_scripts(db_version, "post-migration")
 
 
-def run_script(script_path):
+def run_script(script_path, run_at_version=None):
     global config, db_version
     final_version = os.environ['ODOO_VERSION']
+    if not run_at_version:
+        run_at_version = db_version
     logging.info("Running script %s..." % script_path)
 
     if script_path.endswith('.py'):
-        build_dir = WAFT_DIR if db_version == final_version and float(db_version) > 13.999 \
-            else MIGRATION_PATH + '/build-' + db_version
+        build_dir = WAFT_DIR if run_at_version == final_version and float(run_at_version) > 13.999 \
+            else MIGRATION_PATH + '/build-' + run_at_version
         run_python_script(build_dir, script_path)
     elif script_path.endswith('.sh'):
         cmd(['bash', script_path])
@@ -945,10 +942,10 @@ def run_script(script_path):
         actual_subpath = open(script_path).readline().strip()
         actual_script_path = MIGRATION_PATH + '/hook/common/' + actual_subpath
         if os.path.exists(actual_script_path):
-            return run_script(actual_script_path)
+            return run_script(actual_script_path, run_at_version)
         actual_script_path = WAFT_DIR + '/waftlib/migration/hook/common/' + actual_subpath
         if os.path.exists(actual_script_path):
-            return run_script(actual_script_path)
+            return run_script(actual_script_path, run_at_version)
         raise Exception("Script \"%s\" not found" % actual_subpath)
     else:
         return False
@@ -956,10 +953,12 @@ def run_script(script_path):
 
 
 
-def run_scripts(version, hook_name, from_version=None):
+def run_scripts(version, hook_name, run_at_version=None):
     global config, progress
 
     logging.info("Loading %s %s scripts..." % (version, hook_name))
+    if not run_at_version:
+        run_at_version = version
 
     def listdir_full_paths(path):
         if not os.path.exists(path):
@@ -984,10 +983,10 @@ def run_scripts(version, hook_name, from_version=None):
            hook_name in progress[version]['hooks'] and \
            script_path in progress[version]['hooks'][hook_name]:
             continue
-        if not check_script_support(script_path, version, from_version):
+        if not check_script_support(script_path, run_at_version):
             continue
 
-        if not run_script(script_path):
+        if not run_script(script_path, run_at_version):
             logging.error("Unknown file extension for script " + script_filename +
                   ", skipping...")
             continue
