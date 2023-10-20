@@ -881,6 +881,7 @@ def run_migration(start_version, target_version):
     # If not running from the start, we may need to call the
     # the post-upgrade scripts of the previous version.
     last_version = start_version
+    initial_post_upgrade_flag = False
     for version in available_build_versions(start_version):
         if version == start_version or float(db_version) - float(version) > 0.999 or (
             params['enterprise-enabled'] and \
@@ -906,8 +907,8 @@ def run_migration(start_version, target_version):
                 run_enterprise_upgrade(version)
                 db_version = version
                 mark_enterprise_done(version)
-                if not openupgrade_done:
-                    run_scripts(version, "enterprise/post-upgrade")
+            if not openupgrade_done:
+                run_scripts(version, "enterprise/post-upgrade")
         if not openupgrade_done:
             run_scripts(version, "pre-openupgrade")
             logging.info("Running OpenUpgrade to %s..." % version)
