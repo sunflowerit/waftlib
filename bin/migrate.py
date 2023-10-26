@@ -971,8 +971,8 @@ def run_scripts(version, hook_name, run_at_version=None):
 
     scripts_path1 = os.path.join(WAFT_DIR, 'waftlib/migration/hook', hook_name)
     scripts_path2 = os.path.join(MIGRATION_PATH, 'hook', hook_name)
-    scripts_path3 = os.path.join(WAFT_DIR, 'build-' + version, 'hook', hook_name)
-    scripts_path4 = os.path.join(MIGRATION_PATH, 'waftlib/migration/build-' + version, 'hook', hook_name)
+    scripts_path3 = os.path.join(WAFT_DIR, 'waftlib/migration/build-' + version, 'hook', hook_name)
+    scripts_path4 = os.path.join(MIGRATION_PATH, 'build-' + version, 'hook', hook_name)
     scripts = listdir_full_paths(scripts_path1) + \
               listdir_full_paths(scripts_path2) + \
               listdir_full_paths(scripts_path3) + \
