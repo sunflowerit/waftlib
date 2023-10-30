@@ -645,13 +645,15 @@ def rebuild_sources():
 
         logging.info("Rebuilding build-%s..." % version)
 
+        repos_file = os.path.join(build_dir, "custom/src/repos.yaml")
+        repos_file_existed = os.path.exists(repos_file)
+
         # Setup the build dir and bootstrap
         write_env_secret(build_dir, version)
         if build_dir != WAFT_DIR:
             cmd_system(os.path.join(build_dir, 'bootstrap'))
         
-        repos_file = os.path.join(build_dir, "custom/src/repos.yaml")
-        if not os.path.exists(repos_file):
+        if not repos_file_existed:
             if version == params["start-version"]:
                 shutil.copy(os.path.join(WAFT_DIR, "custom/src/old-repos.yaml"), repos_file)
             else:
