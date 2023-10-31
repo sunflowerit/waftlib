@@ -634,14 +634,16 @@ def rebuild_sources():
             build_dir = WAFT_DIR
         
         # Set up git in build dir
-        cmd("mkdir -p \"%s\"" % build_dir)
-        cmd("git init", cwd=build_dir)
-        try:
-            cmd("git remote add sunflowerit https://github.com/sunflowerit/waft", cwd=build_dir)
-        except:
-            pass
-        if build_dir != WAFT_DIR:
-            cmd("git pull sunflowerit master", cwd=build_dir)
+        if not os.path.exists(os.path.join(build_dir, 'build')):
+            cmd("mkdir -p \"%s\"" % build_dir)
+            cmd("git init", cwd=build_dir)
+            try:
+                cmd("git remote add sunflowerit https://github.com/sunflowerit/waft", cwd=build_dir)
+            except:
+                pass
+            if build_dir != WAFT_DIR:
+                cmd("git pull sunflowerit master", cwd=build_dir)
+                cmd("rm -rf .git", cwd=build_dir)
 
         logging.info("Rebuilding build-%s..." % version)
 
