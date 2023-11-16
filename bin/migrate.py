@@ -837,7 +837,7 @@ def run_migration(start_version, target_version):
             not progress[ENTERPRISE_MINIMUM_TARGET]['enterprise']
         )
     )
-    
+
     logging.info("Disabling dangerous stuff...")
     disable_dangerous_stuff()
 
@@ -1008,6 +1008,10 @@ def run_upgrade(version):
     logfile = os.path.join(WAFT_DIR, 'logfile', instance + '.log')
     args = '-u all --stop-after-init --logfile "%s"' % logfile
     cmd(build_dir + '/run ' + args)
+
+    logging.info("Disabling dangerous stuff...")
+    disable_dangerous_stuff()
+
     copy_database(os.environ['PGDATABASE'], instance)
 
 
