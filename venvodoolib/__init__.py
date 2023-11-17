@@ -163,14 +163,6 @@ if PGUSER == '':
     PGUSER = 'odoo'
     os.environ["PGUSER"] = 'odoo'
 
-WAFT_CLEAN = os.environ["WAFT_CLEAN"]
-if WAFT_CLEAN.lower() not in {"true", "false"}:
-    logger.warning(
-        "The 'WAFT_CLEAN' variable is incorrect; resetting to default WAFT_CLEAN='false'."
-        )
-    WAFT_CLEAN = 'false'
-    os.environ["WAFT_CLEAN"] = 'false'
-
 WAFT_COMPILE = os.environ["WAFT_COMPILE"]
 if WAFT_COMPILE.lower() not in {"true", "false"}:
     logger.warning(

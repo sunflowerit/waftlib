@@ -4,7 +4,7 @@
 
 try:
     from venvwaftlib import *
-except IOError:
+except Exception:
     print("( ERROR ) : Run 'build' python script in '.venv-waft' virtual environment.")
     exit(1)
 import sys
@@ -48,7 +48,7 @@ for addons_repository_full_path in waft_auto_yaml_dictionary:
                 stderr=sys.stderr,
                 stdout=sys.stdout,
             )
-        except GitError:
+        except Exception:
             shutil.rmtree(addons_repository_full_path)
             logger.warning(
                 "'git -C %s reset --hard HEAD' failed, waft removed existed '%s'!",
@@ -61,7 +61,7 @@ for addons_repository_full_path in waft_auto_yaml_dictionary:
                 stderr=sys.stderr,
                 stdout=sys.stdout,
             )
-        except GitError:
+        except Exception:
             shutil.rmtree(addons_repository_full_path)
             logger.warning(
                 "'git -C %s clean -fd' failed, waft removed existed '%s'!",
@@ -138,23 +138,23 @@ for directory, subdirectories, subfiles in os.walk(CODE_ODOO_DIRECTORY):
         subdirectories[:] = []
         continue
     # Inside the odoo dir, skip all but addons dir
-    if directory == ODOO_MAIN_CODE_PATH and WAFT_CLEAN == 'false':
+    if directory == ODOO_MAIN_CODE_PATH:
         subdirectories[:] = ["addons"]
         continue
     # Leave .git directories unless we are really CLEAN-ing
-    if directory.endswith("/.git") and WAFT_CLEAN == 'false':
+    if directory.endswith("/.git"):
         subdirectories[:] = []
         continue
     # Leave .github directories unless we are really CLEAN-ing
-    if directory.endswith("/.github") and WAFT_CLEAN == 'false':
+    if directory.endswith("/.github"):
         subdirectories[:] = []
         continue
     # Leave '__xxxxxxx__' folders unless we are really CLEAN-ing
-    if directory.endswith("__") and WAFT_CLEAN == 'false':
+    if directory.endswith("__"):
         subdirectories[:] = []
         continue
     # Leave 'setup' directories unless we are really CLEAN-ing
-    if directory.endswith("/setup") and WAFT_CLEAN == 'false':
+    if directory.endswith("/setup"):
         subdirectories[:] = []
         continue
     try:
@@ -166,9 +166,6 @@ for directory, subdirectories, subfiles in os.walk(CODE_ODOO_DIRECTORY):
         if any(addons_full_path.startswith(directory) for addons_full_path in addons_full_paths):
             # Then, let's walk in; we'll remove later if needed
             continue
-        else:
-            if WAFT_CLEAN == 'false':
-                continue
     else:
         # This is an addons repo; do not walk into the enabled ones
         for enabled_addon in enabled_addons:
@@ -254,23 +251,22 @@ with closing(StringIO()) as generating_odoo_conf_file:
     with open(AUTO_ODOO_CONF_FILE, "w") as auto_odoo_conf_file:
         auto_odoo_conf_file.write(generated_odoo_conf_file)
 
-if WAFT_CLEAN == 'true':
-    if os.listdir(CODE_ODOO_DIRECTORY):
-        for scrap in os.listdir(CODE_ODOO_DIRECTORY):
-            if scrap in {'enterprise', 'private'}:
-                continue
-            scrap_path = os.path.join(CODE_ODOO_DIRECTORY, scrap)
-            if os.path.isfile(scrap_path):
-                try:
-                    os.remove(scrap_path)
-                except IOError:
-                    logger.error("Can't remove '%s' file.", scrap_path)
-                    exit(1)
-            elif os.path.isdir(scrap_path):
-                try:
-                    shutil.rmtree(scrap_path)
-                except IOError:
-                    logger.error("Can't remove '%s' directory.", scrap_path)
-                    exit(1)
-    else:
-        logger.info("The %s directory is already empty.", CODE_ODOO_DIRECTORY)
+if os.listdir(CODE_ODOO_DIRECTORY):
+    for scrap in os.listdir(CODE_ODOO_DIRECTORY):
+        if scrap in {'enterprise', 'private'}:
+            continue
+        scrap_path = os.path.join(CODE_ODOO_DIRECTORY, scrap)
+        if os.path.isfile(scrap_path):
+            try:
+                os.remove(scrap_path)
+            except IOError:
+                logger.error("Can't remove '%s' file.", scrap_path)
+                exit(1)
+        elif os.path.isdir(scrap_path):
+            try:
+                shutil.rmtree(scrap_path)
+            except IOError:
+                logger.error("Can't remove '%s' directory.", scrap_path)
+                exit(1)
+else:
+    logger.info("The %s directory is already empty.", CODE_ODOO_DIRECTORY)

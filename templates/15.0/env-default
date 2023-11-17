@@ -36,8 +36,6 @@ ODOO_WITHOUT_DEMO="all"
 ODOO_WORKERS="8"
 
 # this variable will not effect odoo.cfg variables, it will just effect waft build scripts.
-WAFT_CLEAN="false"
-# this variable will not effect odoo.cfg variables, it will just effect waft build scripts.
 WAFT_COMPILE="true"
 # this variable will not effect odoo.cfg variables, it will just effect waft build scripts.
 WAFT_DEPTH_DEFAULT="1"
