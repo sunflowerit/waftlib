@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Version: v.22.05.30
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
