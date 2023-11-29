@@ -197,6 +197,7 @@ IGNORE_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, ".ignore")
 ODOO_AUTO_DIRECTORY = os.path.join(IGNORE_DIRECTORY, "auto")
 ODOO_ADDONS_AUTO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, "addons")
 
+# Check if CODE_ODOO_YAML_FILE exist.
 if not os.path.exists(CODE_ODOO_YAML_FILE):
     logger.error(
         "Could not find '%s' Odoo code configuration file.",
@@ -204,6 +205,7 @@ if not os.path.exists(CODE_ODOO_YAML_FILE):
         )
     exit(1)
 
+# Load CODE_ODOO_YAML_FILE yaml file as code_odoo_yaml_file dictionary.
 try:
     with open(CODE_ODOO_YAML_FILE) as code_ODOO_YAML_file:
         code_odoo_yaml_file = yaml.safe_load(code_ODOO_YAML_file)
@@ -214,25 +216,64 @@ except IOError:
         )
     exit(1)
 
+# Convert code_odoo_yaml_file to waft_auto_yaml_tmp_dictionary
+code_odoo_yaml_entries_list = []
 waft_auto_yaml_tmp_dictionary = dict()
-for addons_repository_path in code_odoo_yaml_file:
-    if addons_repository_path in {'enterprise', 'private'}:
+for addons_repository_sub_path in code_odoo_yaml_file:
+    addons_repository_sub_path = addons_repository_sub_path.lower()
+    if addons_repository_sub_path in {'enterprise', 'private'}:
         continue
-    addons_repository_dictionary = code_odoo_yaml_file[addons_repository_path]
-    if 'remotes' not in addons_repository_dictionary:
+    if addons_repository_sub_path in code_odoo_yaml_entries_list:
         logger.warning(
-            "Waft will ignore '%s' dictionary in '%s' file because it does not have 'remotes' dictionary!",
-            addons_repository_path, CODE_ODOO_YAML_FILE
-            )
+            "Duplicated repositories configurations in '%s', Waft will ignore '%s'!",
+            CODE_ODOO_YAML_FILE, addons_repository_sub_path
+        )
         continue
-    code_odoo_yaml_remotes_dictionary = code_odoo_yaml_file[addons_repository_path].get('remotes')
+    else:
+        code_odoo_yaml_entries_list.append(addons_repository_sub_path)
+    if addons_repository_sub_path in {'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'} and \
+    'odoo' in waft_auto_yaml_tmp_dictionary:
+        logger.warning(
+            "Duplicated 'odoo' repository configuration in '%s', Waft will ignore '%s'!",
+            CODE_ODOO_YAML_FILE, addons_repository_sub_path
+        )
+        continue
+    addons_repository_dictionary = code_odoo_yaml_file[addons_repository_sub_path]
     waft_auto_remotes_tmp_dictionary = dict()
-    if type(code_odoo_yaml_remotes_dictionary) != dict:
-        logger.warning(
-            "Waft will ignore '%s' dictionary in '%s' file because 'remotes: %s' is not a dictionary!",
-            addons_repository_path, CODE_ODOO_YAML_FILE, code_odoo_yaml_remotes_dictionary
+    if 'remotes' in addons_repository_dictionary:
+        code_odoo_yaml_remotes_dictionary = code_odoo_yaml_file[addons_repository_sub_path].get('remotes')
+        if type(code_odoo_yaml_remotes_dictionary) != dict:
+            logger.warning(
+                "'remotes' in '%s' is not a dictionary, Waft will generate a default one!",
+                addons_repository_sub_path
             )
-        continue
+            code_odoo_yaml_remotes_dictionary = dict()
+    else:
+        code_odoo_yaml_remotes_dictionary = dict()
+    if len(code_odoo_yaml_remotes_dictionary) == 0:
+        if addons_repository_sub_path in {'odoo', 'odoo/odoo'}:
+            waft_auto_remotes_tmp_dictionary = {'origin': 'https://github.com/odoo/odoo.git'}
+            logger.warning(
+                "'remotes' dictionary does not exist in '%s' dictionary, Waft will generate it to be '%s'!",
+                addons_repository_sub_path, waft_auto_remotes_tmp_dictionary
+                )
+        if addons_repository_sub_path in {'oca', 'ocb', 'oca/ocb'}:
+            waft_auto_remotes_tmp_dictionary = {'origin': 'https://github.com/oca/ocb.git'}
+            logger.warning(
+                "'remotes' dictionary does not exist in '%s' dictionary, Waft will generate it to be '%s'!",
+                addons_repository_sub_path, waft_auto_remotes_tmp_dictionary
+                )
+    if addons_repository_sub_path in {'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'}:
+        addons_repository_sub_path = 'odoo'
+
+
+
+
+
+
+
+
+
     default_merges_generated = False
     waft_auto_merges_list = []
     if 'merges' not in addons_repository_dictionary:
@@ -246,15 +287,15 @@ for addons_repository_path in code_odoo_yaml_file:
             code_odoo_yaml_merges_list = []
             logger.warning(
                 "'merges' dictionaries list does not exist in '%s' dictionary from '%s' Waft will generate it to be 'merges: %s'!",
-                addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_merges_list
+                addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_merges_list
                 )
             break
     if not default_merges_generated:
-        code_odoo_yaml_merges_list = code_odoo_yaml_file[addons_repository_path].get('merges')
+        code_odoo_yaml_merges_list = code_odoo_yaml_file[addons_repository_sub_path].get('merges')
         if type(code_odoo_yaml_merges_list) != list:
             logger.warning(
                 "Waft will ignore '%s' dictionary in '%s' file because 'merges: %s' is not a list!",
-                addons_repository_path, CODE_ODOO_YAML_FILE, code_odoo_yaml_merges_list
+                addons_repository_sub_path, CODE_ODOO_YAML_FILE, code_odoo_yaml_merges_list
                 )
             continue
         for code_odoo_yaml_remote_key in code_odoo_yaml_remotes_dictionary:
@@ -266,7 +307,7 @@ for addons_repository_path in code_odoo_yaml_file:
         if len(waft_auto_remotes_tmp_dictionary) == 0:
             logger.warning(
                 "Waft will ignore '%s' dictionary in '%s' file because 'remotes: %s' dictionary is not correct!",
-                addons_repository_path, CODE_ODOO_YAML_FILE, code_odoo_yaml_remotes_dictionary
+                addons_repository_sub_path, CODE_ODOO_YAML_FILE, code_odoo_yaml_remotes_dictionary
                 )
             continue
         for code_odoo_yaml_merge_dictionary in code_odoo_yaml_merges_list:
@@ -276,27 +317,27 @@ for addons_repository_path in code_odoo_yaml_file:
             if type(code_odoo_yaml_merge_dictionary) != dict:
                 logger.warning(
                     "In '%s' dictionary in '%s' file, Waft will ignore '%s' in 'merges: %s' because it is not a dictionary!",
-                    addons_repository_path, CODE_ODOO_YAML_FILE, code_odoo_yaml_merge_dictionary, code_odoo_yaml_remotes_dictionary
+                    addons_repository_sub_path, CODE_ODOO_YAML_FILE, code_odoo_yaml_merge_dictionary, code_odoo_yaml_remotes_dictionary
                     )
                 continue
             elif 'remote' not in code_odoo_yaml_merge_dictionary:
                 logger.warning(
                     "Waft will ignore 'merges: %s' dictionary from '%s' dictionary in '%s' file "
                     "because 'remote:' key is not exist in 'remotes: %s'!",
-                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_remotes_tmp_dictionary
+                    code_odoo_yaml_merge_dictionary, addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_remotes_tmp_dictionary
                     )
                 continue
             elif code_odoo_yaml_merge_dictionary['remote'] == '':
                 logger.warning(
                     "Waft will ignore 'merges: %s' dictionary from '%s' dictionary in '%s' file because 'remote:' key is empty!",
-                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE
+                    code_odoo_yaml_merge_dictionary, addons_repository_sub_path, CODE_ODOO_YAML_FILE
                     )
                 continue
             elif code_odoo_yaml_merge_dictionary['remote'] not in waft_auto_remotes_tmp_dictionary:
                 logger.warning(
                     "Waft will ignore 'merges: %s' dictionary from '%s' dictionary in '%s' file "
                     "because 'remote: %s' key is not in 'remotes: %s'!",
-                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE,
+                    code_odoo_yaml_merge_dictionary, addons_repository_sub_path, CODE_ODOO_YAML_FILE,
                     code_odoo_yaml_merge_dictionary['remote'], waft_auto_remotes_tmp_dictionary
                     )
                 continue
@@ -304,7 +345,7 @@ for addons_repository_path in code_odoo_yaml_file:
                 logger.warning(
                     "Waft will ignore 'merges: %s' dictionary from '%s' dictionary in '%s' file "
                     "because 'remote: %s' is not is not a string!",
-                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_merge_remote
+                    code_odoo_yaml_merge_dictionary, addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_merge_remote
                     )
                 continue
             else:
@@ -320,7 +361,7 @@ for addons_repository_path in code_odoo_yaml_file:
                 logger.warning(
                     "Waft will ignore 'merges: %s' dictionary from '%s' dictionary in '%s' file "
                     "because 'ref: %s' is not is not a string!",
-                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_merge_ref
+                    code_odoo_yaml_merge_dictionary, addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_merge_ref
                     )
                 continue
             if 'depth' not in code_odoo_yaml_merge_dictionary:
@@ -331,7 +372,7 @@ for addons_repository_path in code_odoo_yaml_file:
                 logger.warning(
                     "Waft will ignore 'merges: %s' dictionary from '%s' dictionary in '%s' file "
                     "because 'depth: %s' is not is not a string!",
-                    code_odoo_yaml_merge_dictionary, addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_merge_depth
+                    code_odoo_yaml_merge_dictionary, addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_merge_depth
                     )
                 continue
             waft_auto_merge_dictionary['remote'] = waft_auto_merge_remote
@@ -349,7 +390,7 @@ for addons_repository_path in code_odoo_yaml_file:
                 code_odoo_yaml_merges_list = []
                 logger.warning(
                     "'merges' dictionaries list does not exist in '%s' dictionary from '%s' Waft will generate it to be 'merges: %s'!",
-                    addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_merges_list
+                    addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_merges_list
                     )
                 break
         if len(waft_auto_merges_list) > 1:
@@ -384,16 +425,16 @@ for addons_repository_path in code_odoo_yaml_file:
         waft_auto_target_value = waft_auto_target_default_value
         logger.warning(
             "'target' string does not exist in '%s' dictionary from '%s' waft will generate it to be 'target: %s'!",
-            addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_target_default_value
+            addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_target_default_value
             )
     if not waft_auto_default_target:
-        code_odoo_yaml_target_value = code_odoo_yaml_file[addons_repository_path].get('target')
+        code_odoo_yaml_target_value = code_odoo_yaml_file[addons_repository_sub_path].get('target')
         if type(code_odoo_yaml_target_value) != str:
             code_odoo_yaml_target_value = ''
             waft_auto_target_value = waft_auto_target_default_value
             logger.warning(
                 "'target' in '%s' dictionary from '%s' is not a string, Waft will generate it to be 'target: %s'!",
-                addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_target_default_value
+                addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_target_default_value
                 )
         code_odoo_yaml_target_list = code_odoo_yaml_target_value.split()
         if len(code_odoo_yaml_target_list) != 2:
@@ -401,33 +442,33 @@ for addons_repository_path in code_odoo_yaml_file:
             waft_auto_target_value = waft_auto_target_default_value
             logger.warning(
                 "'target' in '%s' dictionary from '%s' is not correct, Waft will generate it to be 'target: %s'!",
-                addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_target_default_value
+                addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_target_default_value
                 )
         if code_odoo_yaml_target_list[0] not in waft_auto_remotes_tmp_dictionary:
             code_odoo_yaml_target_value = ''
             waft_auto_target_value = waft_auto_target_default_value
             logger.warning(
                 "'target' in '%s' dictionary from '%s' is not in merges' remote list, Waft will generate it to be 'target: %s'!",
-                addons_repository_path, CODE_ODOO_YAML_FILE, waft_auto_target_default_value
+                addons_repository_sub_path, CODE_ODOO_YAML_FILE, waft_auto_target_default_value
                 )
     waft_auto_repository_dictionary = dict()
     waft_auto_repository_dictionary['remotes'] = waft_auto_remotes_dictionary
     waft_auto_repository_dictionary['target'] = waft_auto_target_value
     waft_auto_repository_dictionary['merges'] = waft_auto_merges_list
-    addons_repository_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path)
+    addons_repository_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_sub_path)
     waft_auto_default_addons = False
     if 'addons' not in addons_repository_dictionary:
         waft_auto_default_addons = True
         logger.warning(
             "'addons' list does not exist in '%s' dictionary, so, all addons will be linked!",
-            addons_repository_path
+            addons_repository_sub_path
             )
         waft_auto_repository_dictionary['addons'] = [os.path.join(addons_repository_full_path, '*')]
     if not waft_auto_default_addons:
         if type(addons_repository_dictionary['addons']) != list:
             logger.warning(
                 "'addons: %s' is not a list in '%s' dictionary in '%s' file, so, all addons will be linked!",
-                addons_repository_dictionary['addons'], addons_repository_path, CODE_ODOO_YAML_FILE
+                addons_repository_dictionary['addons'], addons_repository_sub_path, CODE_ODOO_YAML_FILE
                 )
             waft_auto_repository_dictionary['addons'] = [os.path.join(addons_repository_full_path, '*')]
         else:
@@ -441,14 +482,14 @@ for addons_repository_path in code_odoo_yaml_file:
         waft_auto_addons_default_except = True
         logger.warning(
             "'addons_except' list does not exist in '%s' dictionary, so, addons_except will be nothing!",
-            addons_repository_path
+            addons_repository_sub_path
             )
         waft_auto_repository_dictionary['addons_except'] = []
     if not waft_auto_addons_default_except:
         if type(addons_repository_dictionary['addons_except']) != list:
             logger.warning(
                 "'addons_except: %s' is not a list, so, addons_except will be nothing!",
-                addons_repository_dictionary['addons_except'], addons_repository_path, CODE_ODOO_YAML_FILE
+                addons_repository_dictionary['addons_except'], addons_repository_sub_path, CODE_ODOO_YAML_FILE
                 )
             waft_auto_repository_dictionary['addons_except'] = []
         else:
@@ -474,27 +515,27 @@ if ODOO_MAIN_CODE_PATH not in waft_auto_yaml_tmp_dictionary:
     waft_auto_repository_dictionary['addons'] = [os.path.join(ODOO_MAIN_CODE_PATH, '*')]
     waft_auto_repository_dictionary['addons_except'] = []
     waft_auto_yaml_dictionary[ODOO_MAIN_CODE_PATH] = waft_auto_repository_dictionary
-for addons_repository_path in {'enterprise', 'private'}:
-    if addons_repository_path in code_odoo_yaml_file:
-        addons_repository_dictionary = code_odoo_yaml_file[addons_repository_path]
+for addons_repository_sub_path in {'enterprise', 'private'}:
+    if addons_repository_sub_path in code_odoo_yaml_file:
+        addons_repository_dictionary = code_odoo_yaml_file[addons_repository_sub_path]
         waft_auto_repository_dictionary = dict()
         waft_auto_repository_dictionary['remotes'] = dict()
         waft_auto_repository_dictionary['target'] = ''
         waft_auto_repository_dictionary['merges'] = []
-        addons_repository_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path)
+        addons_repository_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_sub_path)
         waft_auto_default_addons = False
         if 'addons' not in addons_repository_dictionary:
             waft_auto_default_addons = True
             logger.warning(
                 "'addons' list does not exist in '%s' dictionary, so, all addons will be linked!",
-                addons_repository_path
+                addons_repository_sub_path
                 )
             waft_auto_repository_dictionary['addons'] = [os.path.join(addons_repository_full_path, '*')]
         if not waft_auto_default_addons:
             if type(addons_repository_dictionary['addons']) != list:
                 logger.warning(
                     "'addons: %s' is not a list in '%s' dictionary in '%s' file, so, all addons will be linked!",
-                    addons_repository_dictionary['addons'], addons_repository_path, CODE_ODOO_YAML_FILE
+                    addons_repository_dictionary['addons'], addons_repository_sub_path, CODE_ODOO_YAML_FILE
                     )
                 waft_auto_repository_dictionary['addons'] = [os.path.join(addons_repository_full_path, '*')]
             else:
@@ -508,14 +549,14 @@ for addons_repository_path in {'enterprise', 'private'}:
             waft_auto_addons_default_except = True
             logger.warning(
                 "'addons_except' list does not exist in '%s' dictionary, so, addons_except will be nothing!",
-                addons_repository_path
+                addons_repository_sub_path
                 )
             waft_auto_repository_dictionary['addons_except'] = []
         if not waft_auto_addons_default_except:
             if type(addons_repository_dictionary['addons_except']) != list:
                 logger.warning(
                     "'addons_except: %s' is not a list, so, addons_except will be nothing!",
-                    addons_repository_dictionary['addons_except'], addons_repository_path, CODE_ODOO_YAML_FILE
+                    addons_repository_dictionary['addons_except'], addons_repository_sub_path, CODE_ODOO_YAML_FILE
                     )
                 waft_auto_repository_dictionary['addons_except'] = []
             else:
@@ -529,7 +570,7 @@ for addons_repository_path in {'enterprise', 'private'}:
 for addons_repository_full_path in waft_auto_yaml_tmp_dictionary:
     waft_auto_yaml_dictionary[addons_repository_full_path] = waft_auto_yaml_tmp_dictionary[addons_repository_full_path]
 
-addons_repository_path = ''
+addons_repository_sub_path = ''
 addons_repository_full_path = ''
 addons_enterprise_full_path = os.path.join(CODE_ODOO_DIRECTORY, 'enterprise')
 addons_private_full_path = os.path.join(CODE_ODOO_DIRECTORY, 'private')

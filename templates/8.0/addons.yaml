@@ -1,9 +1,0 @@
----
-odoo/addons:
-    - "*"
-
-odoo/openerp/addons:
-    - "*"
-
-OCA/web:
-    - "*"

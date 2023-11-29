@@ -17,7 +17,7 @@ cd "${ODOO_WORK_DIRECTORY}"
 
 #rm -fr ./auto/odoo.conf
 #rm -fr ./auto/addons/*
-#/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|odoo-code.yaml|addons.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
+#/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|odoo-code.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
 
 if [ ! -d "${ODOO_WORK_DIRECTORY}/.venv-odoo" ] ; then
     /bin/echo '( ERROR ) : run ./bootstrap first!'

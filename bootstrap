@@ -264,12 +264,6 @@ if [ ! -f "${ODOO_WORK_DIRECTORY}/config/odoo-code-override-default.conf" ] ; th
   /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-code-override-default.conf" "${ODOO_WORK_DIRECTORY}/config/"
 fi
 
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/addons.yaml" ] ; then
-  /bin/echo "( INFO ) : Copy ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/addons.yaml to ${ODOO_WORK_DIRECTORY}/config/addons.yaml ."
-  /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/addons.yaml" "${ODOO_WORK_DIRECTORY}/config/"
-  cd "${ODOO_WORK_DIRECTORY}"
-fi
-
 if [ ! -f "${ODOO_WORK_DIRECTORY}/config/odoo-code.yaml" ] ; then
   /bin/echo "( INFO ) : Copy ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-code.yaml to ${ODOO_WORK_DIRECTORY}/config/odoo-code.yaml ."
   /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-code.yaml" "${ODOO_WORK_DIRECTORY}/config/"

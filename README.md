@@ -21,7 +21,7 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 - Install Python dependencies from `requirements-odoo-install-default.txt` in `.venv-odoo` virtual environment.
 - Install Python dependencies from `requirements-waft-install-default.txt` in `.venv-waft` virtual environment.
 - Use `gitaggregrator` to collect Odoo modules from different `git` repositories and branches as defined in `config/odoo-code.yaml`.
-- Select some modules and not others that defined in `config/addons.yaml`.
+- Select some modules and not others that defined in `config/odoo-code.yaml`.
 - Generate the Odoo config file in `.ignore/auto/odoo.conf`
 - Offer some handy scripts in `scripts/`.
 
@@ -65,7 +65,6 @@ When successful, now we can prepare for building Odoo:
 - Take a look at defaults shared variables `vi config/env-shared` that apply for all clones of this instance. NOTE: don't put secret variables values in this file.
 - You can override variables in `config/env-shared` by putting it in `.env-secret` such as DBFILTER, PGDATABASE, PGUSER etc.
 - Take a look at default `config/odoo-code.yaml`.
-- Take a look at default `config/addons.yaml`.
 - Issue build script `./build`
 
 Now we can create database and run Odoo:
@@ -119,7 +118,6 @@ To add a new Odoo module:
 
 ```
 vi config/odoo-code.yaml
-vi cconfig/addons.yaml
 ./build
 ```
 
@@ -155,7 +153,6 @@ odoo -c .ignore/auto/odoo.conf --help
 - Remove `.venv` directory.
 - If you didn't modify the default `env-shared` remove it.
 - If you didn't modify the default `common/conf.d/odoo.cfg` remove it.
-- If you didn't modify the default `custom/src/addons.yaml` remove it.
 - If you didn't modify the default `custom/src/odoo-code.yaml` remove it.
 - Issue `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/bootstrap -o bootstrap`
 - Issue `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/.gitignore -o .gitignore`

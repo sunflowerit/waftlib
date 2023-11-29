@@ -114,13 +114,13 @@ waft_auto_yaml_dump_dictionary = dict()
 
 # Get the enabled paths
 addons_full_paths = {}
-for addon_name, addons_repository_path in addons_config():
-    addons_repository_full_path = os.path.realpath(os.path.join(CODE_ODOO_DIRECTORY, addons_repository_path))
+for addon_name, addons_repository_sub_path in addons_config():
+    addons_repository_full_path = os.path.realpath(os.path.join(CODE_ODOO_DIRECTORY, addons_repository_sub_path))
     addons_full_paths.setdefault(addons_repository_full_path, set())
     addons_full_paths[addons_repository_full_path].add(addon_name)
 logger.debug("Addon paths enabled: %s", addons_full_paths)
 
-addons_repository_path = ''
+addons_repository_sub_path = ''
 # Traverse src dir and remove anything not explicitly enabled
 for directory, subdirectories, subfiles in os.walk(CODE_ODOO_DIRECTORY):
     if False == True:
@@ -228,7 +228,7 @@ for addon_full_path in addon_found_path:
     )
     addon_name = os.path.basename(addon_full_path)
     addons_info.setdefault(addon_name, set())
-    addons_info[addon_name].add(addons_repository_path)
+    addons_info[addon_name].add(addons_repository_sub_path)
 
 AUTO_ODOO_CONF_FILE = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/auto/odoo.conf")
 

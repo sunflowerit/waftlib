@@ -1,0 +1,40 @@
+---
+# Next two examples will git main odoo code from "https://github.com/odoo/odoo/tree/${ODOO_VERSION}"
+odoo:
+
+# or
+
+odoo/odoo:
+
+# Next three examples will git main odoo code from "https://github.com/odoo/odoo/tree/${ODOO_VERSION}"
+oca:
+
+# or
+ocb:
+
+# or
+oca/ocb:
+
+
+
+############################
+odoo:
+  remotes:
+    origin: https://github.com/odoo/odoo.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    -
+      remote: origin
+      ref: ${ODOO_VERSION}
+      depth: default
+#  filtered_addons:
+#    - *
+
+OCA/web:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/OCA/web.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
