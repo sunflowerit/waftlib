@@ -219,9 +219,10 @@ except IOError:
 # Convert code_odoo_yaml_file to waft_auto_yaml_tmp_dictionary
 code_odoo_yaml_entries_list = []
 waft_auto_yaml_tmp_dictionary = dict()
-for addons_repository_sub_path in code_odoo_yaml_file:
-    addons_repository_sub_path = addons_repository_sub_path.lower()
-    if addons_repository_sub_path in {'enterprise', 'private'}:
+for addons_repository_original_sub_path in code_odoo_yaml_file:
+    addons_repository_dictionary = code_odoo_yaml_file[addons_repository_original_sub_path]
+    addons_repository_sub_path = addons_repository_original_sub_path.lower()
+    if addons_repository_sub_path in {'enterprise', 'private', '', '/'}:
         continue
     if addons_repository_sub_path in code_odoo_yaml_entries_list:
         logger.warning(
@@ -238,7 +239,24 @@ for addons_repository_sub_path in code_odoo_yaml_file:
             CODE_ODOO_YAML_FILE, addons_repository_sub_path
         )
         continue
-    addons_repository_dictionary = code_odoo_yaml_file[addons_repository_sub_path]
+    if addons_repository_sub_path not in {'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'}:
+        subdirectories_elements_list = []
+        for subdirectory_element in addons_repository_subdirectory.split('/'):
+            if subdirectory_element != '':
+                subdirectories_elements_list.append(subdirectory_element)
+        if len(subdirectories_elements_list) == 1:
+            addons_repository_sub_path = '/'.join('oca', addons_repository_sub_path[0])
+        else:
+            addons_repository_sub_path = '/'.join(subdirectories_elements_list[-2:])
+
+
+
+
+
+
+
+
+
     waft_auto_remotes_tmp_dictionary = dict()
     if 'remotes' in addons_repository_dictionary:
         code_odoo_yaml_remotes_dictionary = code_odoo_yaml_file[addons_repository_sub_path].get('remotes')
@@ -265,15 +283,6 @@ for addons_repository_sub_path in code_odoo_yaml_file:
                 )
     if addons_repository_sub_path in {'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'}:
         addons_repository_sub_path = 'odoo'
-
-
-
-
-
-
-
-
-
     default_merges_generated = False
     waft_auto_merges_list = []
     if 'merges' not in addons_repository_dictionary:

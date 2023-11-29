@@ -6,7 +6,7 @@ odoo:
 
 odoo/odoo:
 
-# Next three examples will git main odoo code from "https://github.com/odoo/odoo/tree/${ODOO_VERSION}"
+# Next three examples will git main odoo code from "https://github.com/oca/ocb/tree/${ODOO_VERSION}"
 oca:
 
 # or
