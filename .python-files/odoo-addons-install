@@ -40,16 +40,16 @@ if addons_with & addons_left_out:
 if command_arguments.dependencies and command_arguments.fullpath:
     sys.exit("Unsupported combination of --dependencies and --fullpath")
 try:
-    for addon_name, addons_repository_item_path in addons_config(strict_running=command_arguments.explicit):
+    for addon_name, addons_repo_item_path in addons_config(strict_running=command_arguments.explicit):
         if addon_name in addons_left_out:
             continue
-        core_ok = command_arguments.core and addons_repository_item_path == "odoo/addons"
-        enterprise_ok = command_arguments.enterprise and addons_repository_item_path == "enterprise"
-        extra_ok = command_arguments.extra and addons_repository_item_path not in {"odoo/addons", "enterprise", "private"}
-        private_ok = command_arguments.private and addons_repository_item_path == "private"
+        core_ok = command_arguments.core and addons_repo_item_path == "odoo/addons"
+        enterprise_ok = command_arguments.enterprise and addons_repo_item_path == "enterprise"
+        extra_ok = command_arguments.extra and addons_repo_item_path not in {"odoo/addons", "enterprise", "private"}
+        private_ok = command_arguments.private and addons_repo_item_path == "private"
         manual_ok = addon_name in addons_with
         if private_ok or core_ok or extra_ok or enterprise_ok or manual_ok:
-            addon_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repository_item_path, addon_name)
+            addon_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repo_item_path, addon_name)
             manifest_code = {}
             for manifest_name in ("__manifest__.py", "__openerp__.py"):
                 try:

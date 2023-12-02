@@ -16,79 +16,79 @@ from io import StringIO
 from configparser import RawConfigParser
 parser = RawConfigParser(strict=False)
 
-for addons_repository_full_path in waft_auto_yaml_dictionary:
-    if addons_repository_full_path in {addons_enterprise_full_path, addons_private_full_path}:
+for addons_repo_full_path in waft_auto_yaml_dic:
+    if addons_repo_full_path in {addons_enterprise_full_path, addons_private_full_path}:
         continue
-    if os.path.exists(addons_repository_full_path):
-        if not os.path.isdir(os.path.join(addons_repository_full_path, '.git')):
-            shutil.rmtree(addons_repository_full_path)
+    if os.path.exists(addons_repo_full_path):
+        if not os.path.isdir(os.path.join(addons_repo_full_path, '.git')):
+            shutil.rmtree(addons_repo_full_path)
             logger.warning(
                 "'%s' does not exist in '%s', waft removed existed '%s'!",
-                os.path.isdir(os.path.join(addons_repository_full_path, '.git')), addons_repository_full_path, addons_repository_full_path
+                os.path.isdir(os.path.join(addons_repo_full_path, '.git')), addons_repo_full_path, addons_repo_full_path
                 )
             continue
-        if not os.path.isdir(os.path.join(addons_repository_full_path, '.git/refs')):
-            shutil.rmtree(addons_repository_full_path)
+        if not os.path.isdir(os.path.join(addons_repo_full_path, '.git/refs')):
+            shutil.rmtree(addons_repo_full_path)
             logger.warning(
                 "'%s' does not exist in '%s', waft removed existed '%s'!",
-                os.path.isdir(os.path.join(addons_repository_full_path, '.git/refs')), addons_repository_full_path, addons_repository_full_path
+                os.path.isdir(os.path.join(addons_repo_full_path, '.git/refs')), addons_repo_full_path, addons_repo_full_path
                 )
             continue
-        if not os.path.isdir(os.path.join(addons_repository_full_path, '.git/objects')):
-            shutil.rmtree(addons_repository_full_path)
+        if not os.path.isdir(os.path.join(addons_repo_full_path, '.git/objects')):
+            shutil.rmtree(addons_repo_full_path)
             logger.warning(
                 "'%s' does not exist in '%s', waft removed existed '%s'!",
-                os.path.isdir(os.path.join(addons_repository_full_path, '.git/objects')), addons_repository_full_path, addons_repository_full_path
+                os.path.isdir(os.path.join(addons_repo_full_path, '.git/objects')), addons_repo_full_path, addons_repo_full_path
                 )
             continue
         try:
             check_call(
-                [ "git", "-C", addons_repository_full_path, "reset", "--hard", "HEAD", ],
+                [ "git", "-C", addons_repo_full_path, "reset", "--hard", "HEAD", ],
                 cwd=CODE_ODOO_DIRECTORY,
                 stderr=sys.stderr,
                 stdout=sys.stdout,
             )
         except Exception:
-            shutil.rmtree(addons_repository_full_path)
+            shutil.rmtree(addons_repo_full_path)
             logger.warning(
                 "'git -C %s reset --hard HEAD' failed, waft removed existed '%s'!",
-                addons_repository_full_path, addons_repository_full_path
+                addons_repo_full_path, addons_repo_full_path
                 )
         try:
             check_call(
-                [ "git", "-C", addons_repository_full_path, "clean", "-fd", ],
+                [ "git", "-C", addons_repo_full_path, "clean", "-fd", ],
                 cwd=CODE_ODOO_DIRECTORY,
                 stderr=sys.stderr,
                 stdout=sys.stdout,
             )
         except Exception:
-            shutil.rmtree(addons_repository_full_path)
+            shutil.rmtree(addons_repo_full_path)
             logger.warning(
                 "'git -C %s clean -fd' failed, waft removed existed '%s'!",
-                addons_repository_full_path, addons_repository_full_path
+                addons_repo_full_path, addons_repo_full_path
                 )
 
 CODE_ODOO_YAML_DUMP_FILE = os.path.join(ODOO_AUTO_DIRECTORY, 'odoo-code.yaml')
 gitaggregate_addons_failures = []
-for addons_repository_full_path in waft_auto_yaml_dictionary:
-    if addons_repository_full_path in {addons_enterprise_full_path, addons_private_full_path}:
+for addons_repo_full_path in waft_auto_yaml_dic:
+    if addons_repo_full_path in {addons_enterprise_full_path, addons_private_full_path}:
         continue
-    addons_repository_dump_dictionary = dict()
-    addons_repository_dump_dictionary['remotes'] = addons_repository_full_path['remotes']
-    addons_repository_dump_dictionary['merges'] = addons_repository_full_path['merges']
-    addons_repository_dump_dictionary['target'] = addons_repository_full_path['target']
-    waft_auto_yaml_dump_dictionary = dict()
-    waft_auto_yaml_dump_dictionary[addons_repository_full_path] = addons_repository_dump_dictionary
+    addons_repo_dump_dic = dict()
+    addons_repo_dump_dic['remotes'] = addons_repo_full_path['remotes']
+    addons_repo_dump_dic['merges'] = addons_repo_full_path['merges']
+    addons_repo_dump_dic['target'] = addons_repo_full_path['target']
+    waft_auto_yaml_dump_dic = dict()
+    waft_auto_yaml_dump_dic[addons_repo_full_path] = addons_repo_dump_dic
     if os.path.exists(CODE_ODOO_YAML_DUMP_FILE):
         shutil.rmtree(CODE_ODOO_YAML_DUMP_FILE)
     code_odoo_yaml_dump_file = open(CODE_ODOO_YAML_DUMP_FILE, "w")
-    code_odoo_yaml_dump_file.write(yaml.safe_dump(waft_auto_yaml_dump_dictionary, explicit_start='---',
+    code_odoo_yaml_dump_file.write(yaml.safe_dump(waft_auto_yaml_dump_dic, explicit_start='---',
         default_flow_style=False, sort_keys=False))
     code_odoo_yaml_dump_file.close()
     try:
         logger.info(
             "Running gitaggregate with '%s' for '%s'",
-            CODE_ODOO_YAML_DUMP_FILE, addons_repository_full_path
+            CODE_ODOO_YAML_DUMP_FILE, addons_repo_full_path
             )
         gitaggregate_cmd = ["gitaggregate", "--expand-env", "--config", CODE_ODOO_YAML_DUMP_FILE, "--log-level",
             WAFT_LOG_LEVEL, "--jobs", str(cpu_count() or 1), "aggregate"]
@@ -100,9 +100,9 @@ for addons_repository_full_path in waft_auto_yaml_dictionary:
             stdout=sys.stdout,
         )
     except Exception:
-        gitaggregate_addons_failures.append(addons_repository_full_path)
-addons_repository_dump_dictionary = dict()
-waft_auto_yaml_dump_dictionary = dict()
+        gitaggregate_addons_failures.append(addons_repo_full_path)
+addons_repo_dump_dic = dict()
+waft_auto_yaml_dump_dic = dict()
 
 
 
@@ -114,13 +114,13 @@ waft_auto_yaml_dump_dictionary = dict()
 
 # Get the enabled paths
 addons_full_paths = {}
-for addon_name, addons_repository_sub_path in addons_config():
-    addons_repository_full_path = os.path.realpath(os.path.join(CODE_ODOO_DIRECTORY, addons_repository_sub_path))
-    addons_full_paths.setdefault(addons_repository_full_path, set())
-    addons_full_paths[addons_repository_full_path].add(addon_name)
+for addon_name, addons_repo_sub_path in addons_config():
+    addons_repo_full_path = os.path.realpath(os.path.join(CODE_ODOO_DIRECTORY, addons_repo_sub_path))
+    addons_full_paths.setdefault(addons_repo_full_path, set())
+    addons_full_paths[addons_repo_full_path].add(addon_name)
 logger.debug("Addon paths enabled: %s", addons_full_paths)
 
-addons_repository_sub_path = ''
+addons_repo_sub_path = ''
 # Traverse src dir and remove anything not explicitly enabled
 for directory, subdirectories, subfiles in os.walk(CODE_ODOO_DIRECTORY):
     if False == True:
@@ -179,10 +179,10 @@ addons_links = glob(os.path.join(ODOO_ADDONS_AUTO_DIRECTORY, "*"))
 for addon_link in addons_links:
     os.remove(addon_link)
 addons_full_paths_list = []
-for addons_repository_full_path in waft_auto_yaml_dictionary:
+for addons_repo_full_path in waft_auto_yaml_dic:
     addons_full_paths_tmp_list = []
-    if waft_auto_yaml_dictionary[addons_repository_full_path][addons] == [os.path.join(addons_repository_full_path, '*')]:
-        if addons_repository_full_path == ODOO_MAIN_CODE_PATH:
+    if waft_auto_yaml_dic[addons_repo_full_path][addons] == [os.path.join(addons_repo_full_path, '*')]:
+        if addons_repo_full_path == ODOO_MAIN_CODE_PATH:
             for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_PATH, 'addons/*')):
                 addons_full_paths_tmp_list.append(addon_partial_full_path)
             if ODOO_VERSION not in {'8.0', '9.0'}:
@@ -192,21 +192,21 @@ for addons_repository_full_path in waft_auto_yaml_dictionary:
                 for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_PATH, 'odoo/addons/*')):
                     addons_full_paths_tmp_list.append(addon_partial_full_path)
         else:
-            for addon_partial_full_path in glob(os.path.join(addons_repository_full_path, '*')):
+            for addon_partial_full_path in glob(os.path.join(addons_repo_full_path, '*')):
                 addons_full_paths_tmp_list.append(addon_partial_full_path)
     else:
-        for addon_full_tmp_path in waft_auto_yaml_dictionary[addons_repository_full_path][addons]:
+        for addon_full_tmp_path in waft_auto_yaml_dic[addons_repo_full_path][addons]:
             for addon_partial_full_path in glob(addon_full_tmp_path):
                 addons_full_paths_tmp_list.append(addon_partial_full_path)
-    if waft_auto_yaml_dictionary[addons_repository_full_path][addons_except] == '':
+    if waft_auto_yaml_dic[addons_repo_full_path][addons_except] == '':
         addons_full_paths_list = addons_full_paths_tmp_list
     else:
         for addon_full_tmp_path in addons_full_paths_tmp_list:
-            if addon_full_tmp_path not in waft_auto_yaml_dictionary[addons_repository_full_path][addons_except]:
+            if addon_full_tmp_path not in waft_auto_yaml_dic[addons_repo_full_path][addons_except]:
                 addons_full_paths_list.append(addon_full_tmp_path)
     for addon_full_path in addons_full_paths_list:
         auto_directory_addon_relpath = os.path.relpath(addon_full_path, ODOO_ADDONS_AUTO_DIRECTORY)
-        addon_link = os.path.join(ODOO_ADDONS_AUTO_DIRECTORY, os.path.join(os.path.relpath(addon_full_path, addons_repository_full_path)))
+        addon_link = os.path.join(ODOO_ADDONS_AUTO_DIRECTORY, os.path.join(os.path.relpath(addon_full_path, addons_repo_full_path)))
         os.symlink(auto_directory_addon_relpath, addon_link)
         logger.debug("Linked %s in %s", addon_full_path, addon_link)
 
@@ -228,7 +228,7 @@ for addon_full_path in addon_found_path:
     )
     addon_name = os.path.basename(addon_full_path)
     addons_info.setdefault(addon_name, set())
-    addons_info[addon_name].add(addons_repository_sub_path)
+    addons_info[addon_name].add(addons_repo_sub_path)
 
 AUTO_ODOO_CONF_FILE = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/auto/odoo.conf")
 
