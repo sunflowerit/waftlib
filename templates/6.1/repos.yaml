@@ -1,0 +1,47 @@
+---
+odoo:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/therp/odoo.git
+    nl66278: https://github.com/NL66278/odoo.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin 6.1-ocb-server
+    - nl66278 6.1-ocb-server-no-zsi
+
+ocb-addons:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/therp/odoo.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin 6.1-ocb-addons
+
+ocb-web:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/therp/odoo.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin 6.1-ocb-web
+
+therp-addons:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    therp: https://github.com/therp/therp-addons
+  target: therp ${ODOO_VERSION}
+  merges:
+    - therp ${ODOO_VERSION}
+
+OCA/web:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/web.git
+  target: oca ${ODOO_VERSION}
+  merges:
+    - oca ${ODOO_VERSION}

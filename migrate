@@ -27,7 +27,7 @@ fi
 
 ODOO_START_FROM_VERSION="${ODOO_VERSION}"
 
-if [ "$(/bin/echo "${ODOO_START_FROM_VERSION}" | /usr/bin/cut -d'.' -f1)" -lt '8' ]; then
+if [ "$(/bin/echo "${ODOO_START_FROM_VERSION}" | /usr/bin/cut -d'.' -f1)" -lt '6' ]; then
   /bin/echo "Waft does not support migration from ${ODOO_START_FROM_VERSION}"
   exit 1
 fi
