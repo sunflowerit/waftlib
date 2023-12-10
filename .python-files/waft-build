@@ -5,7 +5,7 @@
 try:
     from venvwaftlib import *
 except Exception:
-    print("( ERROR ) : Run 'build' python script in '.venv-waft' virtual environment.")
+    print("( ERROR ) : Run 'build' python script in '.waft-venv' virtual environment.")
     exit(1)
 import sys
 import shutil
@@ -68,7 +68,7 @@ for addons_repo_full_path in waft_auto_yaml_dic:
                 addons_repo_full_path, addons_repo_full_path
                 )
 
-CODE_ODOO_YAML_DUMP_FILE = os.path.join(ODOO_AUTO_DIRECTORY, 'odoo-code.yaml')
+CODE_ODOO_YAML_DUMP_FILE = os.path.join(IGNORE_DIRECTORY, "config/code.yaml")
 gitaggregate_addons_failures = []
 for addons_repo_full_path in waft_auto_yaml_dic:
     if addons_repo_full_path in {addons_enterprise_full_path, addons_private_full_path}:
@@ -130,11 +130,11 @@ for directory, subdirectories, subfiles in os.walk(CODE_ODOO_DIRECTORY):
     if directory == CODE_ODOO_DIRECTORY:
         continue
     # Always skip enterprise/*
-    if directory.endswith == "odoo-code/enterprise":
+    if directory.endswith == ".ignore/code/enterprise":
         subdirectories[:] = []
         continue
     # Always skip private/*
-    if directory.endswith == "odoo-code/private":
+    if directory.endswith == ".ignore/code/private":
         subdirectories[:] = []
         continue
     # Inside the odoo dir, skip all but addons dir
@@ -230,13 +230,13 @@ for addon_full_path in addon_found_path:
     addons_info.setdefault(addon_name, set())
     addons_info[addon_name].add(addons_repo_sub_path)
 
-AUTO_ODOO_CONF_FILE = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/auto/odoo.conf")
+AUTO_ODOO_CONF_FILE = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/config/odoo.conf")
 
 # Read the configurations files.
 logger.info("Import %s configuration file.", os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-default.conf"))
 parser.read(os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-default.conf"))
-logger.info("Import %s configuration file.", os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-code-override-default.conf"))
-parser.read(os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-code-override-default.conf"))
+logger.info("Import %s configuration file.", os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-override.conf"))
+parser.read(os.path.join(ODOO_WORK_DIRECTORY, "config/odoo-override.conf"))
 
 # Write it to a memory string object
 with closing(StringIO()) as generating_odoo_conf_file:

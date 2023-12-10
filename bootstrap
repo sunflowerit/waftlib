@@ -30,13 +30,13 @@ if [ -z "${LIBRARIES_VERSION_BRANCH}" ] ; then
 fi
 
 /bin/mkdir -p "${ODOO_WORK_DIRECTORY}/config"
-/bin/mkdir -p "${ODOO_WORK_DIRECTORY}/.ignore/auto/addons"
+/bin/mkdir -p "${ODOO_WORK_DIRECTORY}/addons"
 /bin/mkdir -p "${ODOO_WORK_DIRECTORY}/.ignore/odoo"
 /bin/mkdir -p "${ODOO_WORK_DIRECTORY}/.ignore/waft"
 /bin/mkdir -p "${ODOO_WORK_DIRECTORY}/logfiles"
 /bin/mkdir -p "${ODOO_WORK_DIRECTORY}/.python-files"
 /bin/mkdir -p "${ODOO_WORK_DIRECTORY}/scripts"
-/bin/mkdir -p "${ODOO_WORK_DIRECTORY}/odoo-code"
+/bin/mkdir -p "${ODOO_WORK_DIRECTORY}/.ignore/code"
 
 if [ -f "${ODOO_WORK_DIRECTORY}/config/env-shared" ] ; then
   if [ -f "${ODOO_WORK_DIRECTORY}/config/env-default" ] ; then
@@ -120,37 +120,37 @@ if [ "$(/bin/echo ${ODOO_VERSION} | /usr/bin/cut -d'.' -f1)" -gt '17' ] ; then
   exit 1
 fi
 
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/python-waft-version" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/python-waft-version" ] ; then
-  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/python-waft-version to ${ODOO_WORK_DIRECTORY}/config/python-waft-version ."
-  cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf ../.ignore/waftlib/templates/python-waft-version
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/waft-python-version" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/waft-python-version" ] ; then
+  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/waft-python-version to ${ODOO_WORK_DIRECTORY}/config/waft-python-version ."
+  cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf ../.ignore/waftlib/templates/waft-python-version
 else
-  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/python-waft-version not the default link!"
+  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/waft-python-version not the default link!"
 fi
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/python-waft-version" ] ; then
-  /bin/echo "( ERROR ) : ${ODOO_WORK_DIRECTORY}/config/python-waft-version should be a file or a link!"
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/waft-python-version" ] ; then
+  /bin/echo "( ERROR ) : ${ODOO_WORK_DIRECTORY}/config/waft-python-version should be a file or a link!"
   exit 1
 fi
 
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/python-odoo-version" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/python-odoo-version" ] ; then
-  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/python-odoo-version to ${ODOO_WORK_DIRECTORY}/config/python-odoo-version ."
-  cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf "../.ignore/waftlib/templates/${ODOO_VERSION}/python-odoo-version"
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/python-version" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/python-version" ] ; then
+  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/python-version to ${ODOO_WORK_DIRECTORY}/config/python-version ."
+  cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf "../.ignore/waftlib/templates/${ODOO_VERSION}/python-version"
 else
-  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/python-odoo-version not the default link!"
+  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/python-version not the default link!"
 fi
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/python-odoo-version" ] ; then
-  /bin/echo "( ERROR ) : ${ODOO_WORK_DIRECTORY}/config/python-odoo-version should be a file or a link!"
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/python-version" ] ; then
+  /bin/echo "( ERROR ) : ${ODOO_WORK_DIRECTORY}/config/python-version should be a file or a link!"
   exit 1
 fi
 
-# If user pre-installed a virtual-environment and .venv-odoo already exists,
+# If user pre-installed a virtual-environment and .venv already exists,
 # we do not need pyenv to install python, nor do we need virtualenv,
 # instead the pre-installed version will be used.
-if [ -d "${ODOO_WORK_DIRECTORY}/.venv-waft" ] ; then
-  /bin/echo "( INFO ) : ${ODOO_WORK_DIRECTORY}/.venv-waft exist!"
+if [ -d "${ODOO_WORK_DIRECTORY}/.waft-venv" ] ; then
+  /bin/echo "( INFO ) : ${ODOO_WORK_DIRECTORY}/.waft-venv exist!"
 else
   export CFLAGS="-O2"
-  if [ -f "${ODOO_WORK_DIRECTORY}/.venv-waft" ] ; then
-    /bin/echo "( ERROR ) : ${ODOO_WORK_DIRECTORY}/.venv-waft is not a directory!"
+  if [ -f "${ODOO_WORK_DIRECTORY}/.waft-venv" ] ; then
+    /bin/echo "( ERROR ) : ${ODOO_WORK_DIRECTORY}/.waft-venv is not a directory!"
     exit 1
   fi
   # Install pyenv
@@ -159,7 +159,7 @@ else
     exit 1
   fi
   /bin/rm -fr "${ODOO_WORK_DIRECTORY}/.ignore/waft/.python-version"
-  cd "${ODOO_WORK_DIRECTORY}/.ignore/waft" && /bin/ln -sf ../../config/python-waft-version .python-version
+  cd "${ODOO_WORK_DIRECTORY}/.ignore/waft" && /bin/ln -sf ../../config/waft-python-version .python-version
   if [ ! -d "${ODOO_WORK_DIRECTORY}/.ignore/waft/pyenv" ] ; then
     /bin/echo "( INFO ) : Clone https://github.com/pyenv/pyenv in ${ODOO_WORK_DIRECTORY}/.ignore/waft/pyenv ."
     /usr/bin/git clone https://github.com/pyenv/pyenv "${ODOO_WORK_DIRECTORY}/.ignore/waft/pyenv"
@@ -179,17 +179,17 @@ else
   /bin/echo "( INFO ) : Download ${ODOO_WORK_DIRECTORY}/.ignore/waft/pyenv/bin/virtualenv.pyz ."
   /usr/bin/wget --no-check-certificate "https://bootstrap.pypa.io/virtualenv/${PYTHON_SYSTEM_VERSIONN}/virtualenv.pyz" -O "${ODOO_WORK_DIRECTORY}/.ignore/waft/pyenv/bin/virtualenv.pyz" || \
   (/bin/echo '( ERROR ) : Download of virtualenv package failed.' ; exit 1)
-  /bin/echo "( INFO ) : Build virtual environment in ${ODOO_WORK_DIRECTORY}/.venv-waft ."
-  cd "${ODOO_WORK_DIRECTORY}/.ignore/waft" && python "${ODOO_WORK_DIRECTORY}/.ignore/waft/pyenv/bin/virtualenv.pyz" "${ODOO_WORK_DIRECTORY}/.venv-waft" || (/bin/echo '( ERROR ) : Virtualenv creation failed.' ; exit 1)
+  /bin/echo "( INFO ) : Build virtual environment in ${ODOO_WORK_DIRECTORY}/.waft-venv ."
+  cd "${ODOO_WORK_DIRECTORY}/.ignore/waft" && python "${ODOO_WORK_DIRECTORY}/.ignore/waft/pyenv/bin/virtualenv.pyz" "${ODOO_WORK_DIRECTORY}/.waft-venv" || (/bin/echo '( ERROR ) : Virtualenv creation failed.' ; exit 1)
 fi
 
 export PATH="${DEFAULT_PATH}"
 
-if [ -d "${ODOO_WORK_DIRECTORY}/.venv-odoo" ] ; then
-  /bin/echo "( INFO ) : ${ODOO_WORK_DIRECTORY}/.venv-odoo exist!"
+if [ -d "${ODOO_WORK_DIRECTORY}/.venv" ] ; then
+  /bin/echo "( INFO ) : ${ODOO_WORK_DIRECTORY}/.venv exist!"
 else
-  if [ -f "${ODOO_WORK_DIRECTORY}/.venv-odoo" ] ; then
-    /bin/echo "( ERROR ) : ${ODOO_WORK_DIRECTORY}/.venv-odoo is not a directory!"
+  if [ -f "${ODOO_WORK_DIRECTORY}/.venv" ] ; then
+    /bin/echo "( ERROR ) : ${ODOO_WORK_DIRECTORY}/.venv is not a directory!"
     exit 1
   fi
   # Install pyenv
@@ -198,7 +198,7 @@ else
     exit 1
   fi
   /bin/rm -fr "${ODOO_WORK_DIRECTORY}/.ignore/odoo/.python-version"
-  cd "${ODOO_WORK_DIRECTORY}/.ignore/odoo" && /bin/ln -sf ../../config/python-odoo-version .python-version
+  cd "${ODOO_WORK_DIRECTORY}/.ignore/odoo" && /bin/ln -sf ../../config/python-version .python-version
   if [ ! -d "${ODOO_WORK_DIRECTORY}/.ignore/odoo/pyenv" ] ; then
     /bin/echo "( INFO ) : Clone https://github.com/pyenv/pyenv in ${ODOO_WORK_DIRECTORY}/.ignore/odoo/pyenv ."
     /usr/bin/git clone https://github.com/pyenv/pyenv "${ODOO_WORK_DIRECTORY}/.ignore/odoo/pyenv"
@@ -218,8 +218,8 @@ else
   /bin/echo "( INFO ) : Download ${ODOO_WORK_DIRECTORY}/.ignore/odoo/pyenv/bin/virtualenv.pyz ."
   /usr/bin/wget --no-check-certificate "https://bootstrap.pypa.io/virtualenv/${PYTHON_SYSTEM_VERSIONN}/virtualenv.pyz" -O "${ODOO_WORK_DIRECTORY}/.ignore/odoo/pyenv/bin/virtualenv.pyz" || \
   (/bin/echo '( ERROR ) : Download of virtualenv package failed.' ; exit 1)
-  /bin/echo "( INFO ) : Build virtual environment in ${ODOO_WORK_DIRECTORY}/.venv-odoo ."
-  cd "${ODOO_WORK_DIRECTORY}/.ignore/odoo" && python "${ODOO_WORK_DIRECTORY}/.ignore/odoo/pyenv/bin/virtualenv.pyz" "${ODOO_WORK_DIRECTORY}/.venv-odoo" || (/bin/echo '( ERROR ) : Virtualenv creation failed.' ; exit 1)
+  /bin/echo "( INFO ) : Build virtual environment in ${ODOO_WORK_DIRECTORY}/.venv ."
+  cd "${ODOO_WORK_DIRECTORY}/.ignore/odoo" && python "${ODOO_WORK_DIRECTORY}/.ignore/odoo/pyenv/bin/virtualenv.pyz" "${ODOO_WORK_DIRECTORY}/.venv" || (/bin/echo '( ERROR ) : Virtualenv creation failed.' ; exit 1)
 fi
 
 export PATH="${DEFAULT_PATH}"
@@ -259,71 +259,71 @@ else
   /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/odoo-default.conf not the default link!"
 fi
 
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/odoo-code-override-default.conf" ] ; then
-  /bin/echo "( INFO ) : Copy ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-code-override-default.conf to ${ODOO_WORK_DIRECTORY}/config/odoo-code-override-default.conf ."
-  /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-code-override-default.conf" "${ODOO_WORK_DIRECTORY}/config/"
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/odoo-override.conf" ] ; then
+  /bin/echo "( INFO ) : Copy ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-override.conf to ${ODOO_WORK_DIRECTORY}/config/override-default.conf ."
+  /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-override.conf" "${ODOO_WORK_DIRECTORY}/config/"
 fi
 
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/odoo-code.yaml" ] ; then
-  /bin/echo "( INFO ) : Copy ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-code.yaml to ${ODOO_WORK_DIRECTORY}/config/odoo-code.yaml ."
-  /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/odoo-code.yaml" "${ODOO_WORK_DIRECTORY}/config/"
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/code.yaml" ] ; then
+  /bin/echo "( INFO ) : Copy ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/code.yaml to ${ODOO_WORK_DIRECTORY}/config/code.yaml ."
+  /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/code.yaml" "${ODOO_WORK_DIRECTORY}/config/"
   cd "${ODOO_WORK_DIRECTORY}"
 fi
 
-if [ -f "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/requirements-odoo-pre-install-default.txt" ] ; then
-  if [ ! -f "${ODOO_WORK_DIRECTORY}/config/requirements-odoo-pre-install-default.txt" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/requirements-odoo-pre-install-default.txt" ]; then
-    /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/requirements-odoo-pre-install-default.txt to ${ODOO_WORK_DIRECTORY}/config/requirements-odoo-pre-install-default.txt ."
-    cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf "../.ignore/waftlib/templates/${ODOO_VERSION}/requirements-odoo-pre-install-default.txt"
+if [ -f "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/requirements-clean.txt" ] ; then
+  if [ ! -f "${ODOO_WORK_DIRECTORY}/config/requirements-clean.txt" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/requirements-clean.txt" ]; then
+    /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/requirements-clean.txt to ${ODOO_WORK_DIRECTORY}/config/requirements-clean.txt ."
+    cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf "../.ignore/waftlib/templates/${ODOO_VERSION}/requirements-clean.txt"
   else
-    /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/requirements-odoo-pre-install-default.txt not the default link!"
+    /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/requirements-clean.txt not the default link!"
   fi
 fi
 
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/requirements-odoo-install-default.txt" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/requirements-odoo-install-default.txt" ] ; then
-  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/requirements-odoo-install-default.txt to ${ODOO_WORK_DIRECTORY}/config/requirements-odoo-install-default.txt ."
-  cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf "../.ignore/waftlib/templates/${ODOO_VERSION}/requirements-odoo-install-default.txt"
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/requirements-install-default.txt" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/requirements-install-default.txt" ] ; then
+  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/${ODOO_VERSION}/requirements-install-default.txt to ${ODOO_WORK_DIRECTORY}/config/requirements-install-default.txt ."
+  cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf "../.ignore/waftlib/templates/${ODOO_VERSION}/requirements-install-default.txt"
 else
-  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/requirements-odoo-install-default.txt not the default link!"
+  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/requirements-install-default.txt not the default link!"
 fi
 
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/requirements-odoo-override-install.txt" ] ; then
-  /bin/echo "( INFO ) : Copy ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/requirements-odoo-override-install.txt to ${ODOO_WORK_DIRECTORY}/ ."
-  /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/requirements-odoo-override-install.txt" "${ODOO_WORK_DIRECTORY}/config/"
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/requirements-override-install.txt" ] ; then
+  /bin/echo "( INFO ) : Copy ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/requirements-override-install.txt to ${ODOO_WORK_DIRECTORY}/ ."
+  /bin/cp "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/requirements-override-install.txt" "${ODOO_WORK_DIRECTORY}/config/"
 fi
 
-if [ -f "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/requirements-waft-pre-install-default.txt" ] ; then
-  if [ ! -f "${ODOO_WORK_DIRECTORY}/config/requirements-waft-pre-install-default.txt" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/requirements-waft-pre-install-default.txt" ] ; then
-    /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/requirements-waft-pre-install-default.txt to ${ODOO_WORK_DIRECTORY}/config/requirements-waft-pre-install-default.txt ."
-    cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf "../.ignore/waftlib/templates/requirements-waft-pre-install-default.txt"
+if [ -f "${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/waft-requirements-pre-install-default.txt" ] ; then
+  if [ ! -f "${ODOO_WORK_DIRECTORY}/config/waft-requirements-pre-install-default.txt" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/waft-requirements-pre-install-default.txt" ] ; then
+    /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/waft-requirements-pre-install-default.txt to ${ODOO_WORK_DIRECTORY}/config/waft-requirements-pre-install-default.txt ."
+    cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf "../.ignore/waftlib/templates/waft-requirements-pre-install-default.txt"
   else
-    /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/requirements-waft-pre-install-default.txt not the default link!"
+    /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/waft-requirements-pre-install-default.txt not the default link!"
   fi
 fi
 
-if [ ! -f "${ODOO_WORK_DIRECTORY}/config/requirements-waft-install-default.txt" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/requirements-waft-install-default.txt" ] ; then
-  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/requirements-waft-install-default.txt to ${ODOO_WORK_DIRECTORY}/config/requirements-waft-install-default.txt ."
-  cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf ../.ignore/waftlib/templates/requirements-waft-install-default.txt
+if [ ! -f "${ODOO_WORK_DIRECTORY}/config/waft-requirements-install-default.txt" ] || [ -L "${ODOO_WORK_DIRECTORY}/config/waft-requirements-install-default.txt" ] ; then
+  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/templates/waft-requirements-install-default.txt to ${ODOO_WORK_DIRECTORY}/config/waft-requirements-install-default.txt ."
+  cd "${ODOO_WORK_DIRECTORY}/config" && /bin/ln -sf ../.ignore/waftlib/templates/waft-requirements-install-default.txt
 else
-  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/requirements-waft-install-default.txt not the default link!"
+  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/config/waft-requirements-install-default.txt not the default link!"
 fi
 
-cd "${ODOO_WORK_DIRECTORY}/.venv-waft/lib/"*"/site-packages" && /bin/mkdir -p venvwaftlib
+cd "${ODOO_WORK_DIRECTORY}/.waft-venv/lib/"*"/site-packages" && /bin/mkdir -p venvwaftlib
 cd "${ODOO_WORK_DIRECTORY}"
-if [ ! -f "${ODOO_WORK_DIRECTORY}/.venv-waft/lib/"*/site-packages/venvwaftlib/__init__.py ] || [ -L "${ODOO_WORK_DIRECTORY}/.venv-waft/lib/"*/site-packages/venvwaftlib/__init__.py ] ; then
-  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/venvwaftlib/__init__.py to ${ODOO_WORK_DIRECTORY}/.venv-waft/lib/*/site-packages/venvwaftlib/__init__.py ."
-  cd "${ODOO_WORK_DIRECTORY}/.venv-waft/lib/"*"/site-packages/venvwaftlib" && /bin/ln -sf ../../../../../.ignore/waftlib/venvwaftlib/__init__.py
+if [ ! -f "${ODOO_WORK_DIRECTORY}/.waft-venv/lib/"*/site-packages/venvwaftlib/__init__.py ] || [ -L "${ODOO_WORK_DIRECTORY}/.waft-venvt/lib/"*/site-packages/venvwaftlib/__init__.py ] ; then
+  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/waftlib/venvwaftlib/__init__.py to ${ODOO_WORK_DIRECTORY}/.waft-venv/lib/*/site-packages/venvwaftlib/__init__.py ."
+  cd "${ODOO_WORK_DIRECTORY}/.waft-venv/lib/"*"/site-packages/venvwaftlib" && /bin/ln -sf ../../../../../.ignore/waftlib/venvwaftlib/__init__.py
   cd "${ODOO_WORK_DIRECTORY}"
 else
-  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/.venv-odoo/lib/*/site-packages/venvwaftlib/__init__.py not the default link!"
+  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/.venv/lib/*/site-packages/venvwaftlib/__init__.py not the default link!"
 fi
 
-cd "${ODOO_WORK_DIRECTORY}/.venv-odoo/lib/"*"/site-packages" && /bin/mkdir -p venvodoolib
-if [ ! -f "${ODOO_WORK_DIRECTORY}/.venv-odoo/lib/"*/site-packages/venvodoolib/__init__.py ] || [ -L "${ODOO_WORK_DIRECTORY}/.venv-odoo/lib/"*/site-packages/venvodoolib/__init__.py ] ; then
-  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/odoolib/venvodoolib/__init__.py to ${ODOO_WORK_DIRECTORY}/.venv-odoo/lib/*/site-packages/venvodoolib/__init__.py ."
-  cd "${ODOO_WORK_DIRECTORY}/.venv-odoo/lib/"*"/site-packages/venvodoolib" && /bin/ln -sf ../../../../../.ignore/waftlib/venvodoolib/__init__.py
+cd "${ODOO_WORK_DIRECTORY}/.venv/lib/"*"/site-packages" && /bin/mkdir -p venvodoolib
+if [ ! -f "${ODOO_WORK_DIRECTORY}/.venv/lib/"*/site-packages/venvodoolib/__init__.py ] || [ -L "${ODOO_WORK_DIRECTORY}/.venv/lib/"*/site-packages/venvodoolib/__init__.py ] ; then
+  /bin/echo "( INFO ) : Link ${ODOO_WORK_DIRECTORY}/.ignore/odoolib/venvodoolib/__init__.py to ${ODOO_WORK_DIRECTORY}/.venv/lib/*/site-packages/venvodoolib/__init__.py ."
+  cd "${ODOO_WORK_DIRECTORY}/.venv/lib/"*"/site-packages/venvodoolib" && /bin/ln -sf ../../../../../.ignore/waftlib/venvodoolib/__init__.py
   cd "${ODOO_WORK_DIRECTORY}"
 else
-  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/.venv-odoo/lib/*/site-packages/venvodoolib/__init__.py not the default link!"
+  /bin/echo "( WARNING ) : ${ODOO_WORK_DIRECTORY}/.venv/lib/*/site-packages/venvodoolib/__init__.py not the default link!"
 fi
 
 # set permissions
@@ -334,16 +334,16 @@ fi
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.ignore"
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/logfiles"
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files"
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-addons-install" || /bin/true
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/addons-install" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-addons-link" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-code-aggregate" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-code-clean" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-conf-generate" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/waft-code-pre-clean" || /bin/true
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/odoo-modules-translate" || /bin/true
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.python-files/modules-translate" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/scripts"
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/scripts/"* || /bin/true
-/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/odoo-code"
+/bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/.ignore/code"
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/bootstrap" || /bin/true
 /bin/chmod -f 700 "${ODOO_WORK_DIRECTORY}/build" || /bin/true
 /bin/chmod -f 600 "${ODOO_WORK_DIRECTORY}/.gitignore" || /bin/true

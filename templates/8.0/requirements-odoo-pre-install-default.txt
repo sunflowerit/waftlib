@@ -1,5 +1,0 @@
-# Version: v.23.08.03
-# we use this file to remove an PyPI package if already installed before running install the packages in requirements-odoo-install-default.txt.
-# Don't change this file because this file is a link and your changes will back default after next running 'bootstrap'.
-# To override this file replace the link with a new file (rm requirements-odoo-install-default.txt && vi requirements-odoo-install-default.txt).
-# To override an existing package version in this file add it again to requirements-odoo-override-install.txt.

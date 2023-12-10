@@ -7,7 +7,7 @@ from string import Template
 try:
     from venvwaftlib import *
 except IOError:
-    print("( ERROR ) : Run 'waft-update-depths' python script in '.venv-waft' virtual environment.")
+    print("( ERROR ) : Run 'waft-update-depths' python script in '.waft-venv' virtual environment.")
     exit(1)
 
 def split_line(line):
@@ -125,7 +125,7 @@ def process_depth(addons_repo_split_merge, branchname, main_branch, main_branch_
 
 def main():
     """
-    parsing directly repos.yaml, if something is not in odoo-code.yaml, branch will still
+    parsing directly repos.yaml, if something is not in code.yaml, branch will still
     be in folder, but may not be included in addons. Nothing changes.
     """
     repo_min_depth = {}

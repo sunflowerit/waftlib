@@ -1,0 +1,36 @@
+#!/bin/sh
+# Version: v.23.08.03
+
+set -e
+
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
+. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
+. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
+cd "${ODOO_WORK_DIRECTORY}"
+
+if [ "${#}" -le 1 ] ; then
+  /bin/echo "Installs a new empty database"
+  /bin/echo "Usage: ${ODOO_WORK_DIRECTORY}/scripts/database-install-new-empty databasename modulename [nodemo]"
+  exit
+fi
+
+if [ "${3}" = "nodemo" ] ; then
+  WITHOUT_DEMO="--without-demo=1"
+  /bin/echo "( INFO ) : Without demo data"
+else
+  WITHOUT_DEMO="--without-demo="
+  /bin/echo "( INFO ) : With demo data"
+fi
+
+if [ "$(/usr/bin/psql -d template1 -tAc "SELECT 1 FROM pg_database WHERE datname='${1}'" )" = '1' ] ; then
+  /bin/echo "( ERROR ) : Database '${1}' already exists. If you want to drop it: 'dropdb ${1}'"
+  exit 1
+else
+  createdb "${1}"
+fi
+
+cd "${ODOO_WORK_DIRECTORY}" && \
+. "${ODOO_WORK_DIRECTORY}/.venv/bin/activate" && \
+odoo -c "${ODOO_WORK_DIRECTORY}/.ignore/config/odoo.conf" --load-language=en_US,nl_NL -i "${2}" -d "${1}" --stop-after-init "${WITHOUT_DEMO}"

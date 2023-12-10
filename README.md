@@ -16,13 +16,13 @@ We needed a tool that could replace buildout, but did not want to switch to a Do
 
 ## What does it do
 
-- Build `.venv-odoo` virtual environment with Python version in `config/.python-odoo-version` using `pyenv` for Odoo code.
-- Build `.venv-waft` virtual environment with Python version in `config/.python-waft-version` using `pyenv` for some waft tools.
-- Install Python dependencies from `requirements-odoo-install-default.txt` in `.venv-odoo` virtual environment.
-- Install Python dependencies from `requirements-waft-install-default.txt` in `.venv-waft` virtual environment.
-- Use `gitaggregrator` to collect Odoo modules from different `git` repositories and branches as defined in `config/odoo-code.yaml`.
-- Select some modules and not others that defined in `config/odoo-code.yaml`.
-- Generate the Odoo config file in `.ignore/auto/odoo.conf`
+- Build `.venv` virtual environment with Python version in `config/.python-version` using `pyenv` for Odoo code.
+- Build `.waft-venv` virtual environment with Python version in `config/.waft-python-version` using `pyenv` for some waft tools.
+- Install Python dependencies from `requirements-install-default.txt` in `.venv` virtual environment.
+- Install Python dependencies from `waft-requirements-install-default.txt` in `.waft-venv` virtual environment.
+- Use `gitaggregrator` to collect Odoo modules from different `git` repositories and branches as defined in `config/code.yaml`.
+- Select some modules and not others that defined in `config/code.yaml`.
+- Generate the Odoo config file in `.ignore/config/odoo.conf`
 - Offer some handy scripts in `scripts/`.
 
 ## What it does not do (or: prerequisites)
@@ -37,8 +37,8 @@ You'll need to take care of these yourself.
 As for the system requirements, take a look at the files in [this folder](https://github.com/sunflowerit/waftlib/tree/master/templates) or also checkout the [pyenv prerequisites](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
 
 Note: when you do want to use an existing python version or system python, you can create a
-virtual environment in the root directory by using `$ python -m venv .venv-odoo` or
-if you have an existing virtualenv binary: `$ virtualenv .venv-odoo`.
+virtual environment in the root directory by using `$ python -m venv .venv` or
+if you have an existing virtualenv binary: `$ virtualenv .venv`.
 
 ## Setup a waft project
 
@@ -61,17 +61,17 @@ vi .env-secret
 
 When successful, now we can prepare for building Odoo:
 - Take a look at default odoo config file `vi config/odoo-code.conf`.
-- Override odoo config variables as you like `vi config/odoo-code-override-default.conf`. You can use ENVIRONMENT variables here.
+- Override odoo config variables as you like `vi config/odoo-override.conf`. You can use ENVIRONMENT variables here.
 - Take a look at defaults shared variables `vi config/env-shared` that apply for all clones of this instance. NOTE: don't put secret variables values in this file.
 - You can override variables in `config/env-shared` by putting it in `.env-secret` such as DBFILTER, PGDATABASE, PGUSER etc.
-- Take a look at default `config/odoo-code.yaml`.
+- Take a look at default `config/code.yaml`.
 - Issue build script `./build`
 
 Now we can create database and run Odoo:
 
 ```
-./config/odoo-install mydatabase web
-./config/odoo-run
+./scripts/database-install-new-empty mydatabase web
+./config/run
 ```
 
 At this point when you know the project configuration is complete, you can push it back to Git, but not to the `waft` repository, but to your project's repository, for example to a branch named `build`:
@@ -97,49 +97,49 @@ Now everyone who wants to work with your project can:
 To add a new Python module:
 
 ```
-# Edit config/requirements-odoo-override-install.txt, add the module you want, then:
+# Edit config/requirements-override-install.txt, add the module you want, then:
 ./build
 
 OR:
 
-# Edit config/requirements-odoo-override-install.txt, add the module you want, then:
-./scripts/odoo-requirements-install
+# Edit config/requirements-override-install.txt, add the module you want, then:
+./scripts/requirements-install
 
 OR:
 
-# Edit config/requirements-odoo-override-install.txt, add the module you want, then:
-source .venv-odoo/bin/activate
-pip install -r config/requirements-odoo-override-install.txt
+# Edit config/requirements-override-install.txt, add the module you want, then:
+source .venv/bin/activate
+pip install -r config/requirements-override-install.txt
 
-# Then commit and push to share the new config/requirements-odoo-override-install.txt with colleagues.
+# Then commit and push to share the new config/requirements-override-install.txt with colleagues.
 ```
 
 To add a new Odoo module:
 
 ```
-vi config/odoo-code.yaml
+vi config/code.yaml
 ./build
 ```
 
 To start an Odoo shell:
 
 ```
-./config/odoo-python-shell
+./config/python-shell
 # Now you get a shell that has `env` object
 ```
 
 To start a [click-odoo](https://github.com/acsone/click-odoo) script:
 
 ```
-source .venv-odoo/bin/activate
-click-odoo -c .ignore/auto/odoo.conf my-script.sh
+source .venv/bin/activate
+click-odoo -c .ignore/config/odoo.conf my-script.sh
 ```
 
 To run any other custom Odoo command:
 
 ```
-source .venv-odoo/bin/activate
-odoo -c .ignore/auto/odoo.conf --help
+source .venv/bin/activate
+odoo -c .ignore/config/odoo.conf --help
 ```
 
 ## Upgrade waftlib from `v.21.05.10` to `v.21.09.22` version:
@@ -153,7 +153,7 @@ odoo -c .ignore/auto/odoo.conf --help
 - Remove `.venv` directory.
 - If you didn't modify the default `env-shared` remove it.
 - If you didn't modify the default `common/conf.d/odoo.cfg` remove it.
-- If you didn't modify the default `custom/src/odoo-code.yaml` remove it.
+- If you didn't modify the default `custom/src/code.yaml` remove it.
 - Issue `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/bootstrap -o bootstrap`
 - Issue `/usr/bin/curl https://raw.githubusercontent.com/sunflowerit/waft/fec170fd456a371b3468b8d9eef505bf079af40c/.gitignore -o .gitignore`
 - Issue `./bootstrap`

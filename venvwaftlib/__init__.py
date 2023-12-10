@@ -191,11 +191,10 @@ if WAFT_WAIT_DB.lower() not in {"true", "false"}:
     WAFT_WAIT_DB = 'false'
     os.environ["WAFT_WAIT_DB"] = 'false'
 
-CODE_ODOO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, "odoo-code")
-CODE_ODOO_YAML_FILE = os.path.join(ODOO_CONFIG_DIRECTORY, "odoo-code.yaml")
-ODOO_MAIN_CODE_PATH = os.path.join(ODOO_WORK_DIRECTORY, "odoo-code/odoo")
+CODE_ODOO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/code")
+CODE_ODOO_YAML_FILE = os.path.join(ODOO_CONFIG_DIRECTORY, "code.yaml")
+ODOO_MAIN_CODE_PATH = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/code/odoo")
 IGNORE_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, ".ignore")
-ODOO_AUTO_DIRECTORY = os.path.join(IGNORE_DIRECTORY, "auto")
 ODOO_ADDONS_AUTO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, "addons")
 
 # Check if CODE_ODOO_YAML_FILE exist.

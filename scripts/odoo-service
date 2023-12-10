@@ -8,7 +8,7 @@ ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
 . "${ODOO_WORK_DIRECTORY}/.env-secret" && \
 cd "${ODOO_WORK_DIRECTORY}"
 
-. "${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/activate"
+. "${ODOO_WORK_DIRECTORY}/.venv/bin/activate"
 
 export ODOO_WORKERS="${ODOO_WORKERS:-8}"
 if [ "${ODOO_WORKERS}" -eq '0' ] ; then
@@ -17,4 +17,4 @@ if [ "${ODOO_WORKERS}" -eq '0' ] ; then
   /usr/bin/socat "TCP-LISTEN:${ODOO_LONGPOLLING_PORT},reuseaddr,fork" "TCp:127.0.0.1:${ODOO_XMLRPC_PORT}" &
 fi
 
-${ODOO_WORK_DIRECTORY}/.venv-odoo/bin/odoo --logfile "${ODOO_WORK_DIRECTORY}/logfiles/odoo.log" -c "${ODOO_WORK_DIRECTORY}/.ignore/auto/odoo.conf"
+${ODOO_WORK_DIRECTORY}/.venv/bin/odoo --logfile "${ODOO_WORK_DIRECTORY}/logfiles/odoo.log" -c "${ODOO_WORK_DIRECTORY}/.ignore/config/odoo.conf"
