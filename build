@@ -9,38 +9,38 @@ if [ "$(/bin/id -u)" -eq 0 ] ; then
 fi
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIRECTORY="${SCRIPT_PATH}"
-. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
-. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
-. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
-cd "${ODOO_WORK_DIRECTORY}"
+WORK_DIRECTORY="${SCRIPT_PATH}"
+. "${WORK_DIRECTORY}/config/env-default" && \
+. "${WORK_DIRECTORY}/config/env-shared" && \
+. "${WORK_DIRECTORY}/.env-secret" && \
+cd "${WORK_DIRECTORY}"
 
 #rm -fr ./config/odoo.conf
 #rm -fr ./addons/*
 #/bin/bash -c "$(/bin/ls -1 ./custom/src | grep -Ev 'private|code.yaml' | /usr/bin/awk '{print("rm -fr ./custom/src/" $1)}')"
 
-if [ ! -d "${ODOO_WORK_DIRECTORY}/.venv" ] ; then
+if [ ! -d "${WORK_DIRECTORY}/.venv" ] ; then
     /bin/echo '( ERROR ) : run ./bootstrap first!'
     exit 1
 fi
 
-if [ ! -d "${ODOO_WORK_DIRECTORY}/.waft-venv" ] ; then
+if [ ! -d "${WORK_DIRECTORY}/.waft-venv" ] ; then
     /bin/echo '( ERROR ) : run ./bootstrap first!'
     exit 1
 fi
 
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-requirements-install' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-requirements-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/requirements-install' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/requirements-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-build' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-build" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/code-install' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/code-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-database-postgresql-wait' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-database-postgresql-wait" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-database-unaccent-install' script." && \
-"${ODOO_WORK_DIRECTORY}/scripts/waft-database-unaccent-install" && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/build' script: Running '${ODOO_WORK_DIRECTORY}/scripts/waft-addons-link' script." && \
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/build' script: Running '${WORK_DIRECTORY}/scripts/waft-requirements-install' script." && \
+"${WORK_DIRECTORY}/scripts/waft-requirements-install" && \
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/build' script: Running '${WORK_DIRECTORY}/scripts/requirements-install' script." && \
+"${WORK_DIRECTORY}/scripts/requirements-install" && \
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/build' script: Running '${WORK_DIRECTORY}/scripts/waft-build' script." && \
+"${WORK_DIRECTORY}/scripts/waft-build" && \
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/build' script: Running '${WORK_DIRECTORY}/scripts/waft-code-compile' script." && \
+"${WORK_DIRECTORY}/scripts/waft-code-compile" && \
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/build' script: Running '${WORK_DIRECTORY}/scripts/code-install' script." && \
+"${WORK_DIRECTORY}/scripts/code-install" && \
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/build' script: Running '${WORK_DIRECTORY}/scripts/waft-database-postgresql-wait' script." && \
+"${WORK_DIRECTORY}/scripts/waft-database-postgresql-wait" && \
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/build' script: Running '${WORK_DIRECTORY}/scripts/waft-database-unaccent-install' script." && \
+"${WORK_DIRECTORY}/scripts/waft-database-unaccent-install" && \
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/build' script: Running '${WORK_DIRECTORY}/scripts/waft-addons-link' script." && \

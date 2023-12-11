@@ -4,16 +4,16 @@
 set -e
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
-. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
-. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
-. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
-cd "${ODOO_WORK_DIRECTORY}"
+WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${WORK_DIRECTORY}/config/env-default" && \
+. "${WORK_DIRECTORY}/config/env-shared" && \
+. "${WORK_DIRECTORY}/.env-secret" && \
+cd "${WORK_DIRECTORY}"
 
 ADDON_NAME="${1}"
 shift
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/addons-i18n' script: Executing Odoo in i18n export mode for addon ${ADDON_NAME}"
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/scripts/addons-i18n' script: Executing Odoo in i18n export mode for addon ${ADDON_NAME}"
 # HACK Odoo needs a *.po file to guess the output format
 /bin/ln -sf /dev/stdout /tmp/stdout.po
-. "${ODOO_WORK_DIRECTORY}/.venv/bin/activate" && \
+. "${WORK_DIRECTORY}/.venv/bin/activate" && \
 odoo --stop-after-init -d "${PGDATABASE}" --i18n-export /tmp/stdout.po --modules "${ADDON_NAME}" --update "${ADDON_NAME}" --workers 0 "${@}"

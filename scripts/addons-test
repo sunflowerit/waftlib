@@ -2,18 +2,18 @@
 # Version: v.23.08.03
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
-. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
-. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
-. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
-cd "${ODOO_WORK_DIRECTORY}"
+WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${WORK_DIRECTORY}/config/env-default" && \
+. "${WORK_DIRECTORY}/config/env-shared" && \
+. "${WORK_DIRECTORY}/.env-secret" && \
+cd "${WORK_DIRECTORY}"
 
-/bin/echo "( WARNING ) '${ODOO_WORK_DIRECTORY}/scripts/addons-test' script: addons-test is deprecated, use instead: addons update --test ${@}"
+/bin/echo "( WARNING ) '${WORK_DIRECTORY}/scripts/addons-test' script: addons-test is deprecated, use instead: addons update --test ${@}"
 # Shortcut to run Odoo in addons testing mode
 set -e
 addons="${1}"
 shift
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/addons-test' script: Executing Odoo in addons-test mode for addons ${addons}"
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/scripts/addons-test' script: Executing Odoo in addons-test mode for addons ${addons}"
 # HACK `--workers 0`: https://github.com/odoo/odoo/pull/14809
-. "${ODOO_WORK_DIRECTORY}/.venv/bin/activate" && \
+. "${WORK_DIRECTORY}/.venv/bin/activate" && \
 odoo --workers 0 --test-enable --stop-after-init --update "${addons}" "${@}"

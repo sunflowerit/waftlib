@@ -4,7 +4,7 @@
 set -e
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
-cd "${ODOO_WORK_DIRECTORY}" && \
-. "${ODOO_WORK_DIRECTORY}/.venv/bin/activate" && \
-"${ODOO_WORK_DIRECTORY}/.python-files/modules-translate"
+WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+cd "${WORK_DIRECTORY}" && \
+. "${WORK_DIRECTORY}/.venv/bin/activate" && \
+"${WORK_DIRECTORY}/.python-files/modules-translate"

@@ -13,13 +13,13 @@ import yaml
 from shutil import which
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
-ODOO_WORK_DIRECTORY = os.path.realpath(os.path.join(SCRIPT_PATH, "../../../../.."))
-os.environ['ODOO_WORK_DIRECTORY'] = ODOO_WORK_DIRECTORY
-ODOO_CONFIG_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, "config")
-os.environ['ODOO_CONFIG_DIRECTORY'] = ODOO_CONFIG_DIRECTORY
-load_dotenv(os.path.join(ODOO_CONFIG_DIRECTORY, "env-default"))
-load_dotenv(os.path.join(ODOO_CONFIG_DIRECTORY, "env-shared"), override=True)
-load_dotenv(os.path.join(ODOO_WORK_DIRECTORY, ".env-secret"), override=True)
+WORK_DIRECTORY = os.path.realpath(os.path.join(SCRIPT_PATH, "../../../../.."))
+os.environ['WORK_DIRECTORY'] = WORK_DIRECTORY
+CONFIGURATIONS_DIRECTORY = os.path.join(WORK_DIRECTORY, "config")
+os.environ['CONFIGURATIONS_DIRECTORY'] = CONFIGURATIONS_DIRECTORY
+load_dotenv(os.path.join(CONFIGURATIONS_DIRECTORY, "env-default"))
+load_dotenv(os.path.join(CONFIGURATIONS_DIRECTORY, "env-shared"), override=True)
+load_dotenv(os.path.join(WORK_DIRECTORY, ".env-secret"), override=True)
 
 # Customize Waft logging
 logging.shutdown()
@@ -191,94 +191,94 @@ if WAFT_WAIT_DB.lower() not in {"true", "false"}:
     WAFT_WAIT_DB = 'false'
     os.environ["WAFT_WAIT_DB"] = 'false'
 
-CODE_ODOO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/code")
-CODE_ODOO_YAML_FILE = os.path.join(ODOO_CONFIG_DIRECTORY, "code.yaml")
-ODOO_MAIN_CODE_PATH = os.path.join(ODOO_WORK_DIRECTORY, ".ignore/code/odoo")
-IGNORE_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, ".ignore")
-ODOO_ADDONS_AUTO_DIRECTORY = os.path.join(ODOO_WORK_DIRECTORY, "addons")
+REPOSITORIES_DIRECTORY = os.path.join(WORK_DIRECTORY, ".ignore/code")
+CODE_YAML_FILE = os.path.join(CONFIGURATIONS_DIRECTORY, "code.yaml")
+ODOO_MAIN_CODE_DIRECTORY = os.path.join(WORK_DIRECTORY, ".ignore/code/odoo")
+IGNORE_DIRECTORY = os.path.join(WORK_DIRECTORY, ".ignore")
+EVENTUAL_ADDONS_DIRECTORY = os.path.join(WORK_DIRECTORY, "addons")
 
-# Check if CODE_ODOO_YAML_FILE exist.
-if not os.path.exists(CODE_ODOO_YAML_FILE):
+# Check if CODE_YAML_FILE exist.
+if not os.path.exists(CODE_YAML_FILE):
     logger.error(
         "Could not find '%s' Odoo code configuration file.",
-        CODE_ODOO_YAML_FILE
+        CODE_YAML_FILE
         )
     exit(1)
 
-# Load CODE_ODOO_YAML_FILE yaml file as code_odoo_yaml_file dictionary.
+# Load CODE_YAML_FILE yaml file as code_yaml_file dictionary.
 try:
-    with open(CODE_ODOO_YAML_FILE) as code_ODOO_YAML_file:
-        code_odoo_yaml_file = yaml.safe_load(code_ODOO_YAML_file)
+    with open(CODE_YAML_FILE) as code_YAML_file:
+        code_yaml_file = yaml.safe_load(code_YAML_file)
 except IOError:
     logger.error(
         "Could not load '%s' Odoo code configuration file.",
-        CODE_ODOO_YAML_FILE
+        CODE_YAML_FILE
         )
     exit(1)
 
-# Convert code_odoo_yaml_file to waft_auto_yaml_tmp_dic
-code_odoo_yaml_entries_list = []
+# Convert code_yaml_file to waft_auto_yaml_tmp_dic
+code_yaml_entries_list = []
 waft_auto_yaml_tmp_dic = dict()
-for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
-    addons_repo_dic = code_odoo_yaml_file[code_odoo_yaml_addons_repo_sub_path]
-    if code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_entries_list:
+for code_yaml_addons_repo_subpath in code_yaml_file:
+    addons_repo_dic = code_yaml_file[code_yaml_addons_repo_subpath]
+    if code_yaml_addons_repo_subpath in code_yaml_entries_list:
         logger.warning(
             "In '%s' file:"
             "    Waft found a duplicated addons repository configuration '%s'!"
             "    Waft ignored it.",
-            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path
+            CODE_YAML_FILE, code_yaml_addons_repo_subpath
         )
         continue
-    addons_repo_sub_path = re.sub("[^\.\-\_\/a-z0-9]", "", code_odoo_yaml_addons_repo_sub_path.lower())
-    if addons_repo_sub_path in {'', '/'}:
+    addons_repo_subpath = re.sub("[^\.\-\_\/a-z0-9]", "", code_yaml_addons_repo_subpath.lower())
+    if addons_repo_subpath in {'', '/'}:
         logger.warning(
             "In '%s' file:"
             "    Waft found unacceptable addons repository configuration '%s' string!"
             "    Waft ignored it.",
-            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path
+            CODE_YAML_FILE, code_yaml_addons_repo_subpath
         )
         continue
     subdirectories_elements_list = []
-    if addons_repo_sub_path not in {'enterprise', 'private', 'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'}:
-        for subdirectory_element in addons_repo_sub_path.split('/'):
+    if addons_repo_subpath not in {'enterprise', 'private', 'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'}:
+        for subdirectory_element in addons_repo_subpath.split('/'):
             if subdirectory_element != '':
                 subdirectories_elements_list.append(subdirectory_element)
-        addons_repo_sub_path = '/'.join(subdirectories_elements_list[-2:])
-    if addons_repo_sub_path in {'enterprise', 'private'}:
+        addons_repo_subpath = '/'.join(subdirectories_elements_list[-2:])
+    if addons_repo_subpath in {'enterprise', 'private'}:
         continue
-    if addons_repo_sub_path in {'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'} and \
+    if addons_repo_subpath in {'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'} and \
     'odoo' in waft_auto_yaml_tmp_dic:
         logger.warning(
             "In '%s' file:"
             "    Waft found a duplicated 'odoo' addons repository configuration '%s'!"
             "    Waft ignored it.",
-            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path
+            CODE_YAML_FILE, code_yaml_addons_repo_subpath
         )
         continue
-    if addons_repo_sub_path not in {'odoo', 'oca', 'ocb'}:
+    if addons_repo_subpath not in {'odoo', 'oca', 'ocb'}:
         if len(subdirectories_elements_list) == 1:
-            addons_repo_sub_path = os.path.join('oca', subdirectories_elements_list[0])
-    if addons_repo_sub_path in code_odoo_yaml_entries_list:
+            addons_repo_subpath = os.path.join('oca', subdirectories_elements_list[0])
+    if addons_repo_subpath in code_yaml_entries_list:
         logger.warning(
             "In '%s' file:"
             "    Waft found a duplicated addons repository configuration '%s'!"
             "    Waft ignored it.",
-            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path
+            CODE_YAML_FILE, code_yaml_addons_repo_subpath
         )
         continue
     waft_auto_main_code_remotes_dic = dict()
-    if addons_repo_sub_path in {'odoo', 'odoo/odoo'}:
+    if addons_repo_subpath in {'odoo', 'odoo/odoo'}:
         waft_auto_main_code_remotes_dic = {'origin': 'https://github.com/odoo/odoo.git'}
-        addons_repo_sub_path = 'odoo'
-    if addons_repo_sub_path in {'oca', 'ocb', 'oca/ocb'}:
+        addons_repo_subpath = 'odoo'
+    if addons_repo_subpath in {'oca', 'ocb', 'oca/ocb'}:
         waft_auto_main_code_remotes_dic = {'origin': 'https://github.com/oca/ocb.git'}
-        addons_repo_sub_path = 'odoo'
-    if code_odoo_yaml_addons_repo_sub_path != addons_repo_sub_path:
+        addons_repo_subpath = 'odoo'
+    if code_yaml_addons_repo_subpath != addons_repo_subpath:
         logger.info(
             "Waft took '%s' addons repository configuration name form '%S' file and convert it to '%s'.",
-            code_odoo_yaml_addons_repo_sub_path, CODE_ODOO_YAML_FILE, addons_repo_sub_path
+            code_yaml_addons_repo_subpath, CODE_YAML_FILE, addons_repo_subpath
         )
-    code_odoo_yaml_entries_list.append(code_odoo_yaml_addons_repo_sub_path)
+    code_yaml_entries_list.append(code_yaml_addons_repo_subpath)
     waft_auto_remotes_dic = dict()
     default_merges_generate = False
     default_remotes_generate = False
@@ -286,51 +286,51 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
     waft_auto_merges_list = []
     if 'merges' in addons_repo_dic:
         default_merges_generate = False
-        code_odoo_yaml_merges_list = code_odoo_yaml_file[addons_repo_sub_path].get('merges')
-        if type(code_odoo_yaml_merges_list) != list:
+        code_yaml_merges_list = code_yaml_file[addons_repo_subpath].get('merges')
+        if type(code_yaml_merges_list) != list:
             default_merges_generate = True
             logger.warning(
                 "In '%s' file, '%s' dictionary:"
                 "    Waft found unexpected '%' that should be a list!"
                 "    Waft ignored it.",
-                CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path, code_odoo_yaml_merges_list
+                CODE_YAML_FILE, code_yaml_addons_repo_subpath, code_yaml_merges_list
                 )
         else:
-            for code_odoo_yaml_merge_dic in code_odoo_yaml_merges_list:
+            for code_yaml_merge_dic in code_yaml_merges_list:
                 waft_auto_merge_dic = dict()
                 waft_auto_merge_remote = ''
                 waft_auto_merge_ref = ''
                 waft_auto_merge_depth = ''
-                if type(code_odoo_yaml_merge_dic) != dict:
+                if type(code_yaml_merge_dic) != dict:
                     logger.warning(
                         "In '%s' file, '%s' dictionary, '%s' list:"
                         "    Waft found unexpected '%' that should be a dictionary!"
                         "    Waft ignored it.",
-                        CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                        code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
+                        CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                        code_yaml_merges_list, code_yaml_merge_dic,
                     )
                     continue
-                elif 'remote' not in code_odoo_yaml_merge_dic:
+                elif 'remote' not in code_yaml_merge_dic:
                     waft_auto_merge_remote = 'origin'
                     logger.info(
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft didn't find 'remote' key!"
                         "    Waft set it to be 'remote: origin'.",
-                        CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                        code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic
+                        CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                        code_yaml_merges_list, code_yaml_merge_dic
                     )
-                elif type(code_odoo_yaml_merge_dic['remote']) != str:
+                elif type(code_yaml_merge_dic['remote']) != str:
                     waft_auto_merge_remote = 'origin'
                     logger.warning(
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft found unexpected 'remote: %s' that should be a string!"
                         "    Waft reset it to be 'remote: origin'.",
-                        CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                        code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
-                        code_odoo_yaml_merge_dic['remote']
+                        CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                        code_yaml_merges_list, code_yaml_merge_dic,
+                        code_yaml_merge_dic['remote']
                     )
                 else:
-                    waft_merge_original_remote = code_odoo_yaml_merge_dic['remote']
+                    waft_merge_original_remote = code_yaml_merge_dic['remote']
                     waft_merge_fixed_original_remote = re.sub("[^\.\-\_a-z0-9]", "", waft_merge_original_remote.lower())
                     if waft_merge_fixed_original_remote == '':
                         waft_auto_merge_remote = 'origin'
@@ -338,8 +338,8 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                             "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                             "    Waft found 'remote' key with an empty value!"
                             "    Waft set it to be 'remote: origin'.",
-                            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                            code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic
+                            CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                            code_yaml_merges_list, code_yaml_merge_dic
                         )
                     else:
                         waft_auto_merge_remote = waft_merge_fixed_original_remote
@@ -347,42 +347,42 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                             logger.info(
                                 "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                                 "    Waft took 'remote: %s' and convert it to 'remote: %s'.",
-                                CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                                code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
+                                CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                                code_yaml_merges_list, code_yaml_merge_dic,
                                 waft_merge_original_remote, waft_auto_merge_remote
                             )
                         else:
                             logger.info(
                                 "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                                 "    Waft set 'remote: %s'.",
-                                CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                                code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
+                                CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                                code_yaml_merges_list, code_yaml_merge_dic,
                                 waft_auto_merge_remote
                             )
-                if 'ref' not in code_odoo_yaml_merge_dic:
+                if 'ref' not in code_yaml_merge_dic:
                     waft_auto_merge_ref = ODOO_VERSION
                     logger.info(
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft didn't find 'ref' key!"
                         "    Waft set it to be 'ref: %s'.",
-                        CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                        code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic, ODOO_VERSION
+                        CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                        code_yaml_merges_list, code_yaml_merge_dic, ODOO_VERSION
                     )
-                elif type(code_odoo_yaml_merge_dic['ref']) != str:
+                elif type(code_yaml_merge_dic['ref']) != str:
                     waft_auto_merge_ref = ODOO_VERSION
                     logger.warning(
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft found unexpected 'ref: %s' that should be a string!"
                         "    Waft reset it to be 'remote: origin'.",
-                        CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                        code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
-                        code_odoo_yaml_merge_dic['ref']
+                        CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                        code_yaml_merges_list, code_yaml_merge_dic,
+                        code_yaml_merge_dic['ref']
                     )
-                elif code_odoo_yaml_merge_dic['ref'] in \
+                elif code_yaml_merge_dic['ref'] in \
                 {'', 'ODOO_VERSION', '$ODOO_VERSION', '"$ODOO_VERSION"', '${ODOO_VERSION}', '"${ODOO_VERSION}"'}:
                     waft_auto_merge_ref = ODOO_VERSION
                 else:
-                    waft_merge_original_ref = code_odoo_yaml_merge_dic['ref']
+                    waft_merge_original_ref = code_yaml_merge_dic['ref']
                     waft_merge_fixed_original_ref = re.sub("[^\.\-\_\/a-z0-9]", "", waft_merge_original_ref.lower())
                     if waft_merge_fixed_original_ref == '' :
                         waft_auto_merge_ref = ODOO_VERSION
@@ -390,8 +390,8 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                             "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                             "    Waft found 'ref' key with an empty value!"
                             "    Waft set it to be 'ref: %s'.",
-                            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                            code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic, ODOO_VERSION
+                            CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                            code_yaml_merges_list, code_yaml_merge_dic, ODOO_VERSION
                         )
                     else:
                         waft_auto_merge_ref = waft_merge_fixed_original_ref
@@ -399,39 +399,39 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                             logger.info(
                                 "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                                 "    Waft took 'ref: %s' and convert it to 'ref: %s'.",
-                                CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                                code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
+                                CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                                code_yaml_merges_list, code_yaml_merge_dic,
                                 waft_merge_original_ref, waft_auto_merge_ref
                             )
                         else:
                             logger.info(
                                 "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                                 "    Waft set 'ref: %s'.",
-                                CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                                code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
+                                CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                                code_yaml_merges_list, code_yaml_merge_dic,
                                 waft_auto_merge_ref
                             )
-                if 'depth' not in code_odoo_yaml_merge_dic:
+                if 'depth' not in code_yaml_merge_dic:
                     waft_auto_merge_depth = 0
                     logger.warning(
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft didn't find 'depth' key!"
                         "    Waft will set it later.",
-                        CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                        code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic
+                        CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                        code_yaml_merges_list, code_yaml_merge_dic
                     )
-                elif type(code_odoo_yaml_merge_dic['depth']) != str:
+                elif type(code_yaml_merge_dic['depth']) != str:
                     waft_auto_merge_depth = 0
                     logger.warning(
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft found unexpected 'depth: %s' that should be a number!"
                         "    Waft will set it later.",
-                        CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                        code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
-                        code_odoo_yaml_merge_dic['depth']
+                        CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                        code_yaml_merges_list, code_yaml_merge_dic,
+                        code_yaml_merge_dic['depth']
                     )
                 else:
-                    waft_merge_original_depth = code_odoo_yaml_merge_dic['depth']
+                    waft_merge_original_depth = code_yaml_merge_dic['depth']
                     waft_merge_fixed_original_depth = re.sub("[^0-9]", "", waft_merge_original_depth)
                     waft_merge_fixed_original_depth = int(waft_merge_fixed_original_depth)
                     if waft_merge_fixed_original_depth == '' :
@@ -440,8 +440,8 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                             "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                             "    Waft found 'depth' key with an empty value!"
                             "    Waft will set it later.",
-                            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                            code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic
+                            CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                            code_yaml_merges_list, code_yaml_merge_dic
                         )
                     else:
                         waft_auto_merge_depth = waft_merge_fixed_original_depth
@@ -450,8 +450,8 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                                 "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                                 "    Waft took 'depth: %s' and convert it to 'depth: %s'."
                                 "    Waft will set depth later.",
-                                CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                                code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
+                                CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                                code_yaml_merges_list, code_yaml_merge_dic,
                                 waft_merge_original_depth, waft_auto_merge_depth
                             )
                 waft_auto_merge_key = "{}|{}".format(waft_auto_merge_remote, waft_auto_merge_ref)
@@ -464,8 +464,8 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                             "    Waft found a duplicate dictionary '%s'!"
                             "    Waft ignored the second one!"
                             "    Waft set 'depth: %s'.",
-                            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                            code_odoo_yaml_merges_list, waft_auto_merges_dic[waft_auto_merge_key],
+                            CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                            code_yaml_merges_list, waft_auto_merges_dic[waft_auto_merge_key],
                             waft_auto_merge_depth
                         )
                     elif waft_auto_merge_depth > waft_auto_merges_dic[waft_auto_merge_key][depth]:
@@ -475,8 +475,8 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                             "    Waft found a duplicate dictionary '%s' with different depths:!"
                             "    Waft ignored '%s' and chose '%s' depth!"
                             "    Waft set 'depth: %s'.",
-                            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                            code_odoo_yaml_merges_list, waft_auto_merge_dic,
+                            CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                            code_yaml_merges_list, waft_auto_merge_dic,
                             waft_auto_merges_dic[waft_auto_merge_key][depth], waft_auto_merge_depth,
                             waft_auto_merge_depth
                         )
@@ -488,8 +488,8 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                             "    Waft found a duplicate dictionary '%s' with different depths:!"
                             "    Waft ignored '%s' and chose '%s' depth!"
                             "    Waft set 'depth: %s'.",
-                            CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                            code_odoo_yaml_merges_list, waft_auto_merge_dic,
+                            CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                            code_yaml_merges_list, waft_auto_merge_dic,
                             waft_auto_merge_depth, waft_auto_merges_dic[waft_auto_merge_key][depth],
                             waft_auto_merges_dic[waft_auto_merge_key][depth]
                         )
@@ -499,8 +499,8 @@ for code_odoo_yaml_addons_repo_sub_path in code_odoo_yaml_file:
                     logger.info(
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft set 'depth: %s'.",
-                        CODE_ODOO_YAML_FILE, code_odoo_yaml_addons_repo_sub_path,
-                        code_odoo_yaml_merges_list, code_odoo_yaml_merge_dic,
+                        CODE_YAML_FILE, code_yaml_addons_repo_subpath,
+                        code_yaml_merges_list, code_yaml_merge_dic,
                         waft_auto_merge_depth
                     )
                     waft_auto_merges_dic[waft_auto_merge_key] = waft_auto_merge_dic

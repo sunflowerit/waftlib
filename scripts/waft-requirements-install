@@ -4,8 +4,8 @@
 set -e
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
-cd "${ODOO_WORK_DIRECTORY}" && \
-. "${ODOO_WORK_DIRECTORY}/.waft-venv/bin/activate" && \
-(pip uninstall --yes -r "${ODOO_WORK_DIRECTORY}/config/waft-requirements-pre-install-default.txt" 2>/dev/null || /bin/true) && \
-pip install --exists-action w -r "${ODOO_WORK_DIRECTORY}/config/waft-requirements-install-default.txt"
+WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+cd "${WORK_DIRECTORY}" && \
+. "${WORK_DIRECTORY}/.waft-venv/bin/activate" && \
+(pip uninstall --yes -r "${WORK_DIRECTORY}/config/waft-requirements-pre-install-default.txt" 2>/dev/null || /bin/true) && \
+pip install --exists-action w -r "${WORK_DIRECTORY}/config/waft-requirements-install-default.txt"

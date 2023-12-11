@@ -4,16 +4,16 @@
 set -e
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
-. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
-. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
-. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
-cd "${ODOO_WORK_DIRECTORY}"
+WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${WORK_DIRECTORY}/config/env-default" && \
+. "${WORK_DIRECTORY}/config/env-shared" && \
+. "${WORK_DIRECTORY}/.env-secret" && \
+cd "${WORK_DIRECTORY}"
 
-. "${ODOO_WORK_DIRECTORY}/.venv/bin/activate" && \
+. "${WORK_DIRECTORY}/.venv/bin/activate" && \
 if [ "${WAFT_COMPILE,,}" != 'true' ] ; then
-    /bin/echo "( WARNING ) '${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile' script: Not compiling Python code"
+    /bin/echo "( WARNING ) '${WORK_DIRECTORY}/scripts/waft-code-compile' script: Not compiling Python code"
     exit 0
 fi && \
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/waft-code-compile' script: Compiling all Python code in ${ODOO_WORK_DIRECTORY}" && \
-python -m compileall -q "${ODOO_WORK_DIRECTORY}/.ignore/code"
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/scripts/waft-code-compile' script: Compiling all Python code in ${WORK_DIRECTORY}" && \
+python -m compileall -q "${WORK_DIRECTORY}/.ignore/code"

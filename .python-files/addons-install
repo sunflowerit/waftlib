@@ -49,7 +49,7 @@ try:
         private_ok = command_arguments.private and addons_repo_item_path == "private"
         manual_ok = addon_name in addons_with
         if private_ok or core_ok or extra_ok or enterprise_ok or manual_ok:
-            addon_full_path = os.path.join(CODE_ODOO_DIRECTORY, addons_repo_item_path, addon_name)
+            addon_full_path = os.path.join(REPOSITORIES_DIRECTORY, addons_repo_item_path, addon_name)
             manifest_code = {}
             for manifest_name in ("__manifest__.py", "__openerp__.py"):
                 try:

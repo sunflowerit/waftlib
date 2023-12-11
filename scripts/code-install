@@ -4,25 +4,25 @@
 set -e
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
-. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
-. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
-. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
-cd "${ODOO_WORK_DIRECTORY}" && \
-. "${ODOO_WORK_DIRECTORY}/.venv/bin/activate"
+WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${WORK_DIRECTORY}/config/env-default" && \
+. "${WORK_DIRECTORY}/config/env-shared" && \
+. "${WORK_DIRECTORY}/.env-secret" && \
+cd "${WORK_DIRECTORY}" && \
+. "${WORK_DIRECTORY}/.venv/bin/activate"
 
-ODOO_MAIN_CODE_PATH="${ODOO_WORK_DIRECTORY}/.ignore/code/odoo"
-/bin/echo "( INFO ) '${ODOO_WORK_DIRECTORY}/scripts/code-install' script: Installing Odoo from ${ODOO_MAIN_CODE_PATH} ."
+ODOO_MAIN_CODE_DIRECTORY="${WORK_DIRECTORY}/.ignore/code/odoo"
+/bin/echo "( INFO ) '${WORK_DIRECTORY}/scripts/code-install' script: Installing Odoo from ${ODOO_MAIN_CODE_DIRECTORY} ."
 
 # Odoo v8 dependencies could crash at install, so we don't use them
 if [ "${ODOO_VERSION}" == "8.0" ] ; then
-  pip install --no-cache-dir --no-deps --editable "${ODOO_MAIN_CODE_PATH}"
+  pip install --no-cache-dir --no-deps --editable "${ODOO_MAIN_CODE_DIRECTORY}"
 else
-  pip install --no-cache-dir --editable "${ODOO_MAIN_CODE_PATH}"
+  pip install --no-cache-dir --editable "${ODOO_MAIN_CODE_DIRECTORY}"
 fi
 
 # Make version 8.0 and 9.0 have an `odoo` executable
 if [ "${ODOO_VERSION}" == "8.0" -o "${ODOO_VERSION}" == "9.0" ] ; then
-    /bin/rm -fr "${ODOO_WORK_DIRECTORY}/.venv/bin/odoo"
-    /bin/ln -s "${ODOO_WORK_DIRECTORY}/.venv/bin/odoo.py" "${ODOO_WORK_DIRECTORY}/.venv/bin/odoo"
+    /bin/rm -fr "${WORK_DIRECTORY}/.venv/bin/odoo"
+    /bin/ln -s "${WORK_DIRECTORY}/.venv/bin/odoo.py" "${WORK_DIRECTORY}/.venv/bin/odoo"
 fi

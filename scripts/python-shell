@@ -2,12 +2,12 @@
 # Version: v.23.08.03
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-ODOO_WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
-. "${ODOO_WORK_DIRECTORY}/config/env-default" && \
-. "${ODOO_WORK_DIRECTORY}/config/env-shared" && \
-. "${ODOO_WORK_DIRECTORY}/.env-secret" && \
-cd "${ODOO_WORK_DIRECTORY}"
+WORK_DIRECTORY="$(cd "${SCRIPT_PATH}/.." && /bin/pwd)"
+. "${WORK_DIRECTORY}/config/env-default" && \
+. "${WORK_DIRECTORY}/config/env-shared" && \
+. "${WORK_DIRECTORY}/.env-secret" && \
+cd "${WORK_DIRECTORY}"
 
 # Note: in Odoo 8.0 this requires OCA 'shell' module to be installed.
-. "${ODOO_WORK_DIRECTORY}/.venv/bin/activate" && \
-odoo --addons-path="${ODOO_WORK_DIRECTORY}/addons" shell -c "${ODOO_WORK_DIRECTORY}/.ignore/config/odoo.conf" --xmlrpc-port=18080
+. "${WORK_DIRECTORY}/.venv/bin/activate" && \
+odoo --addons-path="${WORK_DIRECTORY}/addons" shell -c "${WORK_DIRECTORY}/.ignore/config/odoo.conf" --xmlrpc-port=18080
