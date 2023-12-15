@@ -46,7 +46,6 @@ mock==1.0.1
 numpy==1.16.6
 OdooRPC==0.7.0
 ofxparse==0.20
-pandas==0.24.2
 parso==0.7.1
 passlib==1.6.2
 pathlib2==2.3.6
@@ -55,9 +54,8 @@ pg-activity==1.5.0
 Pillow==3.3.2
 psutil==2.1.1
 psycogreen==1.0
-psycopg2==2.8.3
+psycopg2==2.7.7
 ptvsd==5.0.0a4
-pudb==2019.1
 pydot==1.0.2
 Pygments==2.5.2
 pyotp==2.3.0
@@ -66,7 +64,7 @@ pyPdf==1.13
 PyPDF2==1.26.0
 pyserial==2.7
 Python-Chart==1.39
-python-dateutil==2.8.1
+python-dateutil==1.5
 python-dotenv==0.17.0
 python-ldap==2.4.15
 python-magic==0.4.24
