@@ -1,32 +1,32 @@
 ---
 odoo:
   defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
+    depth: 1024
   remotes:
-    origin: https://github.com/therp/odoo.git
-    nl66278: https://github.com/NL66278/odoo.git
-  target: origin ${ODOO_VERSION}
+    therp: https://github.com/therp/odoo.git
+  target: therp ${ODOO_VERSION}
   merges:
-    - origin 6.1-ocb-server
-    - nl66278 6.1-ocb-server-no-zsi
+    - therp 6.1-ocb-server
+    - therp 6.1-ocb-server-no-zsi
+    - therp 6.1-ocb-server-no-oids
 
 ocb-addons:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    origin: https://github.com/therp/odoo.git
-  target: origin ${ODOO_VERSION}
+    therp: https://github.com/therp/odoo.git
+  target: therp ${ODOO_VERSION}
   merges:
-    - origin 6.1-ocb-addons
+    - therp 6.1-ocb-addons
 
 ocb-web:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    origin: https://github.com/therp/odoo.git
-  target: origin ${ODOO_VERSION}
+    therp: https://github.com/therp/odoo.git
+  target: therp ${ODOO_VERSION}
   merges:
-    - origin 6.1-ocb-web
+    - therp 6.1-ocb-web
 
 therp-addons:
   defaults:
@@ -36,6 +36,17 @@ therp-addons:
   target: therp ${ODOO_VERSION}
   merges:
     - therp ${ODOO_VERSION}
+
+# Below here all OCA addons repo's in alphabetic order:
+
+OCA/server-tools:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/server-tools.git
+  target: oca ${ODOO_VERSION}
+  merges:
+    - oca ${ODOO_VERSION}
 
 OCA/web:
   defaults:

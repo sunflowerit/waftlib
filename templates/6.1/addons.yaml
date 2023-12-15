@@ -1,8 +1,14 @@
 ---
-odoo/addons:
+odoo/openerp/addons:
     - "*"
 
-odoo/openerp/addons:
+ocb-addons:
+    - "*"
+
+ocb-web/addons:
+    - "*"
+
+OCA/server-tools:
     - "*"
 
 OCA/web:
