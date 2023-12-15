@@ -367,9 +367,8 @@ done
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/run" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/shell" || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/upgrade" || true
-/bin/chmod 640 "${ODOO_WORK_DIR}/waftlib/templates/"* || true
-/bin/chmod 740 "${ODOO_WORK_DIR}/waftlib/templates/"*.0 || true
-/bin/chmod 640 "${ODOO_WORK_DIR}/waftlib/templates/"*/* || true
+find "${ODOO_WORK_DIR}/waftlib/templates" -type d -exec /bin/chmod 750 {} \; || true
+find "${ODOO_WORK_DIR}/waftlib/templates" -type f -exec /bin/chmod 640 {} \; || true
 /bin/chmod 750 "${ODOO_WORK_DIR}/waftlib/waftlib" || true
 /bin/chmod 740 "${ODOO_WORK_DIR}/waftlib/waftlib/"* || true
 /bin/echo "INFO: END of bootstrap ${ODOO_WORK_DIR}/script"
