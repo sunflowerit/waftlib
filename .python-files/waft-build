@@ -114,13 +114,13 @@ waft_auto_yaml_dump_dic = dict()
 
 # Get the enabled paths
 addons_full_paths = {}
-for addon_name, addons_repo_subpath in addons_config():
-    addons_repo_full_path = os.path.realpath(os.path.join(REPOSITORIES_DIRECTORY, addons_repo_subpath))
+for addon_name, addons_subpath_repo in addons_config():
+    addons_repo_full_path = os.path.realpath(os.path.join(REPOSITORIES_DIRECTORY, addons_subpath_repo))
     addons_full_paths.setdefault(addons_repo_full_path, set())
     addons_full_paths[addons_repo_full_path].add(addon_name)
 logger.debug("Addon paths enabled: %s", addons_full_paths)
 
-addons_repo_subpath = ''
+addons_subpath_repo = ''
 # Traverse src dir and remove anything not explicitly enabled
 for directory, subdirectories, subfiles in os.walk(REPOSITORIES_DIRECTORY):
     if False == True:
@@ -178,33 +178,33 @@ for directory, subdirectories, subfiles in os.walk(REPOSITORIES_DIRECTORY):
 addons_links = glob(os.path.join(EVENTUAL_ADDONS_DIRECTORY, "*"))
 for addon_link in addons_links:
     os.remove(addon_link)
-addons_full_paths_list = []
+addons_full_paths_lst = []
 for addons_repo_full_path in waft_auto_yaml_dic:
-    addons_full_paths_tmp_list = []
+    addons_full_paths_tmp_lst = []
     if waft_auto_yaml_dic[addons_repo_full_path][addons] == [os.path.join(addons_repo_full_path, '*')]:
         if addons_repo_full_path == ODOO_MAIN_CODE_DIRECTORY:
             for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_DIRECTORY, 'addons/*')):
-                addons_full_paths_tmp_list.append(addon_partial_full_path)
+                addons_full_paths_tmp_lst.append(addon_partial_full_path)
             if ODOO_VERSION not in {'8.0', '9.0'}:
                 for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_DIRECTORY, 'openerp/addons/*')):
-                    addons_full_paths_tmp_list.append(addon_partial_full_path)
+                    addons_full_paths_tmp_lst.append(addon_partial_full_path)
             else:
                 for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_DIRECTORY, 'odoo/addons/*')):
-                    addons_full_paths_tmp_list.append(addon_partial_full_path)
+                    addons_full_paths_tmp_lst.append(addon_partial_full_path)
         else:
             for addon_partial_full_path in glob(os.path.join(addons_repo_full_path, '*')):
-                addons_full_paths_tmp_list.append(addon_partial_full_path)
+                addons_full_paths_tmp_lst.append(addon_partial_full_path)
     else:
         for addon_full_tmp_path in waft_auto_yaml_dic[addons_repo_full_path][addons]:
             for addon_partial_full_path in glob(addon_full_tmp_path):
-                addons_full_paths_tmp_list.append(addon_partial_full_path)
+                addons_full_paths_tmp_lst.append(addon_partial_full_path)
     if waft_auto_yaml_dic[addons_repo_full_path][addons_except] == '':
-        addons_full_paths_list = addons_full_paths_tmp_list
+        addons_full_paths_lst = addons_full_paths_tmp_lst
     else:
-        for addon_full_tmp_path in addons_full_paths_tmp_list:
+        for addon_full_tmp_path in addons_full_paths_tmp_lst:
             if addon_full_tmp_path not in waft_auto_yaml_dic[addons_repo_full_path][addons_except]:
-                addons_full_paths_list.append(addon_full_tmp_path)
-    for addon_full_path in addons_full_paths_list:
+                addons_full_paths_lst.append(addon_full_tmp_path)
+    for addon_full_path in addons_full_paths_lst:
         auto_directory_addon_relpath = os.path.relpath(addon_full_path, EVENTUAL_ADDONS_DIRECTORY)
         addon_link = os.path.join(EVENTUAL_ADDONS_DIRECTORY, os.path.join(os.path.relpath(addon_full_path, addons_repo_full_path)))
         os.symlink(auto_directory_addon_relpath, addon_link)
@@ -228,7 +228,7 @@ for addon_full_path in addon_found_path:
     )
     addon_name = os.path.basename(addon_full_path)
     addons_info.setdefault(addon_name, set())
-    addons_info[addon_name].add(addons_repo_subpath)
+    addons_info[addon_name].add(addons_subpath_repo)
 
 AUTO_ODOO_CONF_FILE = os.path.join(WORK_DIRECTORY, ".ignore/config/odoo.conf")
 

@@ -33,7 +33,7 @@ command_arguments = parser.parse_args()
 dependencies = {"base"}
 addons_with = set(command_arguments.with_)
 addons_left_out = set(command_arguments.leftout)
-addons_list = set()
+addons_set = set()
 
 if addons_with & addons_left_out:
     sys.exit("Cannot include and exclude the same addon!")
@@ -63,27 +63,27 @@ try:
                 continue
             dependencies.update(manifest_code.get("depends", []))
             if command_arguments.fullpath and command_arguments.action == "list":
-                addons_list.add(addon_full_path)
+                addons_set.add(addon_full_path)
             else:
-                addons_list.add(addon_name)
+                addons_set.add(addon_name)
 except AddonsConfigError as error:
     sys.exit(error.message)
 
 # Use dependencies instead, if requested
 if command_arguments.dependencies:
-    addons_list = dependencies - addons_list
-addons_list -= addons_left_out
+    addons_set = dependencies - addons_set
+addons_set -= addons_left_out
 
 # Do the required action
-if not addons_list:
+if not addons_set:
     print("No addons found.", file=sys.stderr)
     sys.exit("Error: Nothing to do.")
-addons_sorted_list = command_arguments.separator.join(sorted(addons_list))
+addons_sorted_set = command_arguments.separator.join(sorted(addons_set))
 
 if command_arguments.action == "list":
-    print(addons_sorted_list)
+    print(addons_sorted_set)
 else:
-    command = ["odoo", "--stop-after-init", "--{}".format(command_arguments.action), addons_sorted_list]
+    command = ["odoo", "--stop-after-init", "--{}".format(command_arguments.action), addons_sorted_set]
     if command_arguments.test:
         command += ["--test-enable", "--workers", "0"]
         if os.environ.get("PGDATABASE"):
