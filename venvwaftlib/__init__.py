@@ -294,6 +294,7 @@ for code_addons_yaml_subpath_repo in code_file_yaml:
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_subpath_repo, code_merges_yaml_lst
             )
+            code_merges_yaml_lst = []
         elif len(code_merges_yaml_lst) == 0:
             default_generate_merges = True
             logger.warning(
@@ -302,9 +303,10 @@ for code_addons_yaml_subpath_repo in code_file_yaml:
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_subpath_repo
             )
+            code_merges_yaml_lst = []
     else:
         default_generate_merges = True
-    for code_merge_yaml_dic in code_merges_yaml_lst if not default_generate_remotes else []:
+    for code_merge_yaml_dic in code_merges_yaml_lst if not default_generate_merges else []:
         waft_merge_value_auto_dic = dict()
         waft_merge_auto_remote = ''
         waft_merge_auto_ref = ''
@@ -315,7 +317,7 @@ for code_addons_yaml_subpath_repo in code_file_yaml:
                 "    Waft found unexpected '%' that should be a dictionary!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_subpath_repo,
-                code_merges_yaml_lst, code_merge_yaml_dic,
+                code_merges_yaml_lst, code_merge_yaml_dic
             )
             continue
         elif 'remote' not in code_merge_yaml_dic:
@@ -514,3 +516,78 @@ for code_addons_yaml_subpath_repo in code_file_yaml:
             waft_merges_auto_dic[waft_merge_key_auto] = waft_merge_value_auto_dic
     if len(waft_merges_auto_dic) == 0:
         default_generate_merges = True
+    code_yaml_remotes_dic = dict()
+    if 'remotes' in addons_repo_dic:
+        code_yaml_remotes_dic = addons_repo_dic['remotes']
+        if type(code_yaml_remotes_dic) != dict:
+            default_generate_remotes = True
+            logger.warning(
+                "In '%s' file, '%s' dictionary:"
+                "    Waft found unexpected '%' that should be a dictionary!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_subpath_repo, code_yaml_remotes_dic
+            )
+            code_yaml_remotes_dic = dict()
+        elif len(code_yaml_remotes_dic) == 0:
+            default_generate_remotes = True
+            logger.warning(
+                "In '%s' file, '%s' dictionary:"
+                "    Waft found an empty 'remotes:' dictionary!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_subpath_repo
+            )
+            code_yaml_remotes_dic = dict()
+    else:
+        default_generate_remotes = True
+    for code_yaml_remote_key in code_yaml_remotes_dic if not default_generate_remotes else []:
+        if type(code_yaml_remote_key) != str:
+            logger.warning(
+                "In '%s' file, '%s' dictionary, '%s' dictionary:"
+                "    Waft found unexpected '%' that should be a string!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_subpath_repo,
+                code_yaml_remotes_dic, code_yaml_remote_key
+            )
+            continue
+        if type(code_yaml_remotes_dic[code_yaml_remote_key]) != str:
+            logger.warning(
+                "In '%s' file, '%s' dictionary, '%s' dictionary:"
+                "    Waft found unexpected '%' that should be a string!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_subpath_repo,
+                code_yaml_remotes_dic, code_yaml_remote_key
+            )
+            continue
+        code_yaml_remote_key = re.sub("[^\.\-\_\/a-z0-9]", "", code_yaml_remote_key.lower())
+        if code_yaml_remote_key == '':
+            logger.warning(
+                "In '%s' file, '%s' dictionary, '%s' dictionary:"
+                "    Waft found an empty key!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_subpath_repo,
+                code_yaml_remotes_dic
+            )
+            continue
+        code_yaml_remote_original_value = code_yaml_remotes_dic[code_yaml_remote_key]
+        code_yaml_remote_value = re.sub("[^\.\-\_\:\/a-z0-9]", "", code_yaml_remote_original_value)
+        if code_yaml_remote_value == '':
+            logger.warning(
+                "In '%s' file, '%s' dictionary, '%s' dictionary:"
+                "    Waft found an empty '%s:' value!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_subpath_repo,
+                code_yaml_remotes_dic, code_yaml_remote_key
+            )
+            continue
+        if code_yaml_remote_key in waft_remotes_auto_dic:
+            logger.warning(
+                "In '%s' file, '%s' dictionary, '%s' dictionary:"
+                "    Waft found a duplicated key '%s'!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_subpath_repo,
+                code_yaml_remotes_dic, code_yaml_remote_key
+            )
+            continue
+        waft_remotes_auto_dic[code_yaml_remote_value] = code_yaml_remotes_dic[code_yaml_remote_key]
+    if len(waft_remotes_auto_dic) == 0:
+        default_generate_remotes = True
