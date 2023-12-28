@@ -135,7 +135,7 @@ def main():
             for addons_subpath_repo in addons_repositories_paths:
                 print("===>processing repo %s" % addons_subpath_repo)
                 repo_min_depth[addons_subpath_repo] = 0
-                if addons_subpath_repo in {PRIVATE, "ONLY", "ENV"}:
+                if addons_subpath_repo in {"ONLY", "ENV"}:
                     continue
                 target = addons_repositories_paths[addons_subpath_repo].get("target") or False
                 # main branch is defined as target or in absence of target, merge[0]

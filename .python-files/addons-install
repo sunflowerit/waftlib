@@ -21,8 +21,6 @@ parser.add_argument("-e", "--extra", action="store_true", help="Use all extra ad
 parser.add_argument("-f", "--fullpath", action="store_true", help="Print addon's full path, only useful with list mode",)
 parser.add_argument("-i", "--installable", action="store_true", help="Include only installable addons")
 parser.add_argument("-l", "--leftout", action="append", default=[], help="Addons to exclude always.")
-parser.add_argument("-n", "--enterprise", action="store_true", help="Use all enterprise addons")
-parser.add_argument("-p", "--private", action="store_true", help="Use all private addons")
 parser.add_argument("-s", "--separator", type=str, default=",", help="String that separates addons only useful with list mode",)
 parser.add_argument("-t", "--test", action="store_true", help="Run unit tests for these addons, usually combined with update",)
 parser.add_argument("-w", "--with", action="append", dest="with_", default=[], help="Addons to include always.",)
@@ -44,11 +42,9 @@ try:
         if addon_name in addons_left_out:
             continue
         core_ok = command_arguments.core and addons_repo_item_path == "odoo/addons"
-        enterprise_ok = command_arguments.enterprise and addons_repo_item_path == "enterprise"
-        extra_ok = command_arguments.extra and addons_repo_item_path not in {"odoo/addons", "enterprise", "private"}
-        private_ok = command_arguments.private and addons_repo_item_path == "private"
+        extra_ok = command_arguments.extra and addons_repo_item_path not in {"odoo/addons"}
         manual_ok = addon_name in addons_with
-        if private_ok or core_ok or extra_ok or enterprise_ok or manual_ok:
+        if core_ok or extra_ok or manual_ok:
             addon_full_path = os.path.join(REPOSITORIES_DIRECTORY, addons_repo_item_path, addon_name)
             manifest_code = {}
             for manifest_name in ("__manifest__.py", "__openerp__.py"):

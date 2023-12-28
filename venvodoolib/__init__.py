@@ -218,10 +218,8 @@ except IOError:
         )
     exit(1)
 
-waft_yaml_auto_tmp_dic = dict()
+waft_code_auto_tmp_yaml_dic = dict()
 for addons_subpath_repo in code_file_yaml:
-    if addons_subpath_repo in {'enterprise', 'private'}:
-        continue
     addons_repo_dic = code_file_yaml[addons_subpath_repo]
     if 'remotes' not in addons_repo_dic:
         logger.warning(
@@ -363,17 +361,17 @@ for addons_subpath_repo in code_file_yaml:
                     waft_auto_merge_tmp_dic['depth'] = WAFT_DEPTH_MERGE
                 waft_auto_merges_tmp_lst.append(waft_auto_merge_tmp_dic)
             waft_merges_auto_lst = waft_auto_merges_tmp_lst
-    waft_auto_remotes_dic = dict()
+    waft_remotes_auto_dic = dict()
     if default_generate_mergesd:
         for code_yaml_remote_key in code_yaml_remotes_dic:
-            waft_auto_remotes_dic[code_yaml_remote_key] = code_yaml_remotes_dic[code_yaml_remote_key]
+            waft_remotes_auto_dic[code_yaml_remote_key] = code_yaml_remotes_dic[code_yaml_remote_key]
             break
     else:
         if len(waft_auto_remotes_tmp_dic) > 1:
             for waft_auto_remote_key in waft_auto_remotes_tmp_dic:
                 for waft_auto_merge_tmp_dic in waft_merges_auto_lst:
                     if waft_auto_merge_tmp_dic['remote'] == waft_auto_remote_key:
-                        waft_auto_remotes_dic[waft_auto_remote_key] = waft_auto_remotes_tmp_dic[waft_auto_remote_key]
+                        waft_remotes_auto_dic[waft_auto_remote_key] = waft_auto_remotes_tmp_dic[waft_auto_remote_key]
     waft_auto_target_default_value = ''
     for waft_auto_merge_tmp_dic in waft_merges_auto_lst:
         waft_auto_target_default_value = "{} {}".format(
@@ -415,7 +413,7 @@ for addons_subpath_repo in code_file_yaml:
                 addons_subpath_repo, CODE_YAML_FILE, waft_auto_target_default_value
                 )
     waft_auto_repo_dic = dict()
-    waft_auto_repo_dic['remotes'] = waft_auto_remotes_dic
+    waft_auto_repo_dic['remotes'] = waft_remotes_auto_dic
     waft_auto_repo_dic['target'] = waft_auto_target_value
     waft_auto_repo_dic['merges'] = waft_merges_auto_lst
     addons_repo_full_path = os.path.join(REPOSITORIES_DIRECTORY, addons_subpath_repo)
@@ -461,10 +459,10 @@ for addons_subpath_repo in code_file_yaml:
                 addon_except_full_path = os.path.join(addons_repo_full_path, addon_except_subpath)
                 waft_auto_repo_addons_except_lst.append(addon_except_full_path)
             waft_auto_repo_dic['addons_except'] = waft_auto_repo_addons_except_lst
-    waft_yaml_auto_tmp_dic[addons_repo_full_path] = waft_auto_repo_dic
+    waft_code_auto_tmp_yaml_dic[addons_repo_full_path] = waft_auto_repo_dic
 
 waft_auto_yaml_dic = dict()
-if ODOO_MAIN_CODE_DIRECTORY not in waft_yaml_auto_tmp_dic:
+if ODOO_MAIN_CODE_DIRECTORY not in waft_code_auto_tmp_yaml_dic:
     waft_auto_repo_dic = dict()
     waft_auto_repo_dic['remotes'] = {'origin': 'https://github.com/odoo/odoo.git'}
     waft_auto_repo_dic['target'] = "origin {}".format(
@@ -478,70 +476,17 @@ if ODOO_MAIN_CODE_DIRECTORY not in waft_yaml_auto_tmp_dic:
     waft_auto_repo_dic['addons'] = [os.path.join(ODOO_MAIN_CODE_DIRECTORY, '*')]
     waft_auto_repo_dic['addons_except'] = []
     waft_auto_yaml_dic[ODOO_MAIN_CODE_DIRECTORY] = waft_auto_repo_dic
-for addons_subpath_repo in {'enterprise', 'private'}:
-    if addons_subpath_repo in code_file_yaml:
-        addons_repo_dic = code_file_yaml[addons_subpath_repo]
-        waft_auto_repo_dic = dict()
-        waft_auto_repo_dic['remotes'] = dict()
-        waft_auto_repo_dic['target'] = ''
-        waft_auto_repo_dic['merges'] = []
-        addons_repo_full_path = os.path.join(REPOSITORIES_DIRECTORY, addons_subpath_repo)
-        waft_auto_default_addons = False
-        if 'addons' not in addons_repo_dic:
-            waft_auto_default_addons = True
-            logger.warning(
-                "'addons' list does not exist in '%s' dictionary, so, all addons will be linked!",
-                addons_subpath_repo
-                )
-            waft_auto_repo_dic['addons'] = [os.path.join(addons_repo_full_path, '*')]
-        if not waft_auto_default_addons:
-            if type(addons_repo_dic['addons']) != list:
-                logger.warning(
-                    "'addons: %s' is not a list in '%s' dictionary in '%s' file, so, all addons will be linked!",
-                    addons_repo_dic['addons'], addons_subpath_repo, CODE_YAML_FILE
-                    )
-                waft_auto_repo_dic['addons'] = [os.path.join(addons_repo_full_path, '*')]
-            else:
-                waft_auto_repo_addons_lst = []
-                for addon_subpath in addons_repo_dic['addons']:
-                    addon_full_path = os.path.join(addons_repo_full_path, addon_subpath)
-                    waft_auto_repo_addons_lst.append(addon_full_path)
-                waft_auto_repo_dic['addons'] = waft_auto_repo_addons_lst
-        waft_auto_addons_default_except = False
-        if 'addons_except' not in addons_repo_dic:
-            waft_auto_addons_default_except = True
-            logger.warning(
-                "'addons_except' list does not exist in '%s' dictionary, so, addons_except will be nothing!",
-                addons_subpath_repo
-                )
-            waft_auto_repo_dic['addons_except'] = []
-        if not waft_auto_addons_default_except:
-            if type(addons_repo_dic['addons_except']) != list:
-                logger.warning(
-                    "'addons_except: %s' is not a list, so, addons_except will be nothing!",
-                    addons_repo_dic['addons_except'], addons_subpath_repo, CODE_YAML_FILE
-                    )
-                waft_auto_repo_dic['addons_except'] = []
-            else:
-                waft_auto_repo_addons_except_lst = []
-                for addon_except_subpath in addons_repo_dic['addons_except']:
-                    addon_except_full_path = os.path.join(addons_repo_full_path, addon_except_subpath)
-                    waft_auto_repo_addons_except_lst.append(addon_except_full_path)
-                waft_auto_repo_dic['addons_except'] = waft_auto_repo_addons_except_lst
-        waft_auto_yaml_dic[addons_repo_full_path] = waft_auto_repo_dic
 
-for addons_repo_full_path in waft_yaml_auto_tmp_dic:
-    waft_auto_yaml_dic[addons_repo_full_path] = waft_yaml_auto_tmp_dic[addons_repo_full_path]
+for addons_repo_full_path in waft_code_auto_tmp_yaml_dic:
+    waft_auto_yaml_dic[addons_repo_full_path] = waft_code_auto_tmp_yaml_dic[addons_repo_full_path]
 
 addons_subpath_repo = ''
 addons_repo_full_path = ''
-addons_enterprise_full_path = os.path.join(REPOSITORIES_DIRECTORY, 'enterprise')
-addons_private_full_path = os.path.join(REPOSITORIES_DIRECTORY, 'private')
 addons_repo_dic = dict()
 waft_auto_repo_dic = dict()
 code_yaml_remotes_dic = dict()
 waft_auto_remotes_tmp_dic = dict()
-waft_auto_remotes_dic = dict()
+waft_remotes_auto_dic = dict()
 code_yaml_remote_key = ''
 waft_auto_remote_key = ''
 code_merges_yaml_lst = []
