@@ -208,8 +208,8 @@ if not os.path.exists(CODE_YAML_FILE):
 
 # Load CODE_YAML_FILE yaml file as code_file_yaml dictionary.
 try:
-    with open(CODE_YAML_FILE) as code_file_YAML:
-        code_file_yaml = yaml.safe_load(code_file_YAML)
+    with open(CODE_YAML_FILE) as code_FILE_yaml:
+        code_file_yaml = yaml.safe_load(code_FILE_yaml)
 except IOError:
     logger.error(
         "Could not load '%s' Odoo code configuration file.",
@@ -284,7 +284,6 @@ for code_addons_yaml_original_repo in code_file_yaml:
     code_addons_yaml_fixed_entries_dic[addons_subpath_repo] = code_addons_yaml_original_repo
     default_generate_merges = True
     code_merges_yaml_lst = []
-    waft_merges_auto_lst = []
     waft_merge_auto_remote = ''
     waft_merge_auto_tmp_dic = dict()
     waft_merges_auto_no_depth_tmp_lst = []
@@ -314,9 +313,6 @@ for code_addons_yaml_original_repo in code_file_yaml:
         waft_merge_auto_remote = "https://github.com/oca/{}.git".format(addons_subpath_repo)
     for code_merge_yaml_dic in code_merges_yaml_lst if not default_generate_merges else []:
         default_generate_remote = True
-        default_generate_ref = True
-        waft_merge_auto_refs_list = []
-        waft_merge_auto_ref_str = ''
         waft_merge_auto_depth = ''
         if type(code_merge_yaml_dic) != dict:
             logger.warning(
@@ -409,8 +405,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     )
                     continue
                 for odoo_variable_version in {'"${ODOO_VERSION}"', '${ODOO_VERSION}', '"$ODOO_VERSION"', '$ODOO_VERSION'}:
-                    if odoo_variable_version in code_merge_yaml_ref:
-                        code_merge_yaml_ref = code_merge_yaml_ref.replace(odoo_variable_version, ODOO_VERSION)
+                    code_merge_yaml_ref = code_merge_yaml_ref.replace(odoo_variable_version, ODOO_VERSION)
                 code_merge_yaml_fixed_ref = re.sub("[^\.\-\_\ a-z0-9]", "", code_merge_yaml_ref.lower())
                 waft_merge_auto_branch = ''
                 waft_merge_auto_pin = ''
@@ -437,7 +432,6 @@ for code_addons_yaml_original_repo in code_file_yaml:
                             "    Waft set '%s'.",
                             CODE_YAML_FILE, code_addons_yaml_original_repo,
                             code_merges_yaml_lst, code_merge_yaml_dic,
-                            waft_merge_auto_ref_str
                         )
                     for ref_element in code_merge_yaml_fixed_ref.split(' '):
                         if ref_element == '':
@@ -505,6 +499,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 waft_merge_auto_no_depth_tmp_dic = waft_merges_auto_no_depth_tmp_lst[0]
                 if waft_merge_auto_no_depth_tmp_dic['pin'] == '':
                     waft_merge_auto_depth = 1
+                waft_merge_auto_no_depth_tmp_dic = dict()
         waft_merges_auto_tmp_lst = []
         waft_merge_auto_tmp_dic = dict()
         for waft_merge_auto_no_depth_tmp_loop_dic in waft_merges_auto_no_depth_tmp_lst:
