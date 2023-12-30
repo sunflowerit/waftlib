@@ -19,14 +19,14 @@ oca/ocb:
 
 ############################
 odoo:
-  remotes:
-    origin: https://github.com/odoo/odoo.git
-  target: origin ${ODOO_VERSION}
   merges:
     -
-      remote: origin
-      ref: ${ODOO_VERSION}
-      depth: default
+      remote: https://github.com/odoo/odoo.git
+      refs:
+        - ${ODOO_VERSION}
+        - test
+      depth: 111
+
 #  filtered_addons:
 #    - *
 
