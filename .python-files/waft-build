@@ -16,7 +16,7 @@ from io import StringIO
 from configparser import RawConfigParser
 parser = RawConfigParser(strict=False)
 
-for addons_repo_full_path in waft_auto_yaml_dic:
+for addons_repo_full_path in waft_auto_yaml_dict:
     if os.path.exists(addons_repo_full_path):
         if not os.path.isdir(os.path.join(addons_repo_full_path, '.git')):
             shutil.rmtree(addons_repo_full_path)
@@ -68,17 +68,17 @@ for addons_repo_full_path in waft_auto_yaml_dic:
 
 CODE_DUMPPED_YAML_FILE = os.path.join(IGNORE_DIRECTORY, "config/code.yaml")
 gitaggregate_addons_failures = []
-for addons_repo_full_path in waft_auto_yaml_dic:
-    addons_repo_dump_dic = dict()
-    addons_repo_dump_dic['remotes'] = addons_repo_full_path['remotes']
-    addons_repo_dump_dic['merges'] = addons_repo_full_path['merges']
-    addons_repo_dump_dic['target'] = addons_repo_full_path['target']
-    waft_auto_yaml_dump_dic = dict()
-    waft_auto_yaml_dump_dic[addons_repo_full_path] = addons_repo_dump_dic
+for addons_repo_full_path in waft_auto_yaml_dict:
+    addons_repo_dump_dict = dict()
+    addons_repo_dump_dict['remotes'] = addons_repo_full_path['remotes']
+    addons_repo_dump_dict['merges'] = addons_repo_full_path['merges']
+    addons_repo_dump_dict['target'] = addons_repo_full_path['target']
+    waft_auto_yaml_dump_dict = dict()
+    waft_auto_yaml_dump_dict[addons_repo_full_path] = addons_repo_dump_dict
     if os.path.exists(CODE_DUMPPED_YAML_FILE):
         shutil.rmtree(CODE_DUMPPED_YAML_FILE)
     code_dumpped_yaml_file = open(CODE_DUMPPED_YAML_FILE, "w")
-    code_dumpped_yaml_file.write(yaml.safe_dump(waft_auto_yaml_dump_dic, explicit_start='---',
+    code_dumpped_yaml_file.write(yaml.safe_dump(waft_auto_yaml_dump_dict, explicit_start='---',
         default_flow_style=False, sort_keys=False))
     code_dumpped_yaml_file.close()
     try:
@@ -97,8 +97,8 @@ for addons_repo_full_path in waft_auto_yaml_dic:
         )
     except Exception:
         gitaggregate_addons_failures.append(addons_repo_full_path)
-addons_repo_dump_dic = dict()
-waft_auto_yaml_dump_dic = dict()
+addons_repo_dump_dict = dict()
+waft_auto_yaml_dump_dict = dict()
 
 
 
@@ -167,9 +167,9 @@ addons_links = glob(os.path.join(EVENTUAL_ADDONS_DIRECTORY, "*"))
 for addon_link in addons_links:
     os.remove(addon_link)
 addons_full_paths_lst = []
-for addons_repo_full_path in waft_auto_yaml_dic:
+for addons_repo_full_path in waft_auto_yaml_dict:
     addons_full_paths_tmp_lst = []
-    if waft_auto_yaml_dic[addons_repo_full_path][addons] == [os.path.join(addons_repo_full_path, '*')]:
+    if waft_auto_yaml_dict[addons_repo_full_path][addons] == [os.path.join(addons_repo_full_path, '*')]:
         if addons_repo_full_path == ODOO_MAIN_CODE_DIRECTORY:
             for addon_partial_full_path in glob(os.path.join(ODOO_MAIN_CODE_DIRECTORY, 'addons/*')):
                 addons_full_paths_tmp_lst.append(addon_partial_full_path)
@@ -183,14 +183,14 @@ for addons_repo_full_path in waft_auto_yaml_dic:
             for addon_partial_full_path in glob(os.path.join(addons_repo_full_path, '*')):
                 addons_full_paths_tmp_lst.append(addon_partial_full_path)
     else:
-        for addon_full_tmp_path in waft_auto_yaml_dic[addons_repo_full_path][addons]:
+        for addon_full_tmp_path in waft_auto_yaml_dict[addons_repo_full_path][addons]:
             for addon_partial_full_path in glob(addon_full_tmp_path):
                 addons_full_paths_tmp_lst.append(addon_partial_full_path)
-    if waft_auto_yaml_dic[addons_repo_full_path][addons_except] == '':
+    if waft_auto_yaml_dict[addons_repo_full_path][addons_except] == '':
         addons_full_paths_lst = addons_full_paths_tmp_lst
     else:
         for addon_full_tmp_path in addons_full_paths_tmp_lst:
-            if addon_full_tmp_path not in waft_auto_yaml_dic[addons_repo_full_path][addons_except]:
+            if addon_full_tmp_path not in waft_auto_yaml_dict[addons_repo_full_path][addons_except]:
                 addons_full_paths_lst.append(addon_full_tmp_path)
     for addon_full_path in addons_full_paths_lst:
         auto_directory_addon_relpath = os.path.relpath(addon_full_path, EVENTUAL_ADDONS_DIRECTORY)
