@@ -325,6 +325,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
         waft_merge_auto_remote = waft_main_auto_code_default_remote
     else:
         waft_merge_auto_remote = "https://github.com/oca/{}.git".format(addons_subpath_repo)
+    waft_merges_auto_tmp_lst = list()
     for code_merge_yaml_dict in code_merges_yaml_original_lst if not default_generate_merges else []:
         default_generate_remote = True
         code_merge_yaml_original_remote = str()
@@ -471,6 +472,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 waft_merge_auto_no_depth_tmp_dict['pin'] = waft_merge_auto_pin
                 waft_merges_auto_no_depth_tmp_lst.append(waft_merge_auto_no_depth_tmp_dict)
         code_merge_yaml_original_depth = int()
+        code_merge_yaml_fixed_depth = int()
         if 'depth' not in code_merge_yaml_dict:
             waft_merge_auto_depth = 0
             logger.warning(
@@ -480,7 +482,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
                 code_merges_yaml_original_lst, code_merge_yaml_dict
             )
-        elif type(code_merge_yaml_dict['depth']) != str:
+        elif type(code_merge_yaml_dict['depth']) != str and type(code_merge_yaml_dict['depth']) != int:
             waft_merge_auto_depth = 0
             logger.warning(
                 "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
@@ -505,7 +507,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 )
             else:
                 waft_merge_auto_depth = code_merge_yaml_fixed_depth
-                if code_merge_yaml_original_depth != waft_merge_auto_depth:
+                if code_merge_yaml_original_depth != waft_merge_auto_depth and code_merge_yaml_original_depth != str(waft_merge_auto_depth):
                     logger.info(
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft took 'depth: %s' and convert it to 'depth: %s'."
@@ -529,8 +531,25 @@ for code_addons_yaml_original_repo in code_file_yaml:
             waft_merge_auto_tmp_dict['code_merge_yaml_original_ref'] = waft_merge_auto_no_depth_tmp_loop_dict['code_merge_yaml_original_ref']
             waft_merge_auto_tmp_dict['code_merge_yaml_fixed_ref'] = waft_merge_auto_no_depth_tmp_loop_dict['code_merge_yaml_fixed_ref']
             waft_merge_auto_tmp_dict['code_merge_yaml_original_depth'] = code_merge_yaml_original_depth
+            waft_merge_auto_tmp_dict['code_merge_yaml_fixed_depth'] = code_merge_yaml_fixed_depth
             waft_merge_auto_tmp_dict['remote'] = waft_merge_auto_no_depth_tmp_loop_dict['remote']
             waft_merge_auto_tmp_dict['branch'] = waft_merge_auto_no_depth_tmp_loop_dict['branch']
             waft_merge_auto_tmp_dict['pin'] = waft_merge_auto_no_depth_tmp_loop_dict['pin']
-            waft_merge_auto_tmp_dict['depth'] = waft_merge_auto_depth
+            if len(waft_merges_auto_tmp_lst) > 0 and waft_merge_auto_depth == 1:
+                waft_merge_auto_tmp_dict['depth'] = 77
+            else:
+                waft_merge_auto_tmp_dict['depth'] = waft_merge_auto_depth
             waft_merges_auto_tmp_lst.append(waft_merge_auto_tmp_dict)
+    if len(waft_merges_auto_tmp_lst) == 0:
+        waft_merge_auto_tmp_dict = dict()
+        waft_merge_auto_tmp_dict['code_merge_yaml_original_remote'] = None
+        waft_merge_auto_tmp_dict['waft_merge_auto_remote'] = waft_merge_auto_remote
+        waft_merge_auto_tmp_dict['code_merge_yaml_original_ref'] = None
+        waft_merge_auto_tmp_dict['code_merge_yaml_fixed_ref'] = str()
+        waft_merge_auto_tmp_dict['code_merge_yaml_original_depth'] = None
+        waft_merge_auto_tmp_dict['code_merge_yaml_fixed_depth'] = int()
+        waft_merge_auto_tmp_dict['remote'] = waft_merge_auto_remote
+        waft_merge_auto_tmp_dict['branch'] = ODOO_VERSION
+        waft_merge_auto_tmp_dict['pin'] = str()
+        waft_merge_auto_tmp_dict['depth'] = 1
+        waft_merges_auto_tmp_lst.append(waft_merge_auto_tmp_dict)
