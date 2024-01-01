@@ -26,15 +26,6 @@ odoo:
         - ${ODOO_VERSION}
         - test
       depth: 111
+#  hard_addons:
+#    - "*"
 
-#  filtered_addons:
-#    - *
-
-OCA/web:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    origin: https://github.com/OCA/web.git
-  target: origin ${ODOO_VERSION}
-  merges:
-    - origin ${ODOO_VERSION}

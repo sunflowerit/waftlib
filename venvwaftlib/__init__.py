@@ -448,7 +448,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                             "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                             "    Waft set '%s'.",
                             CODE_YAML_FILE, code_addons_yaml_original_repo,
-                            code_merges_yaml_original_lst, code_merge_yaml_dict,
+                            code_merges_yaml_original_lst, code_merge_yaml_dict
                         )
                     for ref_element in code_merge_yaml_fixed_ref.split(' '):
                         if ref_element == '':
@@ -553,3 +553,89 @@ for code_addons_yaml_original_repo in code_file_yaml:
         waft_merge_auto_tmp_dict['pin'] = str()
         waft_merge_auto_tmp_dict['depth'] = 1
         waft_merges_auto_tmp_lst.append(waft_merge_auto_tmp_dict)
+    waft_addons_auto_repo_tmp_dict['merges'] = waft_merges_auto_tmp_lst
+    code_hard_addons_yaml_original_lst = None
+    waft_hard_addons_auto_tmp_lst = list()
+    default_generate_hard_addons = True
+    if 'hard_addons' in code_addons_repo_yaml_original_dict:
+        if type(code_addons_repo_yaml_original_dict['hard_addons']) != list:
+            logger.warning(
+                "In '%s' file, '%s' dictionary:"
+                "    Waft found unexpected '%' that should be a list!"
+                "    Waft reset it to None.",
+                CODE_YAML_FILE, code_addons_yaml_original_repo, code_addons_repo_yaml_original_dict['hard_addons']
+            )
+        else:
+            code_hard_addons_yaml_original_lst = code_addons_repo_yaml_original_dict['hard_addons']
+            if len(code_hard_addons_yaml_original_lst) == 0:
+                logger.warning(
+                    "In '%s' file, '%s' dictionary:"
+                    "    Waft found an empty 'hard_addons:' list!"
+                    "    Waft reset it to None.",
+                    CODE_YAML_FILE, code_addons_yaml_original_repo
+                )
+                code_hard_addons_yaml_original_lst = None
+            else:
+                default_generate_hard_addons = False
+                waft_addons_auto_repo_tmp_dict['code_hard_addons_yaml_original_lst'] = code_hard_addons_yaml_original_lst
+    else:
+        logger.warning(
+            "In '%s' file, '%s' dictionary:"
+            "    Waft didn't find 'hard_addons' list!"
+            "    Waft set it to None.",
+            CODE_YAML_FILE, code_addons_yaml_original_repo
+        )
+        code_hard_addons_yaml_original_lst = None
+    for code_hard_addons_yaml_value in code_hard_addons_yaml_original_lst if not default_generate_merges else []:
+        if type(code_hard_addons_yaml_value) != str:
+            logger.warning(
+                "In '%s' file, '%s' dictionary, '%s' list:"
+                "    Waft found unexpected value that should be a string!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_original_repo,
+                code_hard_addons_yaml_original_lst
+            )
+            continue
+        code_hard_addons_yaml_original_value = code_hard_addons_yaml_value
+        code_hard_addons_yaml_fixed_value = re.sub("[^\.\-\_\*a-z0-9]", "", code_hard_addons_yaml_original_value.lower())
+        if code_hard_addons_yaml_fixed_value == '*':
+            logger.warning(
+                "In '%s' file, '%s' dictionary, '%s' list:"
+                "    Waft found '*' as a value!"
+                "    Waft ignored all other entries in 'hard_addons' list and reset it to '*'.",
+                CODE_YAML_FILE, code_addons_yaml_original_repo,
+                code_hard_addons_yaml_original_lst
+            )
+            waft_hard_addons_auto_tmp_lst = ['*']
+            break
+        code_hard_addons_yaml_fixed_value = re.sub("[^\.\-\_a-z0-9]", "", code_hard_addons_yaml_original_value.lower())
+        if code_hard_addons_yaml_fixed_value == '':
+            logger.warning(
+                "In '%s' file, '%s' dictionary, '%s' list:"
+                "    Waft found an empty value!"
+                "    Waft ignored it.",
+                CODE_YAML_FILE, code_addons_yaml_original_repo,
+                code_hard_addons_yaml_original_lst
+            )
+            continue
+        else:
+            if code_hard_addons_yaml_original_value != code_hard_addons_yaml_fixed_value:
+                logger.info(
+                    "In '%s' file, '%s' dictionary, '%s' list:"
+                    "    Waft took '%s' and convert it to '%s'.",
+                    CODE_YAML_FILE, code_addons_yaml_original_repo,
+                    code_hard_addons_yaml_original_lst, code_hard_addons_yaml_original_value,
+                    code_hard_addons_yaml_fixed_value
+                )
+            else:
+                logger.info(
+                    "In '%s' file, '%s' dictionary, '%s' list:"
+                    "    Waft set '%s'.",
+                    CODE_YAML_FILE, code_addons_yaml_original_repo,
+                    code_hard_addons_yaml_original_lst, code_hard_addons_yaml_original_value
+                )
+            waft_hard_addons_auto_tmp_lst.append(code_hard_addons_yaml_fixed_value)
+    if len(waft_hard_addons_auto_tmp_lst) == 0:
+        waft_addons_auto_repo_tmp_dict['hard_addons'] = None
+    else:
+        waft_addons_auto_repo_tmp_dict['hard_addons'] = waft_hard_addons_auto_tmp_lst
