@@ -836,3 +836,10 @@ for code_addons_yaml_original_repo in code_file_yaml:
         waft_addons_auto_repo_tmp_dict['ignore_addons'] = list()
     else:
         waft_addons_auto_repo_tmp_dict['ignore_addons'] = waft_ignore_addons_auto_tmp_lst
+    for code_tmp_yaml_key in code_addons_repo_yaml_original_dict:
+        if code_tmp_yaml_key not in {'code_addons_repo_yaml_original_dict', 'code_addons_yaml_original_repo',
+        'addons_subpath_repo', 'code_merges_yaml_original_lst', 'merges', 'code_hard_addons_yaml_original_lst',
+        'hard_addons', 'code_soft_addons_yaml_original_lst', 'soft_addons', 'code_ignore_addons_yaml_original_lst',
+        'ignore_addons'}:
+            waft_addons_auto_repo_tmp_dict[code_tmp_yaml_key] = code_addons_repo_yaml_original_dict[code_tmp_yaml_key]
+    waft_code_auto_tmp_yaml_dict[addons_subpath_repo] = waft_addons_auto_repo_tmp_dict
