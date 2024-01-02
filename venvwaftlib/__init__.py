@@ -248,7 +248,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
             CODE_YAML_FILE, code_addons_yaml_original_repo
         )
         continue
-    subdirs_elements_lst = list()
+    subdirs_elements_list = list()
     waft_main_auto_code_default_remote = str()
     if addons_subpath_repo in {'odoo', 'odoo/odoo', 'oca', 'ocb', 'oca/ocb'}:
         if 'odoo' in waft_code_auto_tmp_yaml_dict:
@@ -268,12 +268,12 @@ for code_addons_yaml_original_repo in code_file_yaml:
     else:
         for subdir_element in addons_subpath_repo.split('/'):
             if subdir_element != '':
-                subdirs_elements_lst.append(subdir_element)
-        if len(subdirs_elements_lst) != 1:
-            addons_subpath_repo = '/'.join(subdirs_elements_lst[-2:])
+                subdirs_elements_list.append(subdir_element)
+        if len(subdirs_elements_list) != 1:
+            addons_subpath_repo = '/'.join(subdirs_elements_list[-2:])
         else:
             if addons_subpath_repo != 'odoo':
-                addons_subpath_repo = os.path.join('oca', subdirs_elements_lst[0])
+                addons_subpath_repo = os.path.join('oca', subdirs_elements_list[0])
     if addons_subpath_repo in code_addons_yaml_fixed_entries_dict:
         logger.warning(
             "In '%s' file:"
@@ -295,11 +295,11 @@ for code_addons_yaml_original_repo in code_file_yaml:
     waft_addons_auto_repo_tmp_dict['code_addons_yaml_original_repo'] = code_addons_yaml_original_repo
     waft_addons_auto_repo_tmp_dict['addons_subpath_repo'] = addons_subpath_repo
     default_generate_merges = True
-    waft_addons_auto_repo_tmp_dict['code_merges_yaml_original_lst'] = list()
-    code_merges_yaml_original_lst = list()
+    waft_addons_auto_repo_tmp_dict['code_merges_yaml_original_list'] = list()
+    code_merges_yaml_original_list = list()
     waft_merge_auto_remote = str()
     waft_merge_auto_tmp_dict = dict()
-    waft_merges_auto_no_depth_tmp_lst = list()
+    waft_merges_auto_no_depth_tmp_list = list()
     if 'merges' in code_addons_repo_yaml_original_dict:
         if type(code_addons_repo_yaml_original_dict['merges']) != list:
             logger.warning(
@@ -309,24 +309,24 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 CODE_YAML_FILE, code_addons_yaml_original_repo, code_addons_repo_yaml_original_dict['merges']
             )
         else:
-            code_merges_yaml_original_lst = code_addons_repo_yaml_original_dict['merges']
-            if len(code_merges_yaml_original_lst) == 0:
+            code_merges_yaml_original_list = code_addons_repo_yaml_original_dict['merges']
+            if len(code_merges_yaml_original_list) == 0:
                 logger.warning(
                     "In '%s' file, '%s' dictionary:"
                     "    Waft found an empty 'merges:' list!"
                     "    Waft ignored it.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo
                 )
-                code_merges_yaml_original_lst = list()
+                code_merges_yaml_original_list = list()
             else:
                 default_generate_merges = False
-                waft_addons_auto_repo_tmp_dict['code_merges_yaml_original_lst'] = code_merges_yaml_original_lst
+                waft_addons_auto_repo_tmp_dict['code_merges_yaml_original_list'] = code_merges_yaml_original_list
     if addons_subpath_repo == 'odoo':
         waft_merge_auto_remote = waft_main_auto_code_default_remote
     else:
         waft_merge_auto_remote = "https://github.com/oca/{}.git".format(addons_subpath_repo)
-    waft_merges_auto_tmp_lst = list()
-    for code_merge_yaml_dict in code_merges_yaml_original_lst if not default_generate_merges else []:
+    waft_merges_auto_tmp_list = list()
+    for code_merge_yaml_dict in code_merges_yaml_original_list if not default_generate_merges else []:
         default_generate_remote = True
         code_merge_yaml_original_remote = str()
         waft_merge_auto_depth = str()
@@ -336,7 +336,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found unexpected '%' that should be a dictionary!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_merges_yaml_original_lst, code_merge_yaml_dict
+                code_merges_yaml_original_list, code_merge_yaml_dict
             )
             continue
         elif 'remote' not in code_merge_yaml_dict:
@@ -345,7 +345,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft didn't find 'remote' key!"
                 "    Waft will set it later.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_merges_yaml_original_lst, code_merge_yaml_dict
+                code_merges_yaml_original_list, code_merge_yaml_dict
             )
         elif type(code_merge_yaml_dict['remote']) != str:
             logger.warning(
@@ -353,7 +353,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found unexpected 'remote: %s' that should be a string!"
                 "    Waft will set it later.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_merges_yaml_original_lst, code_merge_yaml_dict,
+                code_merges_yaml_original_list, code_merge_yaml_dict,
                 code_merge_yaml_dict['remote']
             )
         else:
@@ -365,7 +365,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "    Waft found 'remote' key with an empty value!"
                     "    Waft will set it later.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_merges_yaml_original_lst, code_merge_yaml_dict
+                    code_merges_yaml_original_list, code_merge_yaml_dict
                 )
             else:
                 default_generate_remote = False
@@ -375,7 +375,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft took 'remote: %s' and convert it to 'remote: %s'.",
                         CODE_YAML_FILE, code_addons_yaml_original_repo,
-                        code_merges_yaml_original_lst, code_merge_yaml_dict,
+                        code_merges_yaml_original_list, code_merge_yaml_dict,
                         code_merge_yaml_original_remote, waft_merge_auto_remote
                     )
                 else:
@@ -383,7 +383,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                         "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                         "    Waft set 'remote: %s'.",
                         CODE_YAML_FILE, code_addons_yaml_original_repo,
-                        code_merges_yaml_original_lst, code_merge_yaml_dict,
+                        code_merges_yaml_original_list, code_merge_yaml_dict,
                         waft_merge_auto_remote
                     )
         if 'refs' not in code_merge_yaml_dict:
@@ -392,7 +392,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft didn't find 'refs' list!"
                 "    Waft will set it later.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_merges_yaml_original_lst, code_merge_yaml_dict
+                code_merges_yaml_original_list, code_merge_yaml_dict
             )
         elif type(code_merge_yaml_dict['refs']) != list:
             logger.warning(
@@ -400,7 +400,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found unexpected '%' that should be a list!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_merges_yaml_original_lst, code_merge_yaml_dict, code_merge_yaml_dict['refs']
+                code_merges_yaml_original_list, code_merge_yaml_dict, code_merge_yaml_dict['refs']
             )
         elif len(code_merge_yaml_dict['refs']) == 0:
             logger.warning(
@@ -417,7 +417,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                         "    Waft found unexpected value that should be a string!"
                         "    Waft ignored it.",
                         CODE_YAML_FILE, code_addons_yaml_original_repo,
-                        code_merges_yaml_original_lst, code_merge_yaml_dict
+                        code_merges_yaml_original_list, code_merge_yaml_dict
                     )
                     continue
                 code_merge_yaml_original_ref = code_merge_yaml_ref
@@ -432,7 +432,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                         "    Waft found an empty value!"
                         "    Waft will set it later.",
                         CODE_YAML_FILE, code_addons_yaml_original_repo,
-                        code_merges_yaml_original_lst, code_merge_yaml_dict, ODOO_VERSION
+                        code_merges_yaml_original_list, code_merge_yaml_dict, ODOO_VERSION
                     )
                 else:
                     if code_merge_yaml_original_ref != code_merge_yaml_fixed_ref:
@@ -440,7 +440,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                             "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                             "    Waft took '%s' and convert it to '%s'.",
                             CODE_YAML_FILE, code_addons_yaml_original_repo,
-                            code_merges_yaml_original_lst, code_merge_yaml_dict,
+                            code_merges_yaml_original_list, code_merge_yaml_dict,
                             code_merge_yaml_original_ref, code_merge_yaml_fixed_ref
                         )
                     else:
@@ -448,7 +448,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                             "In '%s' file, '%s' dictionary, '%s' list, '%s' dictionary:"
                             "    Waft set '%s'.",
                             CODE_YAML_FILE, code_addons_yaml_original_repo,
-                            code_merges_yaml_original_lst, code_merge_yaml_dict
+                            code_merges_yaml_original_list, code_merge_yaml_dict
                         )
                     for ref_element in code_merge_yaml_fixed_ref.split(' '):
                         if ref_element == '':
@@ -470,7 +470,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 waft_merge_auto_no_depth_tmp_dict['remote'] = waft_merge_auto_remote
                 waft_merge_auto_no_depth_tmp_dict['branch'] = waft_merge_auto_branch
                 waft_merge_auto_no_depth_tmp_dict['pin'] = waft_merge_auto_pin
-                waft_merges_auto_no_depth_tmp_lst.append(waft_merge_auto_no_depth_tmp_dict)
+                waft_merges_auto_no_depth_tmp_list.append(waft_merge_auto_no_depth_tmp_dict)
         code_merge_yaml_original_depth = int()
         code_merge_yaml_fixed_depth = int()
         if 'depth' not in code_merge_yaml_dict:
@@ -480,7 +480,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft didn't find 'depth' key!"
                 "    Waft will set it later.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_merges_yaml_original_lst, code_merge_yaml_dict
+                code_merges_yaml_original_list, code_merge_yaml_dict
             )
         elif type(code_merge_yaml_dict['depth']) != str and type(code_merge_yaml_dict['depth']) != int:
             waft_merge_auto_depth = 0
@@ -489,7 +489,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found unexpected 'depth: %s' that should be a number!"
                 "    Waft will set it later.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_merges_yaml_original_lst, code_merge_yaml_dict,
+                code_merges_yaml_original_list, code_merge_yaml_dict,
                 code_merge_yaml_dict['depth']
             )
         else:
@@ -503,7 +503,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "    Waft found 'depth' key with an empty value!"
                     "    Waft will set it later.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_merges_yaml_original_lst, code_merge_yaml_dict
+                    code_merges_yaml_original_list, code_merge_yaml_dict
                 )
             else:
                 waft_merge_auto_depth = code_merge_yaml_fixed_depth
@@ -513,19 +513,19 @@ for code_addons_yaml_original_repo in code_file_yaml:
                         "    Waft took 'depth: %s' and convert it to 'depth: %s'."
                         "    Waft will set depth later.",
                         CODE_YAML_FILE, code_addons_yaml_original_repo,
-                        code_merges_yaml_original_lst, code_merge_yaml_dict,
+                        code_merges_yaml_original_list, code_merge_yaml_dict,
                         code_merge_yaml_original_depth, waft_merge_auto_depth
                     )
         if waft_merge_auto_depth == 0:
             waft_merge_auto_depth = 77
-            if len(waft_merges_auto_no_depth_tmp_lst) == 1:
-                waft_merge_auto_no_depth_tmp_dict = waft_merges_auto_no_depth_tmp_lst[0]
+            if len(waft_merges_auto_no_depth_tmp_list) == 1:
+                waft_merge_auto_no_depth_tmp_dict = waft_merges_auto_no_depth_tmp_list[0]
                 if waft_merge_auto_no_depth_tmp_dict['pin'] == '':
                     waft_merge_auto_depth = 1
                 waft_merge_auto_no_depth_tmp_dict = dict()
-        waft_merges_auto_tmp_lst = list()
+        waft_merges_auto_tmp_list = list()
         waft_merge_auto_tmp_dict = dict()
-        for waft_merge_auto_no_depth_tmp_loop_dict in waft_merges_auto_no_depth_tmp_lst:
+        for waft_merge_auto_no_depth_tmp_loop_dict in waft_merges_auto_no_depth_tmp_list:
             waft_merge_auto_tmp_dict['code_merge_yaml_original_remote'] = waft_merge_auto_no_depth_tmp_loop_dict['code_merge_yaml_original_remote']
             waft_merge_auto_tmp_dict['waft_merge_auto_remote'] = waft_merge_auto_no_depth_tmp_loop_dict['waft_merge_auto_remote']
             waft_merge_auto_tmp_dict['code_merge_yaml_original_ref'] = waft_merge_auto_no_depth_tmp_loop_dict['code_merge_yaml_original_ref']
@@ -535,12 +535,12 @@ for code_addons_yaml_original_repo in code_file_yaml:
             waft_merge_auto_tmp_dict['remote'] = waft_merge_auto_no_depth_tmp_loop_dict['remote']
             waft_merge_auto_tmp_dict['branch'] = waft_merge_auto_no_depth_tmp_loop_dict['branch']
             waft_merge_auto_tmp_dict['pin'] = waft_merge_auto_no_depth_tmp_loop_dict['pin']
-            if len(waft_merges_auto_tmp_lst) > 0 and waft_merge_auto_depth == 1:
+            if len(waft_merges_auto_tmp_list) > 0 and waft_merge_auto_depth == 1:
                 waft_merge_auto_tmp_dict['depth'] = 77
             else:
                 waft_merge_auto_tmp_dict['depth'] = waft_merge_auto_depth
-            waft_merges_auto_tmp_lst.append(waft_merge_auto_tmp_dict)
-    if len(waft_merges_auto_tmp_lst) == 0:
+            waft_merges_auto_tmp_list.append(waft_merge_auto_tmp_dict)
+    if len(waft_merges_auto_tmp_list) == 0:
         waft_merge_auto_tmp_dict = dict()
         waft_merge_auto_tmp_dict['code_merge_yaml_original_remote'] = str()
         waft_merge_auto_tmp_dict['waft_merge_auto_remote'] = waft_merge_auto_remote
@@ -552,10 +552,10 @@ for code_addons_yaml_original_repo in code_file_yaml:
         waft_merge_auto_tmp_dict['branch'] = ODOO_VERSION
         waft_merge_auto_tmp_dict['pin'] = str()
         waft_merge_auto_tmp_dict['depth'] = 1
-        waft_merges_auto_tmp_lst.append(waft_merge_auto_tmp_dict)
-    waft_addons_auto_repo_tmp_dict['merges'] = waft_merges_auto_tmp_lst
-    code_hard_addons_yaml_original_lst = list()
-    waft_hard_addons_auto_tmp_lst = list()
+        waft_merges_auto_tmp_list.append(waft_merge_auto_tmp_dict)
+    waft_addons_auto_repo_tmp_dict['merges'] = waft_merges_auto_tmp_list
+    code_hard_addons_yaml_original_list = list()
+    waft_hard_addons_auto_tmp_list = list()
     default_generate_hard_addons = True
     if 'hard_addons' in code_addons_repo_yaml_original_dict:
         if type(code_addons_repo_yaml_original_dict['hard_addons']) != list:
@@ -566,15 +566,15 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 CODE_YAML_FILE, code_addons_yaml_original_repo, code_addons_repo_yaml_original_dict['hard_addons']
             )
         else:
-            code_hard_addons_yaml_original_lst = code_addons_repo_yaml_original_dict['hard_addons']
-            if len(code_hard_addons_yaml_original_lst) == 0:
+            code_hard_addons_yaml_original_list = code_addons_repo_yaml_original_dict['hard_addons']
+            if len(code_hard_addons_yaml_original_list) == 0:
                 logger.warning(
                     "In '%s' file, '%s' dictionary:"
                     "    Waft found an empty 'hard_addons:' list!"
                     "    Waft reset it to list().",
                     CODE_YAML_FILE, code_addons_yaml_original_repo
                 )
-                code_hard_addons_yaml_original_lst = list()
+                code_hard_addons_yaml_original_list = list()
             else:
                 default_generate_hard_addons = False
     else:
@@ -584,16 +584,16 @@ for code_addons_yaml_original_repo in code_file_yaml:
             "    Waft set it to list().",
             CODE_YAML_FILE, code_addons_yaml_original_repo
         )
-        code_hard_addons_yaml_original_lst = list()
-    waft_addons_auto_repo_tmp_dict['code_hard_addons_yaml_original_lst'] = code_hard_addons_yaml_original_lst
-    for code_hard_addons_yaml_value in code_hard_addons_yaml_original_lst if not default_generate_hard_addons else []:
+        code_hard_addons_yaml_original_list = list()
+    waft_addons_auto_repo_tmp_dict['code_hard_addons_yaml_original_list'] = code_hard_addons_yaml_original_list
+    for code_hard_addons_yaml_value in code_hard_addons_yaml_original_list if not default_generate_hard_addons else []:
         if type(code_hard_addons_yaml_value) != str:
             logger.warning(
                 "In '%s' file, '%s' dictionary, '%s' list:"
                 "    Waft found unexpected value that should be a string!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_hard_addons_yaml_original_lst
+                code_hard_addons_yaml_original_list
             )
             continue
         code_hard_addons_yaml_original_value = code_hard_addons_yaml_value
@@ -604,9 +604,9 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found '*' as a value!"
                 "    Waft ignored all other entries in 'hard_addons' list and reset it to '*'.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_hard_addons_yaml_original_lst
+                code_hard_addons_yaml_original_list
             )
-            waft_hard_addons_auto_tmp_lst = ['*']
+            waft_hard_addons_auto_tmp_list = ['*']
             break
         code_hard_addons_yaml_fixed_value = re.sub("[^\.\-\_a-z0-9]", "", code_hard_addons_yaml_original_value.lower())
         if code_hard_addons_yaml_fixed_value == '':
@@ -615,7 +615,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found an empty value!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_hard_addons_yaml_original_lst
+                code_hard_addons_yaml_original_list
             )
             continue
         else:
@@ -624,7 +624,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "In '%s' file, '%s' dictionary, '%s' list:"
                     "    Waft took '%s' and convert it to '%s'.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_hard_addons_yaml_original_lst, code_hard_addons_yaml_original_value,
+                    code_hard_addons_yaml_original_list, code_hard_addons_yaml_original_value,
                     code_hard_addons_yaml_fixed_value
                 )
             else:
@@ -632,19 +632,19 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "In '%s' file, '%s' dictionary, '%s' list:"
                     "    Waft set '%s'.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_hard_addons_yaml_original_lst, code_hard_addons_yaml_original_value
+                    code_hard_addons_yaml_original_list, code_hard_addons_yaml_original_value
                 )
-            waft_hard_addons_auto_tmp_lst.append(code_hard_addons_yaml_fixed_value)
-    if len(waft_hard_addons_auto_tmp_lst) == 0:
+            waft_hard_addons_auto_tmp_list.append(code_hard_addons_yaml_fixed_value)
+    if len(waft_hard_addons_auto_tmp_list) == 0:
         waft_addons_auto_repo_tmp_dict['hard_addons'] = list()
     else:
-        waft_addons_auto_repo_tmp_dict['hard_addons'] = waft_hard_addons_auto_tmp_lst
-    code_soft_addons_yaml_original_lst = list()
-    if waft_hard_addons_auto_tmp_lst == ['*']:
-        waft_soft_addons_auto_tmp_default_lst = list()
+        waft_addons_auto_repo_tmp_dict['hard_addons'] = waft_hard_addons_auto_tmp_list
+    code_soft_addons_yaml_original_list = list()
+    if waft_hard_addons_auto_tmp_list == ['*']:
+        waft_soft_addons_auto_tmp_default_list = list()
     else:
-        waft_soft_addons_auto_tmp_default_lst = ['*']
-    waft_soft_addons_auto_tmp_lst = waft_soft_addons_auto_tmp_default_lst
+        waft_soft_addons_auto_tmp_default_list = ['*']
+    waft_soft_addons_auto_tmp_list = waft_soft_addons_auto_tmp_default_list
     default_generate_soft_addons = True
     if 'soft_addons' in code_addons_repo_yaml_original_dict:
         if type(code_addons_repo_yaml_original_dict['soft_addons']) != list:
@@ -653,18 +653,18 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found unexpected '%' that should be a list!"
                 "    Waft reset it to '%'.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo, code_addons_repo_yaml_original_dict['soft_addons'],
-                waft_soft_addons_auto_tmp_lst
+                waft_soft_addons_auto_tmp_list
             )
         else:
-            code_soft_addons_yaml_original_lst = code_addons_repo_yaml_original_dict['soft_addons']
-            if len(code_soft_addons_yaml_original_lst) == 0:
+            code_soft_addons_yaml_original_list = code_addons_repo_yaml_original_dict['soft_addons']
+            if len(code_soft_addons_yaml_original_list) == 0:
                 logger.warning(
                     "In '%s' file, '%s' dictionary:"
                     "    Waft found an empty 'soft_addons:' list!"
                     "    Waft reset it to '%'.",
-                    CODE_YAML_FILE, code_addons_yaml_original_repo, waft_soft_addons_auto_tmp_lst
+                    CODE_YAML_FILE, code_addons_yaml_original_repo, waft_soft_addons_auto_tmp_list
                 )
-                code_soft_addons_yaml_original_lst = list()
+                code_soft_addons_yaml_original_list = list()
             else:
                 default_generate_soft_addons = False
     else:
@@ -672,32 +672,32 @@ for code_addons_yaml_original_repo in code_file_yaml:
             "In '%s' file, '%s' dictionary:"
             "    Waft didn't find 'soft_addons' list!"
             "    Waft set it to '%'.",
-            CODE_YAML_FILE, code_addons_yaml_original_repo, waft_soft_addons_auto_tmp_lst
+            CODE_YAML_FILE, code_addons_yaml_original_repo, waft_soft_addons_auto_tmp_list
         )
-        code_soft_addons_yaml_original_lst = list()
-    waft_addons_auto_repo_tmp_dict['code_soft_addons_yaml_original_lst'] = code_soft_addons_yaml_original_lst
-    for code_soft_addons_yaml_value in code_soft_addons_yaml_original_lst if not default_generate_soft_addons else []:
+        code_soft_addons_yaml_original_list = list()
+    waft_addons_auto_repo_tmp_dict['code_soft_addons_yaml_original_list'] = code_soft_addons_yaml_original_list
+    for code_soft_addons_yaml_value in code_soft_addons_yaml_original_list if not default_generate_soft_addons else []:
         if type(code_soft_addons_yaml_value) != str:
             logger.warning(
                 "In '%s' file, '%s' dictionary, '%s' list:"
                 "    Waft found unexpected value that should be a string!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_soft_addons_yaml_original_lst
+                code_soft_addons_yaml_original_list
             )
             continue
         code_soft_addons_yaml_original_value = code_soft_addons_yaml_value
         code_soft_addons_yaml_fixed_value = re.sub("[^\.\-\_\*a-z0-9]", "", code_soft_addons_yaml_original_value.lower())
         if code_soft_addons_yaml_fixed_value == '*':
-            if waft_hard_addons_auto_tmp_lst != ['*']:
+            if waft_hard_addons_auto_tmp_list != ['*']:
                 logger.warning(
                     "In '%s' file, '%s' dictionary, '%s' list:"
                     "    Waft found '*' as a value!"
                     "    Waft ignored all other entries in 'soft_addons' list and reset it to '*'.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_soft_addons_yaml_original_lst
+                    code_soft_addons_yaml_original_list
                 )
-                waft_soft_addons_auto_tmp_lst = ['*']
+                waft_soft_addons_auto_tmp_list = ['*']
                 break
             else:
                 logger.warning(
@@ -705,7 +705,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "    Waft found '*' as a value, and 'hard_addons' already set to '*'!"
                     "    Waft ignored it.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_soft_addons_yaml_original_lst
+                    code_soft_addons_yaml_original_list
                 )
                 continue
         code_soft_addons_yaml_fixed_value = re.sub("[^\.\-\_a-z0-9]", "", code_soft_addons_yaml_original_value.lower())
@@ -715,7 +715,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found an empty value!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_soft_addons_yaml_original_lst
+                code_soft_addons_yaml_original_list
             )
             continue
         else:
@@ -724,7 +724,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "In '%s' file, '%s' dictionary, '%s' list:"
                     "    Waft took '%s' and convert it to '%s'.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_soft_addons_yaml_original_lst, code_soft_addons_yaml_original_value,
+                    code_soft_addons_yaml_original_list, code_soft_addons_yaml_original_value,
                     code_soft_addons_yaml_fixed_value
                 )
             else:
@@ -732,18 +732,15 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "In '%s' file, '%s' dictionary, '%s' list:"
                     "    Waft set '%s'.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_soft_addons_yaml_original_lst, code_soft_addons_yaml_original_value
+                    code_soft_addons_yaml_original_list, code_soft_addons_yaml_original_value
                 )
-            waft_soft_addons_auto_tmp_lst.append(code_soft_addons_yaml_fixed_value)
-    if len(waft_soft_addons_auto_tmp_lst) == 0:
-        waft_addons_auto_repo_tmp_dict['soft_addons'] = waft_soft_addons_auto_tmp_default_lst
+            waft_soft_addons_auto_tmp_list.append(code_soft_addons_yaml_fixed_value)
+    if len(waft_soft_addons_auto_tmp_list) == 0:
+        waft_addons_auto_repo_tmp_dict['soft_addons'] = waft_soft_addons_auto_tmp_default_list
     else:
-        waft_addons_auto_repo_tmp_dict['soft_addons'] = waft_soft_addons_auto_tmp_lst
-
-
-
-    code_ignore_addons_yaml_original_lst = list()
-    waft_ignore_addons_auto_tmp_lst = list()
+        waft_addons_auto_repo_tmp_dict['soft_addons'] = waft_soft_addons_auto_tmp_list
+    code_ignore_addons_yaml_original_list = list()
+    waft_ignore_addons_auto_tmp_list = list()
     default_generate_ignore_addons = True
     if 'ignore_addons' in code_addons_repo_yaml_original_dict:
         if type(code_addons_repo_yaml_original_dict['ignore_addons']) != list:
@@ -754,23 +751,23 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 CODE_YAML_FILE, code_addons_yaml_original_repo, code_addons_repo_yaml_original_dict['ignore_addons']
             )
         else:
-            code_ignore_addons_yaml_original_lst = code_addons_repo_yaml_original_dict['ignore_addons']
-            if len(code_ignore_addons_yaml_original_lst) == 0:
+            code_ignore_addons_yaml_original_list = code_addons_repo_yaml_original_dict['ignore_addons']
+            if len(code_ignore_addons_yaml_original_list) == 0:
                 logger.warning(
                     "In '%s' file, '%s' dictionary:"
                     "    Waft found an empty 'ignore_addons:' list!"
                     "    Waft reset it to list().",
                     CODE_YAML_FILE, code_addons_yaml_original_repo
                 )
-                code_ignore_addons_yaml_original_lst = list()
+                code_ignore_addons_yaml_original_list = list()
             else:
-                if waft_hard_addons_auto_tmp_lst == ['*'] or waft_soft_addons_auto_tmp_lst == ['*']:
+                if waft_hard_addons_auto_tmp_list == ['*'] or waft_soft_addons_auto_tmp_list == ['*']:
                     logger.warning(
                         "In '%s' file, '%s' dictionary:"
                         "    Waft reset 'ignore_addons:' to list(), because 'hard_addons' or 'soft_addons' already '*'.",
                         CODE_YAML_FILE, code_addons_yaml_original_repo
                     )
-                    waft_ignore_addons_auto_tmp_lst = list()
+                    waft_ignore_addons_auto_tmp_list = list()
                     default_generate_ignore_addons = True
                 else:
                     default_generate_ignore_addons = False
@@ -781,16 +778,16 @@ for code_addons_yaml_original_repo in code_file_yaml:
             "    Waft set it to list().",
             CODE_YAML_FILE, code_addons_yaml_original_repo
         )
-        code_ignore_addons_yaml_original_lst = list()
-    waft_addons_auto_repo_tmp_dict['code_ignore_addons_yaml_original_lst'] = code_ignore_addons_yaml_original_lst
-    for code_ignore_addons_yaml_value in code_ignore_addons_yaml_original_lst if not default_generate_ignore_addons else []:
+        code_ignore_addons_yaml_original_list = list()
+    waft_addons_auto_repo_tmp_dict['code_ignore_addons_yaml_original_list'] = code_ignore_addons_yaml_original_list
+    for code_ignore_addons_yaml_value in code_ignore_addons_yaml_original_list if not default_generate_ignore_addons else []:
         if type(code_ignore_addons_yaml_value) != str:
             logger.warning(
                 "In '%s' file, '%s' dictionary, '%s' list:"
                 "    Waft found unexpected value that should be a string!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_ignore_addons_yaml_original_lst
+                code_ignore_addons_yaml_original_list
             )
             continue
         code_ignore_addons_yaml_original_value = code_ignore_addons_yaml_value
@@ -801,9 +798,9 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found '*' as a value!"
                 "    Waft ignored all other entries in 'ignore_addons' list and reset it to '*'.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_ignore_addons_yaml_original_lst
+                code_ignore_addons_yaml_original_list
             )
-            waft_ignore_addons_auto_tmp_lst = ['*']
+            waft_ignore_addons_auto_tmp_list = ['*']
             break
         code_ignore_addons_yaml_fixed_value = re.sub("[^\.\-\_a-z0-9]", "", code_ignore_addons_yaml_original_value.lower())
         if code_ignore_addons_yaml_fixed_value == '':
@@ -812,7 +809,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                 "    Waft found an empty value!"
                 "    Waft ignored it.",
                 CODE_YAML_FILE, code_addons_yaml_original_repo,
-                code_ignore_addons_yaml_original_lst
+                code_ignore_addons_yaml_original_list
             )
             continue
         else:
@@ -821,7 +818,7 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "In '%s' file, '%s' dictionary, '%s' list:"
                     "    Waft took '%s' and convert it to '%s'.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_ignore_addons_yaml_original_lst, code_ignore_addons_yaml_original_value,
+                    code_ignore_addons_yaml_original_list, code_ignore_addons_yaml_original_value,
                     code_ignore_addons_yaml_fixed_value
                 )
             else:
@@ -829,17 +826,52 @@ for code_addons_yaml_original_repo in code_file_yaml:
                     "In '%s' file, '%s' dictionary, '%s' list:"
                     "    Waft set '%s'.",
                     CODE_YAML_FILE, code_addons_yaml_original_repo,
-                    code_ignore_addons_yaml_original_lst, code_ignore_addons_yaml_original_value
+                    code_ignore_addons_yaml_original_list, code_ignore_addons_yaml_original_value
                 )
-            waft_ignore_addons_auto_tmp_lst.append(code_ignore_addons_yaml_fixed_value)
-    if len(waft_ignore_addons_auto_tmp_lst) == 0:
+            waft_ignore_addons_auto_tmp_list.append(code_ignore_addons_yaml_fixed_value)
+    if len(waft_ignore_addons_auto_tmp_list) == 0:
         waft_addons_auto_repo_tmp_dict['ignore_addons'] = list()
     else:
-        waft_addons_auto_repo_tmp_dict['ignore_addons'] = waft_ignore_addons_auto_tmp_lst
+        waft_addons_auto_repo_tmp_dict['ignore_addons'] = waft_ignore_addons_auto_tmp_list
     for code_tmp_yaml_key in code_addons_repo_yaml_original_dict:
         if code_tmp_yaml_key not in {'code_addons_repo_yaml_original_dict', 'code_addons_yaml_original_repo',
-        'addons_subpath_repo', 'code_merges_yaml_original_lst', 'merges', 'code_hard_addons_yaml_original_lst',
-        'hard_addons', 'code_soft_addons_yaml_original_lst', 'soft_addons', 'code_ignore_addons_yaml_original_lst',
+        'addons_subpath_repo', 'code_merges_yaml_original_list', 'merges', 'code_hard_addons_yaml_original_list',
+        'hard_addons', 'code_soft_addons_yaml_original_list', 'soft_addons', 'code_ignore_addons_yaml_original_list',
         'ignore_addons'}:
             waft_addons_auto_repo_tmp_dict[code_tmp_yaml_key] = code_addons_repo_yaml_original_dict[code_tmp_yaml_key]
     waft_code_auto_tmp_yaml_dict[addons_subpath_repo] = waft_addons_auto_repo_tmp_dict
+waft_code_auto_yaml_dict = dict()
+if len(waft_code_auto_tmp_yaml_dict) == 0 or 'odoo' not in waft_code_auto_tmp_yaml_dict:
+    waft_merge_auto_tmp_dict = dict()
+    waft_merges_auto_tmp_list = list()
+    waft_addons_auto_main_repo_tmp_dict = dict()
+    waft_merge_auto_tmp_dict['code_merge_yaml_original_remote'] = str()
+    waft_merge_auto_tmp_dict['waft_merge_auto_remote'] = 'https://github.com/oca/ocb.git'
+    waft_merge_auto_tmp_dict['code_merge_yaml_original_ref'] = str()
+    waft_merge_auto_tmp_dict['code_merge_yaml_fixed_ref'] = str()
+    waft_merge_auto_tmp_dict['code_merge_yaml_original_depth'] = int()
+    waft_merge_auto_tmp_dict['code_merge_yaml_fixed_depth'] = int()
+    waft_merge_auto_tmp_dict['remote'] = 'https://github.com/oca/ocb.git'
+    waft_merge_auto_tmp_dict['branch'] = ODOO_VERSION
+    waft_merge_auto_tmp_dict['pin'] = str()
+    waft_merge_auto_tmp_dict['depth'] = 1
+    waft_merges_auto_tmp_list.append(waft_merge_auto_tmp_dict)
+    waft_addons_auto_main_repo_tmp_dict['code_addons_repo_yaml_original_dict'] = dict()
+    waft_addons_auto_main_repo_tmp_dict['code_addons_yaml_original_repo'] = ''
+    waft_addons_auto_main_repo_tmp_dict['addons_subpath_repo'] = 'odoo'
+    waft_addons_auto_main_repo_tmp_dict['code_merges_yaml_original_list'] = list()
+    waft_addons_auto_main_repo_tmp_dict['merges'] = waft_merges_auto_tmp_list
+    waft_addons_auto_main_repo_tmp_dict['code_hard_addons_yaml_original_list'] = list()
+    waft_addons_auto_main_repo_tmp_dict['hard_addons'] = list()
+    waft_addons_auto_main_repo_tmp_dict['code_soft_addons_yaml_original_list'] = list()
+    waft_addons_auto_main_repo_tmp_dict['soft_addons'] = ['*']
+    waft_addons_auto_main_repo_tmp_dict['code_ignore_addons_yaml_original_list'] = list()
+    waft_addons_auto_main_repo_tmp_dict['ignore_addons'] = list()
+    if len(waft_code_auto_tmp_yaml_dict) != 0:
+        waft_code_auto_yaml_dict['odoo'] = waft_addons_auto_main_repo_tmp_dict
+        for waft_tmp_auto_key in waft_code_auto_tmp_yaml_dict:
+            waft_code_auto_yaml_dict[waft_tmp_auto_key] = waft_code_auto_tmp_yaml_dict[waft_tmp_auto_key]
+    else:
+        waft_code_auto_yaml_dict['odoo'] = waft_addons_auto_main_repo_tmp_dict
+else:
+    waft_code_auto_yaml_dict = waft_code_auto_tmp_yaml_dict
