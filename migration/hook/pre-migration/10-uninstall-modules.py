@@ -23,8 +23,12 @@ for line in file:
         module = env['ir.module.module'].search([('name', '=', module_name)])
         if module and module.state in ('installed', 'to upgrade'):
             logging.info("Uninstalling %s..." % module_name)
-            module.button_immediate_uninstall()
+            result = module.button_immediate_uninstall()
             env.cr.commit()
+            m = env["ir.module.module"].search([('name', '=', module_name)]):
+            if m.state in ('installed', 'to upgrade'):
+                raise Exception("Unable to uninstall module %s: %s", module_name, result)
         else:
             logging.info("Module %s is not installed!" % module_name)
 logging.info("Done uninstalling modules.")
+
