@@ -841,22 +841,27 @@ def run_migration(start_version, target_version):
     logging.info("Disabling dangerous stuff...")
     disable_dangerous_stuff()
 
+    #  Run the pre-migration scripts
+    if from_start:
+        if not db_version in progress or not ('upgrade' in progress[db_version] and progress[db_version]['upgrade']):
+            run_scripts(db_version, 'pre-migration')
+        if params['enterprise-enabled']:
+            if not db_version in progress or not ('enterprise' in progress[db_version] and progress[db_version]['enterprise']):
+                run_scripts(db_version, 'enterprise/pre-migration')
+
     skip_initial_upgrade = os.environ["SKIP_INITIAL_UPGRADE"] == "1" if "SKIP_INITIAL_UPGRADE" in os.environ else False
     if from_start:
-        if not skip_initial_upgrade and (not start_version in progress or not 'upgrade' in progress[start_version] or not progress[start_version]['upgrade']):
+        if not skip_initial_upgrade and (not db_version in progress or not 'upgrade' in progress[db_version] or not progress[db_version]['upgrade']):
             logging.info("Running initial upgrade...")
-            run_upgrade(start_version)
-            mark_upgrade_done(start_version)
+            run_upgrade(db_version)
+            mark_upgrade_done(db_version)
     else:
         db_version = progress_version
-    if float(progress_version) - float(params['start-version']) < 0.001:
-        run_scripts(progress_version, 'pre-migration')
 
     # Running an enterprise migration from the start, may require a 'jump'
     if params['enterprise-enabled']:
         if from_start and (not start_version in progress or \
            not ('enterprise' in progress[start_version] and progress[start_version]['enterprise'])):
-            run_scripts(start_version, 'enterprise/pre-migration')
             if will_jump:
                 enterprise_done = \
                     ENTERPRISE_MINIMUM_TARGET in progress and \
