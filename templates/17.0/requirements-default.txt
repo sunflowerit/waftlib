@@ -92,7 +92,7 @@ vobject==0.9.6.1
 watchdog==3.0.0
 wdb==3.3.0
 websocket-client==1.6.4
-werkzeug==3.0.1
+werkzeug==2.0.2
 xdis==6.0.5
 xlrd==2.0.1
 xlsxwriter==3.1.9
