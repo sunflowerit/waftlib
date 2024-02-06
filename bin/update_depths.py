@@ -66,8 +66,9 @@ class CustomDumper(yaml.Dumper):
         if len(self.indents) == 1:
             super().write_line_break()
 
+
     def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow, False)
+        return super(CustomDumper, self).increase_indent(flow, False)
 
 
 def split_line(line):
@@ -182,6 +183,38 @@ def process_depth(splitted_merge, branchname, main_branch, main_branch_name, rep
         # Should log/print some error here.
         return 1024
 
+def branch_exists(remote, splitted_merge, branchname, repo_path):
+    os.chdir(repo_path)
+    # make sure we have the latest available.
+    run(
+        [
+            "git",
+            "fetch",
+            splitted_merge[0],
+            branchname,
+        ],
+        stdout=PIPE,
+        stderr=PIPE,
+    )
+    exit_code = (
+        run(
+            [
+                "git",
+                "ls-remote",
+                "--heads",
+                "--exit-code",
+                "".join([remote]) ,
+                "refs/heads/"+ branchname,
+            ],
+            stdout=PIPE,
+            stderr=PIPE,
+        )
+        .stdout.decode("utf-8")
+        .replace("\n", "")
+    )
+    if exit_code == '':
+        return False
+    return True
 
 def main():
     """
@@ -189,6 +222,7 @@ def main():
     be in folder, but may not be included in addons. Nothing changes.
     """
     changes = ''
+    removals = ''
     with open(REPOS_YAML) as yaml_file:
         for doc in yaml.safe_load_all(yaml_file):
             for repo in doc:
@@ -211,6 +245,27 @@ def main():
                     merge_type = get_merge_type(splitted_merge, repo)
                     branchname = get_branchname(splitted_merge, merge_type)
                     if branchname:
+                        # if branchname does not exist , comment out and do next merge
+                        remote = doc[repo]['remotes'][splitted_merge[0]]
+                        exists = branch_exists(remote, splitted_merge, branchname, repo_path)
+                        if not exists:
+                            # merge does not exist, comment it out and continue
+                            index = doc[repo]['merges'].index(merge)
+                            print("# Removing and dumping in comment section non-existing merge %s    from repo %s  \n " % (doc[repo]['merges'][index] , doc[repo])) 
+                            import pudb
+                            pudb.set_trace()
+                            msg = "# Removing and dumping in comment section non-existing merge %s    from repo    %s , remote: %s   \n " % ( 
+                                "- " + " ".join(splitted_merge) , 
+                                repo, 
+                                ":".join(list([x for x in doc[repo]['remotes'].items() if x[0] == splitted_merge[0]][-1])
+                            ))
+                            print(msg)
+                            changes += msg
+                            removals += msg
+                            del doc[repo]['merges'][index]
+                            continue
+                        
+
                         # compute depth only for merges with branchname
                         min_depth = process_depth(
                             splitted_merge,
@@ -237,7 +292,7 @@ def main():
                                 waft_depth = os.environ.get("WAFT_DEPTH_DEFAULT") or 1
                             waft_depth = int(waft_depth)
                             if repo_min_depth[repo] > waft_depth:
-                                changes += ("\n\t Increasing depth of %s from %s to %s"
+                                changes += ("# Increasing depth of %s from %s to %s \n"
                                     % (
                                         repo,
                                         doc[repo]["defaults"]["depth"],
@@ -245,18 +300,23 @@ def main():
                                     )
                                 )
                                 doc[repo]["defaults"]["depth"] = repo_min_depth[repo]
-
+            import pudb
+            pudb.set_trace()
             CustomDumper.add_representer(
                 dict, CustomDumper.represent_dict_preserve_order
             )
 
     if changes:
-        print("========Applying Depth changes to repos.yaml:")
+        print("========Applying Depth changes and merged branch cleanup to repos.yaml:")
         print(changes)
         print("=======================================")
         yaml_file = open(REPOS_YAML, "w")
         yaml_file.write(yaml.dump(doc, Dumper=CustomDumper, default_flow_style=False))
+        yaml_file.write(removals) 
         yaml_file.close()
+
+
+
 
 if os.path.isfile(REPOS_YAML) and __name__ == "__main__":
     main()
