@@ -1,9 +1,9 @@
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-export ODOO_WORK_DIR="$(/usr/bin/dirname ${SCRIPT_PATH})"
+ODOO_WORK_DIR="${SCRIPT_PATH}"
 . "${ODOO_WORK_DIR}/.env-default" && \
 . "${ODOO_WORK_DIR}/.env-shared" && \
 . "${ODOO_WORK_DIR}/.env-secret"
 export DEEPL_SECRET=$DEEPL_SECRET
 export PGDATABASE=$PGDATABASE
 
-${ODOO_WORK_DIR}/.venv/bin/python "$SCRIPT_PATH/bin/translate-modules.py" $@
+${ODOO_WORK_DIR}/.venv/bin/python "$SCRIPT_PATH/waftlib/bin/translate-modules.py" $@
