@@ -626,21 +626,19 @@ def rebuild_sources():
     repos_whitelist = parse_repos_config(os.path.join(WAFT_DIR, 'custom/src/old-repos.yaml'))
     default_repos_template_file = os.path.join(WAFT_DIR, "waftlib/migration/default-repos.yaml")
     default_config = yaml.load(open(default_repos_template_file).read(), Loader=yaml.Loader)
-    
+
     versions = available_build_versions(params['start-version'])
     for version in versions:
         build_dir = os.path.join(MIGRATION_PATH, 'build-' + version)
         if float(version) > 13.999 and version == os.environ['ODOO_VERSION']:
             build_dir = WAFT_DIR
-        
+
         # Set up git in build dir
-        if not os.path.exists(os.path.join(build_dir, 'build')):
+        print("TEST: ", os.path.exists(os.path.join(build_dir, 'build')))
+        if not os.path.exists(os.path.join(build_dir, 'bootstrap')):
             cmd("mkdir -p \"%s\"" % build_dir)
             cmd("git init", cwd=build_dir)
-            try:
-                cmd("git remote add sunflowerit https://github.com/sunflowerit/waft", cwd=build_dir)
-            except:
-                pass
+            cmd("git remote add sunflowerit https://github.com/sunflowerit/waft", cwd=build_dir)
             if build_dir != WAFT_DIR:
                 cmd("git pull sunflowerit master", cwd=build_dir)
                 cmd("rm -rf .git", cwd=build_dir)
@@ -654,7 +652,7 @@ def rebuild_sources():
         write_env_secret(build_dir, version)
         if build_dir != WAFT_DIR:
             cmd_system(os.path.join(build_dir, 'bootstrap'))
-        
+
         if not repos_file_existed:
             if version == params["start-version"]:
                 shutil.copy(os.path.join(WAFT_DIR, "custom/src/old-repos.yaml"), repos_file)
