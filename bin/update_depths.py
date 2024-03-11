@@ -156,7 +156,7 @@ def process_depth(splitted_merge, branchname, main_branch, main_branch_name, rep
             stdout=PIPE,
             stderr=PIPE,
         )
-        .stdout.decode("utf-8")
+        .stderr.decode("utf-8")
         .replace("\n", "")
     )
     if not lastrev:
@@ -183,6 +183,27 @@ def process_depth(splitted_merge, branchname, main_branch, main_branch_name, rep
         # Should log/print some error here.
         return 1024
 
+def has_connection(remote, repo_path):
+    os.chdir(repo_path)
+    import pudb
+    pudb.set_trace()
+    exit_code = (
+        run(
+            [
+                "git",
+                "ls-remote",
+                "--heads",
+                "--exit-code",
+                "".join([remote]) ,
+            ],
+            stdout=PIPE,
+            stderr=PIPE,
+        )
+    )
+    std_error = exit_code.stderr.decode("utf-8").replace("\n", "")
+    if std_error != '':
+        return False
+    return True
 def branch_exists(remote, splitted_merge, branchname, repo_path):
     os.chdir(repo_path)
     # make sure we have the latest available.
@@ -247,8 +268,14 @@ def main():
                     if branchname:
                         # if branchname does not exist , comment out and do next merge
                         remote = doc[repo]['remotes'][splitted_merge[0]]
-                        exists = branch_exists(remote, splitted_merge, branchname, repo_path)
-                        if not exists:
+                        # before checking if branch exists , we check if 
+                        # connection is accessible. This will avoid commenting out all
+                        # merges if there is no connection or server down.
+                        connected =has_connection(remote, repo_path)
+                        exists = branch_exists(
+                            remote, splitted_merge, branchname, repo_path)
+                        if not exists and connected:
+                            # before commenting out we check connection again.
                             # merge does not exist, comment it out and continue
                             index = doc[repo]['merges'].index(merge)
                             print("# Removing and dumping in comment section non-existing merge %s    from repo %s  \n " % (doc[repo]['merges'][index] , doc[repo])) 
@@ -268,7 +295,7 @@ def main():
 
                         # compute depth only for merges with branchname
                         min_depth = process_depth(
-                            splitted_merge,
+                                splitted_merge,
                             branchname,
                             main_branch,
                             main_branch_name,
