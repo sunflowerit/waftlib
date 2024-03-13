@@ -74,7 +74,7 @@ pytz==2014.4
 pyusb==1.0.0b1
 qrcode==5.0.1
 raven==6.10.0
-reportlab==3.1.44
+reportlab==2.7
 requests==2.26.0
 scandir==1.10.0
 Shapely==1.7.1
