@@ -22,6 +22,14 @@ OCA/account-financial-tools:
   merges:
     - oca $ODOO_VERSION
 
+OCA/account-fiscal-rule:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/account-fiscal-rule
+  merges:
+    - oca $ODOO_VERSION
+
 OCA/account-invoicing:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
@@ -62,6 +70,14 @@ OCA/business-requirement:
   merges:
     - oca $ODOO_VERSION
 
+OCA/community-data-files:
+  defaults:
+    depth: ${WAFT_DEPTH_MERGE}
+  remotes:
+    origin: https://github.com/oca/community-data-files
+  merges:
+    - origin ${ODOO_VERSION}
+
 OCA/connector:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
@@ -94,11 +110,27 @@ OCA/crm:
   merges:
     - oca $ODOO_VERSION
 
+OCA/curreny:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/currency
+  merges:
+    - oca $ODOO_VERSION
+
 OCA/delivery-carrier:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
     oca: https://github.com/OCA/delivery-carrier
+  merges:
+    - oca $ODOO_VERSION
+
+OCA/dms:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/dms
   merges:
     - oca $ODOO_VERSION
 
@@ -130,7 +162,7 @@ OCA/intrastat:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    intrastat: https://github.com/oca/intrastat 
+    intrastat: https://github.com/oca/intrastat-extrastat
   merges:
     - intrastat $ODOO_VERSION
 
@@ -171,6 +203,14 @@ OCA/mis-builder:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
     oca: https://github.com/oca/mis-builder 
+  merges:
+    - oca $ODOO_VERSION
+
+OCA/mis-builder-contrib:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/oca/mis-builder
   merges:
     - oca $ODOO_VERSION
 
