@@ -110,7 +110,7 @@ OCA/crm:
   merges:
     - oca $ODOO_VERSION
 
-OCA/curreny:
+OCA/currency:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
