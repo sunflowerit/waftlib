@@ -150,6 +150,22 @@ OCA/hr:
   merges:
     - hr $ODOO_VERSION
 
+OCA/hr-expense:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    hr: https://github.com/OCA/hr-expense
+  merges:
+    - hr $ODOO_VERSION
+
+OCA/hr-holidays:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    hr: https://github.com/OCA/hr-holidays
+  merges:
+    - hr $ODOO_VERSION
+
 OCA/hr-timesheet:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
