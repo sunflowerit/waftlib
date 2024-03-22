@@ -607,10 +607,14 @@ def rebuild_sources():
                     additional_merges = [x for x in config["ocb"]["merges"] if x.split()[0] in additional_remotes]
                     config["odoo"]["remotes"].update(additional_remotes)
                     config["odoo"]["merges"] += additional_merges
+                    # Delete the depth parameter when merges are available,
+                    # because merges are not always maintained.
+                    if len(config["odoo"]["merges"]) > 0:
+                        del config["odoo"]["defaults"]["depth"]
                     if "defaults" in config["odoo"] and "defaults" in config["ocb"] and "depth" in config["ocb"]["defaults"]:
                         config["odoo"]["defaults"]["depth"] = config["ocb"]["defaults"]["depth"]
                 del config["ocb"]
-            if float(version) < 13.999:
+            if float(version) > 13.999:
                 config["openupgrade"] = {
                     "defaults": {"depth": "${WAFT_DEPTH_DEFAULT}"},
                     "remotes": {"oca": "https://github.com/OCA/OpenUpgrade"},
@@ -623,10 +627,10 @@ def rebuild_sources():
                 "merges": ["odoo ${ODOO_VERSION}"],
             }
 
-    repos_whitelist = parse_repos_config(os.path.join(WAFT_DIR, 'custom/src/old-repos.yaml'))
+    repos_whitelist = [x for x in parse_repos_config(os.path.join(WAFT_DIR, 'custom/src/old-repos.yaml'))] + ["openupgrade"]
     default_repos_template_file = os.path.join(WAFT_DIR, "waftlib/migration/default-repos.yaml")
     default_config = yaml.load(open(default_repos_template_file).read(), Loader=yaml.Loader)
-
+    
     versions = available_build_versions(params['start-version'])
     for version in versions:
         build_dir = os.path.join(MIGRATION_PATH, 'build-' + version)
@@ -634,7 +638,6 @@ def rebuild_sources():
             build_dir = WAFT_DIR
 
         # Set up git in build dir
-        print("TEST: ", os.path.exists(os.path.join(build_dir, 'build')))
         if not os.path.exists(os.path.join(build_dir, 'bootstrap')):
             cmd("mkdir -p \"%s\"" % build_dir)
             cmd("git init", cwd=build_dir)

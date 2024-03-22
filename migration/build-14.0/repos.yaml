@@ -1,6 +1,4 @@
 ocb:
-  defaults:
-    depth: ${WAFT_DEPTH_MERGE}
   remotes:
     oca: https://github.com/OCA/OCB
     ddejong: https://github.com/ddejong-therp/OCB
