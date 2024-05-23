@@ -927,11 +927,11 @@ def run_migration(start_version, target_version):
             mark_upgrade_done(version)
         db_version = version
         run_scripts(version, "post-upgrade")
+        last_version = version
     
     if params['enterprise-enabled']:
         run_scripts(db_version, "enterprise/post-migration")
     run_scripts(db_version, "post-migration")
-    last_version = version
 
 
 def run_script(script_path, run_at_version=None):
