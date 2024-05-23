@@ -829,7 +829,7 @@ def run_migration(start_version, target_version):
 
     init_progress(start_version)
     progress_version = find_db_version_from_progress()
-    from_start = abs(float(progress_version) - float(db_version)) < 0.001 and (
+    from_start = abs(float(progress_version) - float(start_version)) < 0.001 and (
         not ENTERPRISE_MINIMUM_TARGET in progress or (
             not 'upgrade' in progress[ENTERPRISE_MINIMUM_TARGET] or \
             not progress[ENTERPRISE_MINIMUM_TARGET]['upgrade']
@@ -897,6 +897,7 @@ def run_migration(start_version, target_version):
             params['enterprise-enabled'] and \
             not version in available_enterprise_build_versions(start_version)
         ):
+            last_version = version
             continue
         enterprise_done, openupgrade_done = (False, False)
         if version in progress:
@@ -930,6 +931,7 @@ def run_migration(start_version, target_version):
     if params['enterprise-enabled']:
         run_scripts(db_version, "enterprise/post-migration")
     run_scripts(db_version, "post-migration")
+    last_version = version
 
 
 def run_script(script_path, run_at_version=None):
