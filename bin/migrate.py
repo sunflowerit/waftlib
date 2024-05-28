@@ -573,18 +573,48 @@ def rebuild_sources():
             MIGRATION_PATH
         )
     
+    # Updates the .env-secret file of a build
     def write_env_secret(build_dir, version):
-        with open(os.path.join(build_dir, '.env-secret'), 'wt') as file:
-            file.write('ODOO_VERSION="%s"\n' % version)
-            file.write('PGDATABASE="%s"\n' % os.environ['PGDATABASE'])
-            file.write('ODOO_DBFILTER="^%s$"\n' % os.environ['PGDATABASE'])
-            if 'PGPASSWORD' in os.environ:
-                file.write('PGPASSWORD="%s"\n' % os.environ['PGPASSWORD'])
-            file.write('LOG_LEVEL="INFO"\n')
-            if params['enterprise-enabled']:
-                file.write('DEFAULT_REPO_PATTERN_ODOO="https://github.com/odoo/odoo.git"')
-            elif float(version) < 14.0 and version != params['start-version']:
-                file.write('DEFAULT_REPO_PATTERN_ODOO="https://github.com/OCA/OpenUpgrade.git"')
+        overwrite_values = {
+            "ODOO_VERSION": version,
+            "PGDATABASE": os.environ['PGDATABASE'],
+            "ODOO_DBFILTER": "^%s$" % os.environ['PGDATABASE'],
+            "LOG_LEVEL": "DEBUG",
+        }
+        if "PGPASSWORD" in os.environ:
+            overwrite_values["PGPASSWORD"] = os.environ["PGPASSWORD"]
+        if params["enterprise-enabled"]:
+            overwrite_values["DEFAULT_REPO_PATTERN_ODOO"] = "https://github.com/odoo/odoo.git"
+        elif float(version) < 14.0 and version != params["start-version"]:
+            overwrite_values["DEFAULT_REPO_PATTERN_ODOO"] = "https://github.com/OCA/OpenUpgrade.git"
+        rewritten_lines = []
+
+        lines = []
+        with open(os.path.join(build_dir, ".env-secret"), "r") as file:
+            # Go over all lines and see what needs to be rewritten
+            for line in file:
+                i = line.find("=")
+                if i != -1:
+                    key = line[:i].strip()
+
+                    # Overwrite if necessary
+                    if key in overwrite_values:
+                        value = overwrite_values[key]
+                        # No formatting/escaping of value is done, keep that in mind
+                        lines.append("%s=\"%s\"" % (key, value))
+                        rewritten_lines.append(key)
+                    else:
+                        lines.append(line)
+        
+        # Add lines for the missing values
+        for key, value in overwrite_values.items():
+            if not key in rewritten_lines:
+                lines.append("%s=\"%s\"" % (key, value))
+
+        # Rewrite the file
+        with open(os.path.join(build_dir, ".env-secret"), "wt") as file:
+            for line in lines:
+                file.write(line + "\n")
 
     def exclude_repos(config, whitelist):
         new_config = {}
