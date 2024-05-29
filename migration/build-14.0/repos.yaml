@@ -1,0 +1,7 @@
+ocb:
+  remotes:
+    oca: https://github.com/OCA/OCB
+    ddejong: https://github.com/ddejong-therp/OCB
+  merges:
+    - oca ${ODOO_VERSION}
+    - ddejong 14.0-fix-duplicate-move-lines-creation
