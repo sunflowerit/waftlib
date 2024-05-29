@@ -147,6 +147,7 @@ def combine_repos(build_path, version):
 
 
 def copy_database(database, new_database):
+    logging.info("Backing up database & filestore to \"%s\"..." % new_database)
     try:
         cmd('dropdb \"' + new_database + '\"')
     except CommandFailedException:
@@ -886,6 +887,7 @@ def run_migration(start_version, target_version):
             logging.info("Running initial upgrade...")
             run_upgrade(db_version)
             mark_upgrade_done(db_version)
+            copy_database(os.environ['PGDATABASE'], os.environ['PGDATABASE'] + "-" + db_version)
     else:
         db_version = progress_version
 
@@ -957,6 +959,7 @@ def run_migration(start_version, target_version):
             mark_upgrade_done(version)
         db_version = version
         run_scripts(version, "post-upgrade")
+        copy_database(os.environ['PGDATABASE'], os.environ['PGDATABASE'] + "-" + version)
         last_version = version
     
     if params['enterprise-enabled']:
@@ -1049,8 +1052,6 @@ def run_upgrade(version):
 
     logging.info("Disabling dangerous stuff...")
     disable_dangerous_stuff()
-
-    copy_database(os.environ['PGDATABASE'], instance)
 
 
 def save_progress():
