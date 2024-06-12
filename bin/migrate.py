@@ -845,6 +845,7 @@ def run_enterprise_upgrade(version):
         finally:
             proc.kill()
     
+    mark_enterprise_done(version)
     copy_database(enterprise_database, os.environ['PGDATABASE'])
 
 
@@ -886,8 +887,6 @@ def run_migration(start_version, target_version):
         if not skip_initial_upgrade and (not db_version in progress or not 'upgrade' in progress[db_version] or not progress[db_version]['upgrade']):
             logging.info("Running initial upgrade...")
             run_upgrade(db_version)
-            mark_upgrade_done(db_version)
-            copy_database(os.environ['PGDATABASE'], os.environ['PGDATABASE'] + "-" + db_version)
     else:
         db_version = progress_version
 
@@ -907,7 +906,6 @@ def run_migration(start_version, target_version):
                 if not enterprise_done:
                     run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/pre-jump", start_version)
                     run_enterprise_upgrade(ENTERPRISE_MINIMUM_TARGET)
-                    mark_enterprise_done(ENTERPRISE_MINIMUM_TARGET)
                 db_version = ENTERPRISE_MINIMUM_TARGET
                 if not openupgrade_done:
                     run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/post-jump")
@@ -949,17 +947,14 @@ def run_migration(start_version, target_version):
                 run_scripts(version, "enterprise/pre-upgrade", last_version)
                 run_enterprise_upgrade(version)
                 db_version = version
-                mark_enterprise_done(version)
             if not openupgrade_done:
                 run_scripts(version, "enterprise/post-upgrade")
         if not openupgrade_done:
             run_scripts(version, "pre-openupgrade")
             logging.info("Running OpenUpgrade to %s..." % version)
             run_upgrade(version)
-            mark_upgrade_done(version)
         db_version = version
         run_scripts(version, "post-upgrade")
-        copy_database(os.environ['PGDATABASE'], os.environ['PGDATABASE'] + "-" + version)
         last_version = version
     
     if params['enterprise-enabled']:
@@ -1049,6 +1044,10 @@ def run_upgrade(version):
     logfile = os.path.join(WAFT_DIR, 'logfile', instance + '.log')
     args = '-u base --stop-after-init --logfile "%s"' % logfile
     cmd(build_dir + '/run ' + args)
+    mark_upgrade_done(version)
+
+    # Backup the database
+    copy_database(os.environ['PGDATABASE'], os.environ['PGDATABASE'] + "-" + version)
 
     logging.info("Disabling dangerous stuff...")
     disable_dangerous_stuff()
