@@ -30,5 +30,6 @@ pip install --quiet "pip>=20.3" && \
 (pip uninstall --yes -r "${ODOO_WORK_DIR}/requirements-remove-default.txt" 2>/dev/null || /bin/true) && \
 pip install --quiet --exists-action w -r "${ODOO_WORK_DIR}/requirements-default.txt" && \
 pip install --quiet --exists-action w -r "${ODOO_WORK_DIR}/requirements.txt" && \
+"${ODOO_WORK_DIR}/update_depths" && \
 "${ODOO_WORK_DIR}/common/build" && \
 python "${ODOO_WORK_DIR}/common/entrypoint"
