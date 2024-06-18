@@ -1130,9 +1130,9 @@ def main():
         run_migration(start_version, target_version)
         logging.info("Migration completed.")
     except Exception as e:
-        _, name, tb = sys.exc_info()
+        type, name, tb = sys.exc_info()
         stacktrace = traceback.format_tb(tb)
-        logging.error("Error occurred: %s\nStacktrace:\n%s" % (e, ''.join(stacktrace)))
+        logging.error("%s was raised: %s\nStacktrace:\n%s" % (type.__name__, e, ''.join(stacktrace)))
         exit(1)
 
 
