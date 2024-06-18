@@ -370,7 +370,7 @@ def load_progress():
         i = [x[0] for x in HOOK_ORDER].index(hook)
         for j in range(i, len(HOOK_ORDER)):
             delete_hook, enterprise_done, upgrade_done = HOOK_ORDER[j]
-            if version in progress and \
+            if version in progress and 'hook' in progress[version] and \
                 delete_hook in progress[version]['hook']:
                 del progress[version]['hook'][delete_hook]
                 if not enterprise_done and 'enterprise' in progress[version]:
