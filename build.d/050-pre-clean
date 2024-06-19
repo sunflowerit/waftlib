@@ -36,6 +36,15 @@ for directory in repos:
     if not os.path.isdir(os.path.join(directory, '.git/objects')):
         shutil.rmtree(directory)
         continue
+    # https://stackoverflow.com/q/3921409
+    # TODO: more subtle to call "git am --abort"
+    if os.path.isdir(os.path.join(directory, '.git/rebase-apply')):
+        shutil.rmtree(directory)
+        continue
+    # TODO: more subtle to call "git merge --abort"
+    if os.path.isdir(os.path.join(directory, '.git/rebase-merge')):
+        shutil.rmtree(directory)
+        continue
     try:
         check_call(
             [
