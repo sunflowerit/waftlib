@@ -820,12 +820,16 @@ def rebuild_sources():
             cmd_system("sed -i '/db_port =/d' \"" + build_dir + '/auto/odoo.conf"')
             cmd_system('echo "db_port = 5432"')
         if float(version) >= 13.999:
+            try:
+                cmd_system('rm -r "%s/custom/src/odoo/addons/*/migrations"' % build_dir)
+            except:
+                pass
             cmd_system("sed -i '/upgrade_path =/d' \"" + build_dir + '/auto/odoo.conf"')
             cmd_system(
                 "sed -i '/server_wide_modules =/d' \"" + build_dir + '/auto/odoo.conf"'
             )
             cmd_system(
-                'echo upgrade_path =  "'
+                'echo upgrade_path = "'
                 + build_dir
                 + '/custom/src/openupgrade/openupgrade_scripts/scripts" >> "'
                 + build_dir
