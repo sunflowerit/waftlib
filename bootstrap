@@ -227,12 +227,6 @@ else
   /bin/echo "WARNING: ${ODOO_WORK_DIR}/common/entrypoint not a default link!"
 fi
 
-if [ ! -f "${ODOO_WORK_DIR}/custom/src/addons.yaml" ]; then
-  /bin/echo "INFO: Copy ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/addons.yaml to ${ODOO_WORK_DIR}/custom/src/addons.yaml"
-  /bin/cp "${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/addons.yaml" "${ODOO_WORK_DIR}/custom/src/"
-  cd "${ODOO_WORK_DIR}"
-fi
-
 if [ ! -f "${ODOO_WORK_DIR}/custom/src/repos.yaml" ]; then
   /bin/echo "INFO: Copy ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/repos.yaml to ${ODOO_WORK_DIR}/custom/src/repos.yaml"
   /bin/cp "${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/repos.yaml" "${ODOO_WORK_DIR}/custom/src/"
