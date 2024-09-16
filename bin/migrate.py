@@ -633,6 +633,8 @@ def rebuild_sources():
         rewritten_lines = []
 
         lines = []
+        if not os.path.exists(os.path.join(build_dir, ".env-secret")):
+            cmd_system(os.path.join(build_dir, "bootstrap"))
         with open(os.path.join(build_dir, ".env-secret"), "r") as file:
             # Go over all lines and see what needs to be rewritten
             for line in file:
@@ -759,6 +761,12 @@ def rebuild_sources():
 
         if not repos_file_existed:
             if version == params["start-version"]:
+                if not os.path.exists(
+                    os.path.join(build_dir, "custom/src/old-repos.yaml")
+                ):
+                    raise Exception(
+                        "Put a copy of the original repos.yaml in custom/src/old-repos.yaml"
+                    )
                 shutil.copy(
                     os.path.join(WAFT_DIR, "custom/src/old-repos.yaml"), repos_file
                 )
