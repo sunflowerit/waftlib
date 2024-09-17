@@ -769,7 +769,7 @@ def rebuild_sources():
         if not repos_file_existed:
             if version == params["start-version"]:
                 if not os.path.exists(
-                    os.path.join(build_dir, "custom/src/old-repos.yaml")
+                    os.path.join(WAFT_DIR, "custom/src/old-repos.yaml")
                 ):
                     raise Exception(
                         "Put a copy of the original repos.yaml in custom/src/old-repos.yaml"
