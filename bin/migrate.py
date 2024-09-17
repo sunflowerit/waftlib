@@ -77,12 +77,11 @@ class CommandFailedException(Exception):
         )
 
 
-def available_enterprise_build_versions(start_version):
+def available_enterprise_build_versions(start_version, minimum_target):
     return [
         version
         for version in available_build_versions(start_version)
-        if version == start_version
-        or float(version) - float(ENTERPRISE_MINIMUM_TARGET) >= -0.01
+        if version == start_version or float(version) - float(minimum_target) >= -0.01
     ]
 
 
@@ -296,6 +295,11 @@ def load_defaults(params):
         if "MIGRATION_START_VERSION" in os.environ
         else None
     )
+    minimum_target = (
+        os.environ["MIGRATION_ENTERPRISE_JUMP_TO"]
+        if "MIGRATION_ENTERPRISE_JUMP_TO" in os.environ
+        else ENTERPRISE_MINIMUM_TARGET
+    )
     return {
         **{
             "enterprise-enabled": enterprise_enabled,
@@ -307,6 +311,7 @@ def load_defaults(params):
             "verbose": False,
             "enterprise-dont-resume": False,
             "enterprise-autotrust-ssh": False,
+            "enterprise-jump-to": minimum_target,
         },
         **params,
     }
@@ -488,6 +493,8 @@ def parse_arguments():
             arguments["enterprise-dont-resume"] = True
         if arg == "--enterprise-autotrust-ssh":
             arguments["enterprise-autotrust-ssh"] = True
+        if arg == "--enterprise-jump-to":
+            arguments["enterprise-jump-to"] = value
     return arguments
 
 
@@ -979,8 +986,13 @@ def run_migration(start_version, target_version):
     global params, db_version, progress
 
     start_version = db_version = params["start-version"]
+    minimum_target = (
+        params["enterprise-jump-to"]
+        if "enterprise-jump-to" in params
+        else ENTERPRISE_MINIMUM_TARGET
+    )
     will_jump = params["enterprise-enabled"] and (float(start_version) + 1.0) < float(
-        ENTERPRISE_MINIMUM_TARGET
+        minimum_target
     )
     from_start = False
 
@@ -990,14 +1002,14 @@ def run_migration(start_version, target_version):
     init_progress(start_version)
     progress_version = find_db_version_from_progress()
     from_start = abs(float(progress_version) - float(start_version)) < 0.001 and (
-        not ENTERPRISE_MINIMUM_TARGET in progress
+        not minimum_target in progress
         or (
-            not "upgrade" in progress[ENTERPRISE_MINIMUM_TARGET]
-            or not progress[ENTERPRISE_MINIMUM_TARGET]["upgrade"]
+            not "upgrade" in progress[minimum_target]
+            or not progress[minimum_target]["upgrade"]
         )
         and (
-            not "enterprise" in progress[ENTERPRISE_MINIMUM_TARGET]
-            or not progress[ENTERPRISE_MINIMUM_TARGET]["enterprise"]
+            not "enterprise" in progress[minimum_target]
+            or not progress[minimum_target]["enterprise"]
         )
     )
 
@@ -1044,31 +1056,29 @@ def run_migration(start_version, target_version):
         ):
             if will_jump:
                 enterprise_done = (
-                    ENTERPRISE_MINIMUM_TARGET in progress
-                    and "enterprise" in progress[ENTERPRISE_MINIMUM_TARGET]
-                    and progress[ENTERPRISE_MINIMUM_TARGET]["enterprise"]
+                    minimum_target in progress
+                    and "enterprise" in progress[minimum_target]
+                    and progress[minimum_target]["enterprise"]
                 )
                 openupgrade_done = (
-                    ENTERPRISE_MINIMUM_TARGET in progress
-                    and "upgrade" in progress[ENTERPRISE_MINIMUM_TARGET]
-                    and progress[ENTERPRISE_MINIMUM_TARGET]["upgrade"]
+                    minimum_target in progress
+                    and "upgrade" in progress[minimum_target]
+                    and progress[minimum_target]["upgrade"]
                 )
                 if not enterprise_done:
-                    run_scripts(
-                        ENTERPRISE_MINIMUM_TARGET, "enterprise/pre-jump", start_version
-                    )
-                    run_enterprise_upgrade(ENTERPRISE_MINIMUM_TARGET)
-                db_version = ENTERPRISE_MINIMUM_TARGET
+                    run_scripts(minimum_target, "enterprise/pre-jump", start_version)
+                    run_enterprise_upgrade(minimum_target)
+                db_version = minimum_target
                 if not openupgrade_done:
-                    run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/post-jump")
-                    run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/post-upgrade")
-                    run_scripts(ENTERPRISE_MINIMUM_TARGET, "post-upgrade")
-        elif abs(float(progress_version) - float(ENTERPRISE_MINIMUM_TARGET)) < 0.001:
-            db_version = ENTERPRISE_MINIMUM_TARGET
+                    run_scripts(minimum_target, "enterprise/post-jump")
+                    run_scripts(minimum_target, "enterprise/post-upgrade")
+                    run_scripts(minimum_target, "post-upgrade")
+        elif abs(float(progress_version) - float(minimum_target)) < 0.001:
+            db_version = minimum_target
             if will_jump:
-                run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/post-jump")
-            run_scripts(ENTERPRISE_MINIMUM_TARGET, "enterprise/post-upgrade")
-            run_scripts(ENTERPRISE_MINIMUM_TARGET, "post-upgrade")
+                run_scripts(minimum_target, "enterprise/post-jump")
+            run_scripts(minimum_target, "enterprise/post-upgrade")
+            run_scripts(minimum_target, "post-upgrade")
 
     # If not running from the start, we may need to call the
     # the post-upgrade scripts of the previous version.
@@ -1080,7 +1090,8 @@ def run_migration(start_version, target_version):
             or float(db_version) - float(version) > 0.999
             or (
                 params["enterprise-enabled"]
-                and not version in available_enterprise_build_versions(start_version)
+                and not version
+                in available_enterprise_build_versions(start_version, minimum_target)
             )
         ):
             last_version = version
@@ -1098,10 +1109,7 @@ def run_migration(start_version, target_version):
         if not enterprise_done and not openupgrade_done:
             run_scripts(version, "pre-upgrade", last_version)
         if params["enterprise-enabled"]:
-            if (
-                not enterprise_done
-                and float(version) - float(ENTERPRISE_MINIMUM_TARGET) > 0.001
-            ):
+            if not enterprise_done and float(version) - float(minimum_target) > 0.001:
                 run_scripts(version, "enterprise/pre-upgrade", last_version)
                 run_enterprise_upgrade(version)
                 db_version = version
