@@ -243,7 +243,7 @@ def cmd_system(command):
 
 def disable_dangerous_stuff():
     dbname = os.environ["PGDATABASE"]
-    cmd("psql -d %s -c 'DELETE FROM ir_mail_server'" % dbname)
+    cmd("psql -d %s -c 'UPDATE ir_mail_server SET active = FALSE'" % dbname)
     try:
         cmd("psql -d %s -c 'UPDATE fetchmail_server SET active = FALSE'" % dbname)
     except:
