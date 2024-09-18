@@ -249,10 +249,6 @@ def disable_dangerous_stuff():
     except:
         pass
     cmd("psql -d %s -c 'UPDATE ir_cron SET active = FALSE'" % dbname)
-    cmd(
-        "psql -d %s -c \"UPDATE ir_config_parameter SET value = 'http://localhost:8069' WHERE key = 'web.base.url'\""
-        % dbname
-    )
 
 
 def find_db_version_from_progress():
