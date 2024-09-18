@@ -738,7 +738,19 @@ def rebuild_sources():
         open(default_repos_template_file).read(), Loader=yaml.Loader
     )
 
-    versions = available_build_versions(params["start-version"])
+    jump_to_version = (
+        params["enterprise-jump-to"] if "enterprise-jump-to" in params else None
+    )
+    enterprise_enabled = (
+        params["enterprise-enabled"] if "enterprise-enabled" in params else False
+    )
+    versions = (
+        available_build_versions(params["start-version"])
+        if not enterprise_enabled
+        else available_enterprise_build_versions(
+            params["start-version"], jump_to_version
+        )
+    )
     for version in versions:
         build_dir = os.path.join(MIGRATION_PATH, "build-" + version)
         if float(version) > 13.999 and version == os.environ["ODOO_VERSION"]:
@@ -1083,7 +1095,6 @@ def run_migration(start_version, target_version):
     # If not running from the start, we may need to call the
     # the post-upgrade scripts of the previous version.
     last_version = start_version
-    initial_post_upgrade_flag = False
     for version in available_build_versions(start_version):
         if (
             version == start_version
