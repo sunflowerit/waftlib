@@ -38,6 +38,14 @@ OCA/account-invoicing:
   merges:
     - oca $ODOO_VERSION
 
+OCA/account-invoice-reporting:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/account-invoice-reporting
+  merges:
+    - oca $ODOO_VERSION
+
 OCA/bank-payment:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
