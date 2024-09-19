@@ -662,7 +662,7 @@ def rebuild_sources():
         # Rewrite the file
         with open(os.path.join(build_dir, ".env-secret"), "wt") as file:
             for line in lines:
-                file.write(line + "\n")
+                file.write(line)
 
     def exclude_repos(config, whitelist):
         new_config = {}
