@@ -971,7 +971,7 @@ def run_enterprise_upgrade(version):
                 elif (
                     line.find(
                         "This upgrade request seems to have been "
-                        "interrupted. Do you want to resume it ? "
+                        "interrupted. Do you want to resume it? "
                         "[Y/n]"
                     )
                     != -1
