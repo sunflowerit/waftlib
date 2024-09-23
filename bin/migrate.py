@@ -242,13 +242,23 @@ def cmd_system(command):
 
 
 def disable_dangerous_stuff():
+    queries = [
+        ("UPDATE ir_mail_server SET active = FALSE, smtp_host = 'f'", True),
+        ("UPDATE fetchmail_server SETE active = FALSE", False),
+        ("UPDATE ir_cron SET active = FALSE", True),
+    ]
     dbname = os.environ["PGDATABASE"]
-    cmd("psql -d %s -c 'UPDATE ir_mail_server SET active = FALSE'" % dbname)
-    try:
-        cmd("psql -d %s -c 'UPDATE fetchmail_server SET active = FALSE'" % dbname)
-    except:
-        pass
-    cmd("psql -d %s -c 'UPDATE ir_cron SET active = FALSE'" % dbname)
+
+    with psycopg.connect("dbname=" + os.environ["PGDATABASE"]) as conn:
+        with conn.cursor() as cur:
+            for query, required in queries:
+                try:
+                    cur.execute(query)
+                except Exception as e:
+                    if required:
+                        logging.error("Unable to defuse database, the following query failed:")
+                        logging.error(query)
+                        raise e
 
 
 def find_db_version_from_progress():
