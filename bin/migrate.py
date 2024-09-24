@@ -647,7 +647,7 @@ def rebuild_sources():
 
         lines = []
         env_secret_template = os.path.join(WAFT_DIR, "waftlib/templates/.env-secret")
-        with open(env_secret_template, "r") as file:
+        with open(env_secret_template, "rt") as file:
             # Go over all lines and see what needs to be rewritten
             for line in file:
                 i = line.find("=")
@@ -661,7 +661,7 @@ def rebuild_sources():
                         lines.append('%s="%s"' % (key, value))
                         rewritten_lines.append(key)
                     else:
-                        lines.append(line)
+                        lines.append(line.strip())
 
         # Add lines for the missing values
         for key, value in overwrite_values.items():
@@ -671,7 +671,7 @@ def rebuild_sources():
         # Rewrite the file
         with open(os.path.join(build_dir, ".env-secret"), "wt") as file:
             for line in lines:
-                file.write(line)
+                file.write(line + "\n")
 
     def exclude_repos(config, whitelist):
         new_config = {}
