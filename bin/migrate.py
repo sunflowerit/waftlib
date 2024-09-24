@@ -249,7 +249,7 @@ def disable_dangerous_stuff():
     ]
     dbname = os.environ["PGDATABASE"]
 
-    with psycopg.connect("dbname=" + os.environ["PGDATABASE"]) as conn:
+    with psycopg.connect("dbname=" + dbname) as conn:
         with conn.cursor() as cur:
             for query, required in queries:
                 try:
@@ -646,9 +646,8 @@ def rebuild_sources():
         rewritten_lines = []
 
         lines = []
-        if not os.path.exists(os.path.join(build_dir, ".env-secret")):
-            cmd_system(os.path.join(build_dir, "bootstrap"))
-        with open(os.path.join(build_dir, ".env-secret"), "r") as file:
+        env_secret_template = os.path.join(WAFT_DIR, "waftlib/templates/.env-secret")
+        with open(env_secret_template, "r") as file:
             # Go over all lines and see what needs to be rewritten
             for line in file:
                 i = line.find("=")
