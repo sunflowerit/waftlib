@@ -256,7 +256,9 @@ def disable_dangerous_stuff():
                     cur.execute(query)
                 except Exception as e:
                     if required:
-                        logging.error("Unable to defuse database, the following query failed:")
+                        logging.error(
+                            "Unable to defuse database, the following query failed:"
+                        )
                         logging.error(query)
                         raise e
 
@@ -646,8 +648,13 @@ def rebuild_sources():
         rewritten_lines = []
 
         lines = []
-        env_secret_template = os.path.join(WAFT_DIR, "waftlib/templates/.env-secret")
-        with open(env_secret_template, "rt") as file:
+        env_secret_filename = os.path.join(build_dir, ".env-secret")
+        if not os.path.exists(env_secret_filename):
+            shutil.copyfile(
+                os.path.join(WAFT_DIR, "waftlib/templates/.env-secret"),
+                env_secret_filename,
+            )
+        with open(env_secret_filename, "rt") as file:
             # Go over all lines and see what needs to be rewritten
             for line in file:
                 i = line.find("=")
