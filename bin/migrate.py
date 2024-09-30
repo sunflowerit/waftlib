@@ -839,7 +839,7 @@ def rebuild_sources():
         cmd_system(
             os.path.join(build_dir, ".venv/bin/pip")
             + " install "
-            + "git+https://github.com/OCA/openupgradelib"
+            + "git+https://github.com/sunflowerit/openupgradelib@fix-tax-tags-conversion"
         )
 
         # Change the config
