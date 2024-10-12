@@ -129,7 +129,7 @@ def clean_foreign_references(
                     % (constraint, foreign_table_name, foreign_column)
                 )
                 purge_records_more_than_reserve(
-                    foreign_table_name, '"%s" %s' % (foreign_column, filter_clause)
+                    cr, foreign_table_name, '"%s" %s' % (foreign_column, filter_clause)
                 )
                 cr.execute('DROP INDEX "%s_temp_index"' % constraint)
 
@@ -183,19 +183,22 @@ def purge_records_more_than_reserve(
         "min": "<",
         "max": ">",
     }
-    filter_opposite = filter_opposites[filter]
-    cr.execute(
-        'SELECT %s(id) FROM "%s" WHERE %s' % (filter_opposite, table_name, where_clause)
-    )
-    result = cr.fetchone()
-    filter_record_id = result[0]
-    filter_operator = filter_operators[filter]
+    filter_operator = filter_record_id = None
+    if filter:
+        filter_opposite = filter_opposites[filter]
+        cr.execute(
+            'SELECT %s(id) FROM "%s" WHERE %s' % (filter_opposite, table_name, where_clause)
+        )
+        result = cr.fetchone()
+        filter_record_id = result[0]
+        filter_operator = filter_operators[filter]
+    delete_where_clause = 'id %s %s' % (filter_operator, filter_record_id) if filter_operator and filter_record_id else where_clause
     _execute_without_constraints(
         cr,
         table_name,
         reset_id,
-        'DELETE FROM "%s" WHERE id %s %s'
-        % (table_name, filter_operator, filter_record_id),
+        'DELETE FROM "%s" WHERE %s'
+        % (table_name, delete_where_clause),
         filter_operator,
         filter_record_id,
     )
@@ -224,19 +227,19 @@ def _execute_without_constraints(
     cr, table_name, reset_id, query, filter_operator, filter_record_id
 ):
     logging.info("Reading constraints from %s." % table_name)
-    constraints = fetch_foreign_key_constraints(table_name)
+    constraints = fetch_foreign_key_constraints(cr, table_name)
     if constraints:
         logging.info("Disabling foreign references to %s." % table_name)
-        _disable_constraints(table_name)
+        _disable_constraints(cr, table_name)
     logging.info(query)
     cr.execute(query)
     if constraints:
         logging.info("Cleaning old foreign references of %s" % table_name)
         clean_foreign_references(
-            table_name, constraints, reset_id, filter_operator, filter_record_id
+            cr, table_name, constraints, reset_id, filter_operator, filter_record_id
         )
         logging.info("Enabling foreign references to %s." % table_name)
-        _enable_constraints(constraints)
+        _enable_constraints(cr, constraints)
 
 
 def delete_table_references(env, table_name, column_name, id, careful=True):
