@@ -85,18 +85,33 @@ class Purger:
                     'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
                     % (constraint_name, foreign_table_name, foreign_column)
                 )
-                with Purger(self.cr, foreign_table_name) as x:
-                    x.purge('"%s" %s' % (foreign_column, filter_clause))
-                    self.cr.execute('DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name)
+                purger = Purger(self.cr, foreign_table_name)
+                purger.start()
+                purger.purge('"%s" %s' % (foreign_column, filter_clause))
+                purger.clean()
+                # Only clean, don't stop, because foreign_table_name might be the same as self.table_name, and we don't want to enable the foreign keys too early
+                self.cr.execute(
+                    'DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name
+                )
             else:
                 raise Exception("Recursion detected while cleaning foreign references")
+
+    def clean(self):
+        for constraint_name, foreign_table_name, foreign_column, _ in self.constraints:
+            if self.clean_foreign_references:
+                logging.info("Cleaning foreign references to %s..." % self.table_name)
+                self._clean_foreign_references(
+                    constraint_name,
+                    foreign_table_name,
+                    foreign_column,
+                )
+        self.clean_foreign_references = False
 
     def purge(self, where_clause):
         query = "DELETE FROM %s WHERE " + where_clause
         logging.info(query, AsIs(self.table_name))
         self.cr.execute(query, [AsIs(self.table_name)])
         self.clean_foreign_references = self.cr.rowcount > 0
-
 
     def purge_minmax(self, where_clause, filter=None):
         filter_opposites = {"min": "max", "max": "min"}
@@ -150,6 +165,7 @@ class Purger:
                 "ALTER TABLE %s VALIDATE CONSTRAINT %s",
                 [AsIs(foreign_table_name), AsIs(constraint_name)],
             )
+        self.clean_foreign_references = False
 
     def truncate(self):
         logging.info("Truncating table %s", self.table_name)
@@ -192,7 +208,7 @@ def fetch_foreign_key_constraints(cr, table_name):
         [table_name],
     )
     results = cr.dictfetchall()
-    return [
+    constrains = [
         (
             r["constraint_name"],
             r["table_name"],
@@ -201,6 +217,9 @@ def fetch_foreign_key_constraints(cr, table_name):
         )
         for r in results
     ]
+    # Put constrains that are from the table itself, at the end, so that they are processed the last
+    constrains.sort(key=lambda x: x[1] == table_name)
+    return constrains
 
 
 def purge_records(cr, table_name, where_clause, reset_id, non_updatable_tables=[]):
