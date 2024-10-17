@@ -41,21 +41,20 @@ class Purger:
                 )
 
         if not self.filter_record_id:
-            filter_clause = 'NOT IN (SELECT id FROM "%s")' % self.table_name
+            filter_clause = '\"%s\" IS NOT NULL AND \"%s\" NOT IN (SELECT id FROM "%s")' % (foreign_column, foreign_column, self.table_name)
         else:
-            filter_clause = "%s %s" % (self.filter_operator, self.filter_record_id)
+            filter_clause = "\"%s\" %s %s" % (foreign_column, self.filter_operator, self.filter_record_id)
         if not delete:
             self.cr.execute(
                 'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
                 % (constraint_name, foreign_table_name, foreign_column)
             )
             query = """
-                UPDATE \"%s\" SET \"%s\" = %s WHERE \"%s\" %s
+                UPDATE \"%s\" SET \"%s\" = %s WHERE %s
             """ % (
                 foreign_table_name,
                 foreign_column,
                 "%s",
-                foreign_column,
                 filter_clause,
             )
             logging.info(query, update_value)
@@ -75,7 +74,7 @@ class Purger:
                 )
                 purger = Purger(self.cr, foreign_table_name)
                 purger.start()
-                purger.purge('"%s" %s' % (foreign_column, filter_clause))
+                purger.purge(filter_clause)
                 purger.clean()
                 # Only clean, don't stop, because foreign_table_name might be the same as self.table_name, and we don't want to enable the foreign keys too early
                 self.cr.execute(
