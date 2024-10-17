@@ -22,36 +22,22 @@ class Purger:
         self.stop()
 
     def _clean_foreign_references(
-        self,
-        constraint_name,
-        foreign_table_name,
-        foreign_column,
+        self, constraint_name, foreign_table_name, foreign_column, is_nullable
     ):
         """Cleans up any foreign references to our table, recursively."""
         delete = False
-        update_value = None
-        if self.reset_id:
+        update_value = self.reset_id
+        if self.reset_id or is_nullable:
             logging.info(
                 "Resetting foreign references to %s from %s.%s to %s."
                 % (self.reset_id, foreign_table_name, foreign_column, self.table_name)
             )
         else:
-            update_value = self.reset_id
-            if not self.reset_id:
+            if self.reset_id == None:
                 delete = True
                 logging.info(
                     "Deleting foreign references from %s.%s to %s."
                     % (foreign_table_name, foreign_column, self.table_name)
-                )
-            else:
-                logging.info(
-                    "Resetting foreign references to %s from %s.%s to %s."
-                    % (
-                        update_value,
-                        foreign_table_name,
-                        foreign_column,
-                        self.table_name,
-                    )
                 )
 
         if not self.filter_record_id:
@@ -97,13 +83,16 @@ class Purger:
                 raise Exception("Recursion detected while cleaning foreign references")
 
     def clean(self):
-        for constraint_name, foreign_table_name, foreign_column, _ in self.constraints:
+        for (
+            constraint_name,
+            foreign_table_name,
+            foreign_column,
+            is_nullable,
+        ) in self.constraints:
             if self.clean_foreign_references:
                 logging.info("Cleaning foreign references to %s..." % self.table_name)
                 self._clean_foreign_references(
-                    constraint_name,
-                    foreign_table_name,
-                    foreign_column,
+                    constraint_name, foreign_table_name, foreign_column, is_nullable
                 )
         self.clean_foreign_references = False
 
@@ -142,13 +131,16 @@ class Purger:
         self.cr.execute("ALTER TABLE %s DISABLE TRIGGER ALL", [AsIs(self.table_name)])
 
     def stop(self):
-        for constraint_name, foreign_table_name, foreign_column, _ in self.constraints:
+        for (
+            constraint_name,
+            foreign_table_name,
+            foreign_column,
+            is_nullable,
+        ) in self.constraints:
             if self.clean_foreign_references:
                 logging.info("Cleaning foreign references to %s..." % self.table_name)
                 self._clean_foreign_references(
-                    constraint_name,
-                    foreign_table_name,
-                    foreign_column,
+                    constraint_name, foreign_table_name, foreign_column, is_nullable
                 )
 
             logging.info(
