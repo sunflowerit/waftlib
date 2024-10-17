@@ -25,7 +25,7 @@ from queue import Queue, Empty
 
 # Adjust this to the minimum supported target version by the enterprise script
 # whenever Odoo decides to change it.
-ENTERPRISE_MINIMUM_TARGET = "13.0"
+ENTERPRISE_MINIMUM_TARGET = "15.0"
 HELP_TEXT = """
 Parameters
 ===================
