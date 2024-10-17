@@ -9,7 +9,7 @@ class Purger:
         self.filter_operator = None
         self.filter_record_id = None
         self.table_name = table_name
-        self.tables_already_cleaned = []
+        self.columns_already_cleaned = []
         self.reset_id = reset_id
 
         self.constraints = fetch_foreign_key_constraints(self.cr, self.table_name)
@@ -65,8 +65,10 @@ class Purger:
             )
             self.cr.execute('DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name)
         else:
-            if not foreign_table_name in self.tables_already_cleaned:
-                self.tables_already_cleaned.append(foreign_table_name)
+            if not (foreign_table_name, foreign_column) in self.columns_already_cleaned:
+                self.columns_already_cleaned.append(
+                    (foreign_table_name, foreign_column)
+                )
                 self.cr.execute(
                     'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
                     % (constraint_name, foreign_table_name, foreign_column)
@@ -80,7 +82,10 @@ class Purger:
                     'DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name
                 )
             else:
-                raise Exception("Recursion detected while cleaning foreign references. Table %s was encountered twice." % foreign_table_name)
+                raise Exception(
+                    "Recursion detected while cleaning foreign references. Column %s.%s was encountered twice."
+                    % (foreign_table_name, foreign_column)
+                )
 
     def clean(self):
         logging.info("Cleaning foreign references to %s..." % self.table_name)
