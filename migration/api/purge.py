@@ -27,18 +27,17 @@ class Purger:
         """Cleans up any foreign references to our table, recursively."""
         delete = False
         update_value = self.reset_id
-        if self.reset_id or is_nullable:
+        if not self.table_name.endswith("_rel") and (self.reset_id or is_nullable):
             logging.info(
                 "Resetting foreign references to %s from %s.%s to %s."
                 % (self.reset_id, foreign_table_name, foreign_column, self.table_name)
             )
         else:
-            if self.reset_id == None:
-                delete = True
-                logging.info(
-                    "Deleting foreign references from %s.%s to %s."
-                    % (foreign_table_name, foreign_column, self.table_name)
-                )
+            delete = True
+            logging.info(
+                "Deleting foreign references from %s.%s to %s."
+                % (foreign_table_name, foreign_column, self.table_name)
+            )
 
         if not self.filter_record_id:
             filter_clause = '\"%s\" IS NOT NULL AND \"%s\" NOT IN (SELECT id FROM "%s")' % (foreign_column, foreign_column, self.table_name)
