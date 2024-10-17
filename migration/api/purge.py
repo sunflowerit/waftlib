@@ -80,9 +80,10 @@ class Purger:
                     'DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name
                 )
             else:
-                raise Exception("Recursion detected while cleaning foreign references")
+                raise Exception("Recursion detected while cleaning foreign references. Table %s was encountered twice." % foreign_table_name)
 
     def clean(self):
+        logging.info("Cleaning foreign references to %s..." % self.table_name)
         for (
             constraint_name,
             foreign_table_name,
@@ -90,7 +91,6 @@ class Purger:
             is_nullable,
         ) in self.constraints:
             if self.clean_foreign_references:
-                logging.info("Cleaning foreign references to %s..." % self.table_name)
                 self._clean_foreign_references(
                     constraint_name, foreign_table_name, foreign_column, is_nullable
                 )
@@ -131,32 +131,32 @@ class Purger:
         self.cr.execute("ALTER TABLE %s DISABLE TRIGGER ALL", [AsIs(self.table_name)])
 
     def stop(self):
-        for (
-            constraint_name,
-            foreign_table_name,
-            foreign_column,
-            is_nullable,
-        ) in self.constraints:
-            if self.clean_foreign_references:
+        if self.clean_foreign_references:
+            for (
+                constraint_name,
+                foreign_table_name,
+                foreign_column,
+                is_nullable,
+            ) in self.constraints:
                 logging.info("Cleaning foreign references to %s..." % self.table_name)
                 self._clean_foreign_references(
                     constraint_name, foreign_table_name, foreign_column, is_nullable
                 )
 
-            logging.info(
-                "Enabling foreign key constraint %s from table %s again..."
-                % (constraint_name, foreign_table_name)
-            )
-            self.cr.execute(
-                """
-                UPDATE pg_constraint SET convalidated = FALSE WHERE conname = %s
-            """,
-                [constraint_name],
-            )
-            self.cr.execute(
-                "ALTER TABLE %s VALIDATE CONSTRAINT %s",
-                [AsIs(foreign_table_name), AsIs(constraint_name)],
-            )
+                logging.info(
+                    "Enabling foreign key constraint %s from table %s again..."
+                    % (constraint_name, foreign_table_name)
+                )
+                self.cr.execute(
+                    """
+                    UPDATE pg_constraint SET convalidated = FALSE WHERE conname = %s
+                """,
+                    [constraint_name],
+                )
+                self.cr.execute(
+                    "ALTER TABLE %s VALIDATE CONSTRAINT %s",
+                    [AsIs(foreign_table_name), AsIs(constraint_name)],
+                )
         self.clean_foreign_references = False
 
     def truncate(self):
