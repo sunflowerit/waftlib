@@ -40,6 +40,8 @@ Parameters
             prevent pre-migration scripts from running.
 --help
 -h          Show this help message.
+--open-upgrade-disabled
+-o          Disable the open-upgrade builds and upgrades.
 --restore
 -s          Restore a database from the configured path.
 -r          Rebuild all builds before running the migration.
@@ -298,6 +300,11 @@ def load_defaults(params):
     enterprise_enabled = "MIGRATION_ENTERPRISE_ENABLED" in os.environ and os.environ[
         "MIGRATION_ENTERPRISE_ENABLED"
     ].lower() in ("1", "yes", "true")
+    open_upgrade_disabled = (
+        "MIGRATION_OPEN_UPGRADE_DISABLED" in os.environ
+        and os.environ["MIGRATION_OPEN_UPGRADE_DISABLED"].lower()
+        in ("1", "yes", "true")
+    )
     start_version = (
         os.environ["MIGRATION_START_VERSION"]
         if "MIGRATION_START_VERSION" in os.environ
@@ -310,16 +317,17 @@ def load_defaults(params):
     )
     return {
         **{
+            "enterprise-autotrust-ssh": False,
+            "enterprise-dont-resume": False,
             "enterprise-enabled": enterprise_enabled,
-            "start-version": start_version,
+            "enterprise-jump-to": minimum_target,
             "help": False,
+            "open-upgrade-disabled": open_upgrade_disabled,
             "rebuild": False,
             "reset-progress": False,
             "restore": False,
+            "start-version": start_version,
             "verbose": False,
-            "enterprise-dont-resume": False,
-            "enterprise-autotrust-ssh": False,
-            "enterprise-jump-to": minimum_target,
         },
         **params,
     }
@@ -460,7 +468,7 @@ def parse_arguments():
     try:
         optlist, args = getopt.getopt(
             sys.argv[1:],
-            "d:ef:hrsv",
+            "d:ef:hrsvo",
             [
                 "database=",
                 "enterprise-enabled",
@@ -472,6 +480,7 @@ def parse_arguments():
                 "verbose",
                 "enterprise-dont-resume",
                 "enterprise-autotrust-ssh",
+                "open-upgrade-disabled",
             ],
         )
     except getopt.GetoptError as err:
@@ -485,6 +494,8 @@ def parse_arguments():
             arguments["database"] = value
         if arg == "-e" or arg == "--enterprise-enabled":
             arguments["enterprise-enabled"] = True
+        if arg == "-o" or arg == "--open-upgrade-disabled":
+            arguments["open-upgrade-disabled"] = True
         if arg == "-f" or arg == "--start-version":
             arguments["start-version"] = value
         if arg == "-h" or arg == "--help":
@@ -767,6 +778,8 @@ def rebuild_sources():
         build_dir = os.path.join(MIGRATION_PATH, "build-" + version)
         if float(version) > 13.999 and version == os.environ["ODOO_VERSION"]:
             build_dir = WAFT_DIR
+        elif params["open-upgrade-disabled"]:
+            continue
 
         # Set up git in build dir
         if not os.path.exists(os.path.join(build_dir, "bootstrap")):
@@ -1138,7 +1151,7 @@ def run_migration(start_version, target_version):
                 db_version = version
             if not openupgrade_done:
                 run_scripts(version, "enterprise/post-upgrade")
-        if not openupgrade_done:
+        if not params["open-upgrade-disabled"] and not openupgrade_done:
             run_scripts(version, "pre-openupgrade")
             logging.info("Running OpenUpgrade to %s..." % version)
             run_upgrade(version)
