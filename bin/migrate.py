@@ -1025,7 +1025,7 @@ def run_migration(start_version, target_version):
     start_version = db_version = params["start-version"]
     minimum_target = (
         params["enterprise-jump-to"]
-        if "enterprise-jump-to" in params
+        if "enterprise-jump-to" in params and params["enterprise-jump-to"]
         else ENTERPRISE_MINIMUM_TARGET
     )
     will_jump = params["enterprise-enabled"] and (float(start_version) + 1.0) < float(
