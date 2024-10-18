@@ -9,12 +9,13 @@ import copy
 
 
 def _purge_template_boms(template, _path):
-    products = [ product.id for product in template.product_variant_ids]
+    products = [product.id for product in template.product_variant_ids]
 
     for bom in template.bom_ids:
         path = copy.deepcopy(_path)
         path.append((template.id, products, bom.id))
         _purge_template_bom_lines(bom, path)
+
 
 def _purge_template_bom_lines(bom, path):
     for line in bom.bom_line_ids:
@@ -22,8 +23,10 @@ def _purge_template_bom_lines(bom, path):
         # the same product.
         for element in path:
             if line.product_id.id in element[1]:
-                logging.info("Removing line %i from BoM %i, for product template %i." % 
-                    (line.id, bom.id, element[0]))
+                logging.info(
+                    "Removing line %i from BoM %i, for product template %i."
+                    % (line.id, bom.id, element[0])
+                )
                 bom.bom_line_ids = [(3, line.id, None)]
                 break
 
@@ -32,11 +35,12 @@ def _purge_template_bom_lines(bom, path):
         template = line.product_id.product_tmpl_id
         _purge_template_boms(template, path)
 
+
 def purge_template_materials(product_template):
     _purge_template_boms(product_template, [])
 
 
-templates = env['product.template'].search([])
+templates = env["product.template"].search([])
 
 logging.info("Purging recursive bill of materials...")
 for template in templates:
