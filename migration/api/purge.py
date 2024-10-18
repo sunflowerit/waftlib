@@ -40,10 +40,23 @@ class Purger:
             )
 
         if not self.filter_record_id:
-            filter_clause = '\"%s\" IS NOT NULL AND \"%s\" NOT IN (SELECT id FROM "%s")' % (foreign_column, foreign_column, self.table_name)
+            filter_clause = '"%s" IS NOT NULL AND "%s" NOT IN (SELECT id FROM "%s")' % (
+                foreign_column,
+                foreign_column,
+                self.table_name,
+            )
         else:
-            filter_clause = "\"%s\" %s %s" % (foreign_column, self.filter_operator, self.filter_record_id)
+            filter_clause = '"%s" %s %s' % (
+                foreign_column,
+                self.filter_operator,
+                self.filter_record_id,
+            )
         if not delete:
+            logging.debug(
+                "Creating index to on %s.%s to speed up update...",
+                foreign_table_name,
+                foreign_column,
+            )
             self.cr.execute(
                 'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
                 % (constraint_name, foreign_table_name, foreign_column)
@@ -61,11 +74,17 @@ class Purger:
                 query,
                 [update_value],
             )
+            logging.debug("%s records affected.", self.cr.rowcount)
             self.cr.execute('DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name)
         else:
             if not (foreign_table_name, foreign_column) in self.columns_already_cleaned:
                 self.columns_already_cleaned.append(
                     (foreign_table_name, foreign_column)
+                )
+                logging.debug(
+                    "Creating index to on %s.%s to speed up deletion...",
+                    foreign_table_name,
+                    foreign_column,
                 )
                 self.cr.execute(
                     'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
@@ -103,6 +122,7 @@ class Purger:
         query = "DELETE FROM %s WHERE " + where_clause
         logging.info(query, AsIs(self.table_name))
         self.cr.execute(query, [AsIs(self.table_name)])
+        logging.debug("%s rows deleted.", self.cr.rowcount)
         self.clean_foreign_references = self.cr.rowcount > 0
 
     def purge_minmax(self, where_clause, filter=None):
@@ -135,13 +155,13 @@ class Purger:
 
     def stop(self):
         if self.clean_foreign_references:
+            logging.info("Cleaning foreign references to %s..." % self.table_name)
             for (
                 constraint_name,
                 foreign_table_name,
                 foreign_column,
                 is_nullable,
             ) in self.constraints:
-                logging.info("Cleaning foreign references to %s..." % self.table_name)
                 self._clean_foreign_references(
                     constraint_name, foreign_table_name, foreign_column, is_nullable
                 )
