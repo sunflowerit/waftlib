@@ -9,10 +9,16 @@ try:
     file = open(MIGRATION_PATH + "/etc/uninstall-modules.txt", "r")
 except Exception as e:
     if type(e) == "FileNotFoundError":
-        logging.warning("%s/etc/uninstall-modules.txt doesn't exist, no modules will be uninstalled.", MIGRATION_PATH)
+        logging.warning(
+            "%s/etc/uninstall-modules.txt doesn't exist, no modules will be uninstalled.",
+            MIGRATION_PATH,
+        )
         exit(0)
     if isinstance(e, IOError):
-        logging.warning("%s/etc/uninstall-modules.txt can't be opened, no modules will be uninstalled", MIGRATION_PATH)
+        logging.warning(
+            "%s/etc/uninstall-modules.txt can't be opened, no modules will be uninstalled",
+            MIGRATION_PATH,
+        )
         traceback.print_exc()
         exit(0)
     # else:
@@ -31,5 +37,5 @@ logging.info(
 )
 
 for module in env["ir.module.module"].search([("name", "in", module_names)]):
-    module.state = 'to remove'
+    module.state = "to remove"
 env.cr.commit()
