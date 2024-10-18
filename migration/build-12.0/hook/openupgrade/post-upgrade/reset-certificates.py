@@ -5,7 +5,7 @@
 # X-Modules: hr
 
 
-if 'hr.employee' in env:
-    employees = env['hr.employee'].search([])
+if "hr.employee" in env:
+    employees = env["hr.employee"].search([])
     for employee in employees:
         employee.certificate = False
