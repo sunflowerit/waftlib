@@ -1,14 +1,13 @@
-from migrationapi import purge_model
+from migrationapi import Purger
 
 
-missing_models = []
 env.cr.execute("SELECT id, model FROM ir_model")
 results = env.cr.dictfetchall()
-for result in results:
-    model_id = result["id"]
-    model_name = result["model"]
 
-    if not model_name in env:
-        logging.info("Purging model %s...", model_name)
-        purge_model(env, model_id)
-        continue
+missing_model_names = [r["model"] for r in results if r["model"] not in env]
+missing_model_ids = [str(r["id"]) for r in results if r["model"] not in env]
+logging.info("Purging models: %s", ", ".join(missing_model_names))
+with Purger(env.cr, "ir_model") as p:
+    p.purge("id IN (%s)" % ",".join(missing_model_ids))
+with Purger(env.cr, "ir_model_fields") as p:
+    p.purge("relation IN ('%s')" % "','".join(missing_model_names))
