@@ -28,13 +28,13 @@ class Purger:
         delete = False
         update_value = self.reset_id
         if not self.table_name.endswith("_rel") and (self.reset_id or is_nullable):
-            logging.info(
+            logging.debug(
                 "Resetting foreign references to %s from %s.%s to %s."
                 % (self.reset_id, foreign_table_name, foreign_column, self.table_name)
             )
         else:
             delete = True
-            logging.info(
+            logging.debug(
                 "Deleting foreign references from %s.%s to %s."
                 % (foreign_table_name, foreign_column, self.table_name)
             )
@@ -69,7 +69,7 @@ class Purger:
                 "%s",
                 filter_clause,
             )
-            logging.info(query, update_value)
+            logging.debug(query, update_value)
             self.cr.execute(
                 query,
                 [update_value],
@@ -105,7 +105,7 @@ class Purger:
                 )
 
     def clean(self):
-        logging.info("Cleaning foreign references to %s..." % self.table_name)
+        logging.debug("Cleaning foreign references to %s..." % self.table_name)
         for (
             constraint_name,
             foreign_table_name,
@@ -120,7 +120,7 @@ class Purger:
 
     def purge(self, where_clause):
         query = "DELETE FROM %s WHERE " + where_clause
-        logging.info(query, AsIs(self.table_name))
+        logging.debug(query, AsIs(self.table_name))
         self.cr.execute(query, [AsIs(self.table_name)])
         logging.debug("%s rows deleted.", self.cr.rowcount)
         self.clean_foreign_references = self.cr.rowcount > 0
@@ -132,7 +132,7 @@ class Purger:
             "max": ">",
         }
         if filter:
-            logging.info("Searching flip-over ID for purging " + where_clause)
+            logging.debug("Searching flip-over ID for purging " + where_clause)
             filter_opposite = filter_opposites[filter]
             self.cr.execute(
                 'SELECT %s(id) FROM "%s" WHERE %s'
@@ -150,12 +150,12 @@ class Purger:
         self.purge(actual_where_clause)
 
     def start(self):
-        logging.info("Disabling triggers for table %s", self.table_name)
+        logging.debug("Disabling triggers for table %s", self.table_name)
         self.cr.execute("ALTER TABLE %s DISABLE TRIGGER ALL", [AsIs(self.table_name)])
 
     def stop(self):
         if self.clean_foreign_references:
-            logging.info("Cleaning foreign references to %s..." % self.table_name)
+            logging.debug("Cleaning foreign references to %s..." % self.table_name)
             for (
                 constraint_name,
                 foreign_table_name,
@@ -166,7 +166,7 @@ class Purger:
                     constraint_name, foreign_table_name, foreign_column, is_nullable
                 )
 
-                logging.info(
+                logging.debug(
                     "Enabling foreign key constraint %s from table %s again..."
                     % (constraint_name, foreign_table_name)
                 )
@@ -183,7 +183,7 @@ class Purger:
         self.clean_foreign_references = False
 
     def truncate(self):
-        logging.info("Truncating table %s", self.table_name)
+        logging.debug("Truncating table %s", self.table_name)
         self.cr.execute("TRUNCATE %s", [AsIs(self.table_name)])
         self.cr.rowcount
 
@@ -245,7 +245,7 @@ def purge_records(cr, table_name, where_clause, reset_id, non_updatable_tables=[
             table_name,
             where_clause,
         )
-        logging.info(query)
+        logging.debug(query)
         cr.execute(query)
 
         for _, foreign_table_name, foreign_column, is_nullable in constraints:
@@ -270,9 +270,9 @@ def purge_records(cr, table_name, where_clause, reset_id, non_updatable_tables=[
                     foreign_table_name,
                     foreign_column,
                 )
-            logging.info(query)
+            logging.debug(query)
             cr.execute(query)
-        logging.info("DROP TABLE yyy")
+        logging.debug("DROP TABLE yyy")
         cr.execute("DROP TABLE yyy")
 
 
@@ -306,7 +306,7 @@ def purge_view(env, view_id):
         try:
             purge_records(env.cr, "ir_ui_view", "id = " + str(view_id))
         except UnresolvableForeignReferenceError as e:
-            logging.info(
+            logging.debug(
                 "Warning: unable to delete view %i: there is a foreign "
                 "reference with table %s (column %s = %s), which can't just "
                 "be deleted. Skipping this view for now..."
@@ -320,7 +320,7 @@ def purge_view(env, view_id):
     for child in result:
         purge_view(env, child["id"])
 
-    logging.info("Deleting view %i..." % view_id)
+    logging.debug("Deleting view %i..." % view_id)
     env.cr.execute("DELETE FROM ir_ui_view_group_rel WHERE view_id = %s", [view_id])
     try:
         env.cr.execute("DELETE FROM ir_ui_view WHERE id = %s", [view_id])
