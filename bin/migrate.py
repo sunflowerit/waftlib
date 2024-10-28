@@ -394,9 +394,10 @@ def load_progress():
         ("post-migration", True, True),
     ]
 
-    if not os.path.exists("progress.json"):
+    progress_filepath = os.path.join(WAFT_DIR, "progress.json")
+    if not os.path.exists(progress_filepath):
         return {}
-    with open("progress.json", "r") as file:
+    with open(progress_filepath, "r") as file:
         progress = json.load(file)
 
     # Remove the parts that are not necessary anymore
@@ -1269,7 +1270,8 @@ def run_upgrade(version):
 
 def save_progress():
     global progress
-    with open("progress.json", "w") as file:
+    progress_filepath = os.path.join(WAFT_DIR, "progress.json")
+    with open(progress_filepath, "w") as file:
         json.dump(progress, file, indent=2)
 
 
