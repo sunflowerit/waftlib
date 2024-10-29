@@ -222,6 +222,14 @@ OCA/manufacture:
   merges:
     - oca $ODOO_VERSION
 
+OCA/manufacture-reporting:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/manufacture-reporting
+  merges:
+    - oca $ODOO_VERSION
+
 OCA/mis-builder:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
