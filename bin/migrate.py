@@ -245,9 +245,9 @@ def cmd_system(command):
 
 def disable_dangerous_stuff():
     queries = [
-        ("UPDATE ir_mail_server SET active = FALSE, smtp_host = 'f'", True),
         ("UPDATE fetchmail_server SET active = FALSE", False),
         ("UPDATE ir_cron SET active = FALSE", True),
+        ("UPDATE ir_mail_server SET active = FALSE, smtp_host = 'f'", True),
     ]
     dbname = os.environ["PGDATABASE"]
 
