@@ -251,9 +251,9 @@ def disable_dangerous_stuff():
     ]
     dbname = os.environ["PGDATABASE"]
 
-    with psycopg.connect("dbname=" + dbname) as conn:
-        with conn.cursor() as cur:
-            for query, required in queries:
+    for query, required in queries:
+        with psycopg.connect("dbname=" + dbname) as conn:
+            with conn.cursor() as cur:
                 try:
                     cur.execute(query)
                 except Exception as e:
