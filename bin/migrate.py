@@ -646,6 +646,9 @@ def rebuild_sources():
             "PGDATABASE": os.environ["PGDATABASE"],
             "ODOO_DBFILTER": "^%s$" % os.environ["PGDATABASE"],
             "LOG_LEVEL": "DEBUG",
+            # .env-secret files are generated with variables set to empty values causing issues.
+            # This is a workaround for it.
+            "PGPORT": "5432",
         }
         if "PGPASSWORD" in os.environ:
             overwrite_values["PGPASSWORD"] = os.environ["PGPASSWORD"]
