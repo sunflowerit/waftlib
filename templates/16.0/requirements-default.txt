@@ -29,10 +29,10 @@ ebaysdk==2.1.5
 feedparser==5.2.1
 freezegun==0.3.15
 geojson==2.5.0
-gevent==21.8.0
+gevent==22.10.2
 -e git+https://github.com/sunflowerit/git-aggregator.git@b459aee4f35c5b4b8fc2bc4fd826bf4f2639bd3d#egg=git_aggregator
 -e git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
-greenlet==1.1.2
+greenlet==2.0.2
 html2text==2020.1.16
 idna==2.10
 importlib-metadata==4.8.1
