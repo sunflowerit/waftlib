@@ -6,7 +6,11 @@ import getopt
 import polib
 import shutil
 import tempfile
-
+from waftlib import (
+    ODOO_DIR,
+    ADDONS_DIR,
+    SRC_DIR,
+)
 
 HELP_TEXT = """
 This script will generate new .po files for certain modules, and certain
@@ -35,7 +39,6 @@ Parameters
             translations.
 """
 
-
 arguments = {}
 compendium = {}
 deepl = None
@@ -61,13 +64,13 @@ def complete_missing_translations(pofile, lang):
 
     if not lang in compendium:
         return
-    
+
     # Try translating with the compendium first
     for entry in pofile.untranslated_entries():
         if entry.msgid in compendium[lang]:
             entry.msgstr = compendium[lang][entry.msgid]
             continue
-    
+
     # Translate all missing entries in one request
     if 'use-translation-service' in arguments:
         untranslated_entries = pofile.untranslated_entries()
@@ -90,13 +93,14 @@ def complete_missing_translations(pofile, lang):
 
 def generate_new_translations(module_name, language):
     global arguments, temp_file
-    os.system('./run --stop-after-init --log-level error -d "%s" -l %s --modules "%s" --i18n-export "%s" ' % (arguments['database'], language, module_name, temp_file))
+    os.system('./run --stop-after-init --log-level error -d "%s" -l %s --modules "%s" --i18n-export "%s" ' % (
+    arguments['database'], language, module_name, temp_file))
     return polib.pofile(temp_file)
 
 
 def load_compendium(folder, langs=None):
     dictionary = {}
-    
+
     for subdir, dirs, files in os.walk(folder):
         for filename in files:
             if filename.endswith('.po'):
@@ -136,7 +140,7 @@ def merge_translations(new_translations, old_translations):
         if old_entry:
             entry.msgstr = old_entry.msgstr
             existing_msgids.append(entry.msgid)
-    
+
     # Append unused old entries as comments:
     for entry in old_translations.translated_entries():
         if not entry.msgid in existing_msgids:
@@ -176,7 +180,7 @@ def parse_arguments():
 
 def main():
     global arguments, compendium, deepl, temp_file, translator
-    
+
     try:
         arguments = parse_arguments()
     except getopt.GetoptError as err:
@@ -199,7 +203,7 @@ def main():
             return 1
         else:
             args['database'] = database
-    
+
     if 'module-folder' in args and len(args['module-folder']) > 0:
         addon_folder = args['module-folder']
         addons = os.listdir(os.path.join(SRC_DIR, addon_folder))
@@ -224,7 +228,7 @@ def main():
         print("Warning: no languages specified. Loading all languages, which "
               "may take a long time. To speed up this process, specify "
               "languages to process less like so: -l nl,de,fr",
-            file=sys.stderr)
+              file=sys.stderr)
     langs = args['languages'] if 'languages' in args else None
 
     # Initialize
