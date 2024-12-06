@@ -174,7 +174,7 @@ errors_deal() {
         logexec /usr/bin/psql "${PGDATABASE}" < "${ODOO_WORK_DIR}/migrate-backup/${ODOO_START_FROM_VERSION}-${CURRENTLY_DATE_STRING}/${PGDATABASE}.sql"
       fi
       if [ "$(/bin/echo "${ODOO_EXIST_VERSION}" | /usr/bin/cut -d'.' -f1)" -ne "$(/bin/echo "${ODOO_DESTINATION_VERSION}" | /usr/bin/cut -d'.' -f1)" ]; then
-        logexec /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'${ODOO_EXIST_VERSION}'"|g' "${ODOO_WORK_DIR}/.env-secret"
+        logexec /usr/bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'${ODOO_EXIST_VERSION}'"|g' "${ODOO_WORK_DIR}/.env-secret"
       fi
     fi
   fi
@@ -254,7 +254,7 @@ until [ "$(/bin/echo "${MIGRATION_TEMPORARY_NAME}" | /usr/bin/cut -d'.' -f1)" -e
   /bin/cp -pf "${ODOO_WORK_DIR}/bootstrap" "${ODOO_WORK_DIR}/migrate-temporary/${MIGRATION_TEMPORARY_NAME}/"
   if [ ! -f "${ODOO_WORK_DIR}/migrate-temporary/${MIGRATION_TEMPORARY_NAME}/.env-secret" ]; then
     /bin/cp -p "${ODOO_WORK_DIR}/.env-secret" "${ODOO_WORK_DIR}/migrate-temporary/${MIGRATION_TEMPORARY_NAME}/"
-    /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'${MIGRATION_TEMPORARY_NAME}'"|g' "${ODOO_WORK_DIR}/migrate-temporary/${MIGRATION_TEMPORARY_NAME}/.env-secret"
+    /usr/bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'${MIGRATION_TEMPORARY_NAME}'"|g' "${ODOO_WORK_DIR}/migrate-temporary/${MIGRATION_TEMPORARY_NAME}/.env-secret"
   fi
   if [ -f "${ODOO_WORK_DIR}/migrate-templates/${MIGRATION_TEMPORARY_NAME}/.env-shared" ]; then
     /bin/cp -fp "${ODOO_WORK_DIR}/migrate-templates/${MIGRATION_TEMPORARY_NAME}/.env-shared" "${ODOO_WORK_DIR}/migrate-temporary/${MIGRATION_TEMPORARY_NAME}/"
@@ -311,7 +311,7 @@ until [ "$(/bin/echo "${MIGRATION_TEMPORARY_NAME}" | /usr/bin/cut -d'.' -f1)" -e
 done
 
 if [ "$(/bin/echo "${ODOO_EXIST_VERSION}" | /usr/bin/cut -d'.' -f1)" -ne "$(/bin/echo "${ODOO_DESTINATION_VERSION}" | /usr/bin/cut -d'.' -f1)" ]; then
-  /bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'${ODOO_DESTINATION_VERSION}'"|g' "${ODOO_WORK_DIR}/.env-secret"
+  /usr/bin/sed -i 's|^ODOO_VERSION=.*|ODOO_VERSION="'${ODOO_DESTINATION_VERSION}'"|g' "${ODOO_WORK_DIR}/.env-secret"
 fi
 if [ -f "${ODOO_WORK_DIR}/migrate-templates/${ODOO_DESTINATION_VERSION}/.env-shared" ]; then
   /bin/cp -fp "${ODOO_WORK_DIR}/migrate-templates/${ODOO_DESTINATION_VERSION}/.env-shared" "${ODOO_WORK_DIR}/"

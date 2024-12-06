@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Version: v.22.05.30
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
@@ -6,6 +6,7 @@ ODOO_WORK_DIR="${SCRIPT_PATH}"
 . "${ODOO_WORK_DIR}/.env-default" && \
 . "${ODOO_WORK_DIR}/.env-shared" && \
 . "${ODOO_WORK_DIR}/.env-secret"
+export ODOO_I18N_OVERWRITE="${ODOO_I18N_OVERWRITE:-false}"
 
 if [ "${#}" -eq 0 ]; then
   /bin/echo "Upgrade a module"
@@ -13,4 +14,10 @@ if [ "${#}" -eq 0 ]; then
   exit
 fi
 
-cd "${ODOO_WORK_DIR}" && . .venv/bin/activate && odoo -c ./auto/odoo.conf -u "${1}" --xmlrpc-port 18069 --stop-after-init --i18n-overwrite
+cd "${ODOO_WORK_DIR}" && . .venv/bin/activate && \
+
+if [[ "${ODOO_I18N_OVERWRITE,,}" != 'true' ]] ; then
+  odoo -c ./auto/odoo.conf -u "${1}" --xmlrpc-port 18069 --stop-after-init
+else
+  odoo -c ./auto/odoo.conf -u "${1}" --xmlrpc-port 18069 --stop-after-init --i18n-overwrite
+fi

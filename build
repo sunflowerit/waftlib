@@ -25,9 +25,10 @@ fi
 # pip 20.3 has a neat depenency resolver
 # https://pip.pypa.io/en/latest/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020
 . .venv/bin/activate && \
-pip install "setuptools<58" && \
-pip install "pip>=20.3" && \
-pip install -r "${ODOO_WORK_DIR}/requirements-default.txt" && \
-pip install -r "${ODOO_WORK_DIR}/requirements.txt" && \
+pip install --quiet "setuptools<58" && \
+pip install --quiet "pip>=20.3" && \
+(pip uninstall --yes -r "${ODOO_WORK_DIR}/requirements-remove-default.txt" 2>/dev/null || /bin/true) && \
+pip install --quiet --exists-action w -r "${ODOO_WORK_DIR}/requirements-default.txt" && \
+pip install --quiet --exists-action w -r "${ODOO_WORK_DIR}/requirements.txt" && \
 "${ODOO_WORK_DIR}/common/build" && \
 python "${ODOO_WORK_DIR}/common/entrypoint"

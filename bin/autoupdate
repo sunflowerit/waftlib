@@ -13,7 +13,7 @@ load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"), override=T
 _logger = logging.getLogger("autoupdate")
 
 # TODO Delete this script at some point
-_logger.warning("`autoupdate` is DEPRECATED and will be removed in Doodba 13.0, "
+_logger.warning("`autoupdate` is DEPRECATED, "
     "use instead: click-odoo-update"
 )
 
@@ -30,6 +30,6 @@ else:
     )
     # Newer versions of ``module_auto_update`` recommend this approach
     env["ir.module.module"].upgrade_changed_checksum(
-        os.environ.get("I18N_OVERWRITE") == "1",
+        os.environ.get("ODOO_I18N_OVERWRITE") == "1",
     )
 env.cr.commit()

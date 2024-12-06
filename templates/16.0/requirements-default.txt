@@ -2,7 +2,7 @@
 # Default PyPI packages versions.
 # Don't change this file
 # To override a package version in this file add it to requirements.txt file.
-pyyaml==5.4.1
+pyyaml==6.0.1
 appdirs==1.4.4
 argcomplete==1.12.3
 argh==0.26.2
@@ -29,10 +29,10 @@ ebaysdk==2.1.5
 feedparser==5.2.1
 freezegun==0.3.15
 geojson==2.5.0
-gevent==21.8.0
--e git+https://github.com/janverb/git-aggregator.git@d1685abb2776d255730e90fd22ae3363d83a9e89#egg=git_aggregator
+gevent==22.10.2
+-e git+https://github.com/sunflowerit/git-aggregator.git@b459aee4f35c5b4b8fc2bc4fd826bf4f2639bd3d#egg=git_aggregator
 -e git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
-greenlet==1.1.2
+greenlet==2.0.2
 html2text==2020.1.16
 idna==2.10
 importlib-metadata==4.8.1
@@ -41,7 +41,6 @@ importmagic3==0.2.0
 isodate==0.6.0
 jedi==0.18.0
 Jinja2==2.11.3
-kaptan==0.5.12
 libsass==0.18.0
 log-colorizer==1.8.6
 lxml==4.6.5

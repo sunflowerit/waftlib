@@ -77,7 +77,7 @@ else
     /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in "${ODOO_WORK_DIR}/.env-secret"."
     exit 1
   else
-    if [ "$(/bin/echo "${ODOO_VERSION}" | /bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
+    if [ "$(/bin/echo "${ODOO_VERSION}" | /usr/bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
       /bin/echo "ERROR: 'ODOO_VERSION' does not a floating number!"
       exit 1
     else
@@ -100,7 +100,7 @@ if [ "${ODOO_VERSION}" = '' ] ; then
   /bin/echo "ERROR: You should define 'ODOO_VERSION' variable in "${ODOO_WORK_DIR}/.env-secret""
   exit 1
 else
-  if [ "$(/bin/echo "${ODOO_VERSION}" | /bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
+  if [ "$(/bin/echo "${ODOO_VERSION}" | /usr/bin/sed 's/^[0-9]\+'\.'[0-9]\+$//')" != '' ] ; then
     /bin/echo "ERROR: 'ODOO_VERSION' does not a floating number!"
     exit 1
   fi
@@ -156,13 +156,17 @@ else
   eval "$("${PYENV}" init -)"
   "${PYENV}" install -s
 
-  PYVERSION="$(python -V 2>&1 | /bin/sed 's/^Python //; s/\.[0-9]*$//')"
+  PYVERSION="$(python -V 2>&1 | /usr/bin/sed 's/^Python //; s/\.[0-9]*$//')"
   /bin/echo "Python version is ${PYVERSION}"
 
   # Install virtualenv
   VIRTUALENV="${PYENV_ROOT}/bin/virtualenv.pyz"
   /bin/echo "INFO: Download ${VIRTUALENV}"
-  /usr/bin/wget --no-check-certificate "https://bootstrap.pypa.io/virtualenv/${PYVERSION}/virtualenv.pyz" -O "${VIRTUALENV}" || { /bin/echo 'Download of virtualenv package failed' ; exit 1; }
+  (/usr/bin/wget --no-check-certificate "https://bootstrap.pypa.io/virtualenv/${PYVERSION}/virtualenv.pyz" -O "${VIRTUALENV}" || \
+  (/bin/echo "INFO: /usr/bin/wget did not download virtualenv package, try /usr/bin/curl ..." && \
+  /usr/bin/curl -L "https://bootstrap.pypa.io/virtualenv/${PYVERSION}/virtualenv.pyz" -o "${VIRTUALENV}")) || \
+  { /bin/echo 'ERROR: Download of virtualenv package failed!'; exit 1; }
+
   /bin/echo "INFO: Build virtual environment in ${ODOO_WORK_DIR}/.venv"
   python "${VIRTUALENV}" .venv || { /bin/echo 'Virtualenv creation failed' ; exit 1; }
 fi
@@ -223,12 +227,6 @@ else
   /bin/echo "WARNING: ${ODOO_WORK_DIR}/common/entrypoint not a default link!"
 fi
 
-if [ ! -f "${ODOO_WORK_DIR}/custom/src/addons.yaml" ]; then
-  /bin/echo "INFO: Copy ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/addons.yaml to ${ODOO_WORK_DIR}/custom/src/addons.yaml"
-  /bin/cp "${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/addons.yaml" "${ODOO_WORK_DIR}/custom/src/"
-  cd "${ODOO_WORK_DIR}"
-fi
-
 if [ ! -f "${ODOO_WORK_DIR}/custom/src/repos.yaml" ]; then
   /bin/echo "INFO: Copy ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/repos.yaml to ${ODOO_WORK_DIR}/custom/src/repos.yaml"
   /bin/cp "${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/repos.yaml" "${ODOO_WORK_DIR}/custom/src/"
@@ -254,6 +252,15 @@ if [ ! -f "${ODOO_WORK_DIR}/odoo-service" ] || [ -L "${ODOO_WORK_DIR}/odoo-servi
   cd "${ODOO_WORK_DIR}" && /bin/ln -sf waftlib/odoo-service
 else
   /bin/echo "WARNING: ${ODOO_WORK_DIR}/odoo-service not a default link!"
+fi
+
+if [ -f "${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/requirements-remove-default.txt" ]; then
+  if [ ! -f "${ODOO_WORK_DIR}/requirements-remove-default.txt" ] || [ -L "${ODOO_WORK_DIR}/requirements-remove-default.txt" ]; then
+    /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/templates/${ODOO_VERSION}/requirements-remove-default.txt to ${ODOO_WORK_DIR}/requirements-remove-default.txt"
+    cd "${ODOO_WORK_DIR}" && /bin/ln -sf "waftlib/templates/${ODOO_VERSION}/requirements-remove-default.txt"
+  else
+    /bin/echo "WARNING: ${ODOO_WORK_DIR}/requirements-remove-default.txt not a default link!"
+  fi
 fi
 
 if [ ! -f "${ODOO_WORK_DIR}/requirements-default.txt" ] || [ -L "${ODOO_WORK_DIR}/requirements-default.txt" ]; then
