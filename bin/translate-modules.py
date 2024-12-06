@@ -129,7 +129,7 @@ def load_translations_dict(filename):
 
 def merge_translations(new_translations, old_translations):
     def find_entry(pofile, msgid):
-        for entry in pofile.translated_entries():
+        for entry in pofile:
             if entry.msgid == msgid:
                 return entry
 
@@ -218,7 +218,7 @@ def main():
     if 'use-translation-service' in args:
         if 'DEEPL_SECRET' in os.environ:
             deepl_secret = os.environ['DEEPL_SECRET']
-            translator = deepl.translator(deepl_secret)
+            translator = deepl.Translator(deepl_secret)
         else:
             print("Missing DEEPL_SECRET variable in .env-secret, unable to "
                   "translate missing entries.")
