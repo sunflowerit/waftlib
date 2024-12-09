@@ -1,6 +1,7 @@
 # Version: v.22.05.30
 # -*- coding: utf-8 -*-
 import os
+from dotenv import load_dotenv
 import sys
 import getopt
 import polib
@@ -11,6 +12,10 @@ from waftlib import (
     ADDONS_DIR,
     SRC_DIR,
 )
+
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+os.environ['ODOO_WORK_DIR'] = os.path.realpath(os.path.join(SCRIPT_PATH, "../.."))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"))
 
 HELP_TEXT = """
 This script will generate new .po files for certain modules, and certain
@@ -37,12 +42,14 @@ Parameters
 --use-translation-service
 -t          Use the DeepL translation service to translate any missing
             translations.
+--key key
+-k key      To override 'DEEPL_SECRET' environment variable and specify
+            DeepL api authorization key.
 """
 
 arguments = {}
 compendium = {}
 deepl = None
-deepl_secret = None
 temp_file = None
 temp_dir = None
 translator = None
@@ -155,9 +162,9 @@ def merge_translations(new_translations, old_translations):
 def parse_arguments():
     arguments = {}
 
-    optlist, args = getopt.getopt(sys.argv[1:], 'd:hm:f:l:t', [
+    optlist, args = getopt.getopt(sys.argv[1:], 'd:hm:f:l:tk:', [
         'database=', 'help', 'module=', 'module-folder=', 'languages=',
-        'use-translation-service'
+        'use-translation-service', 'auth-deepl-key'
     ])
 
     for opt in optlist:
@@ -175,6 +182,8 @@ def parse_arguments():
             arguments['languages'] = value
         if arg == '-t' or arg == '--use-translation-service':
             arguments['use-translation-service'] = value
+        if arg == '-k' or arg == '--key':
+            arguments['auth-deepl-key'] = value
     return arguments
 
 
@@ -216,13 +225,18 @@ def main():
 
     # Load translator if requested
     if 'use-translation-service' in args:
-        if 'DEEPL_SECRET' in os.environ:
-            deepl_secret = os.environ['DEEPL_SECRET']
+        if 'auth-deepl-key' in args and len(args['auth-deepl-key']) > 0:
+            deepl_secret = args['auth-deepl-key']
             translator = deepl.Translator(deepl_secret)
         else:
-            print("Missing DEEPL_SECRET variable in .env-secret, unable to "
-                  "translate missing entries.")
-            return 1
+            deepl_secret = os.environ['DEEPL_SECRET']
+            if deepl_secret != '':
+                translator = deepl.Translator(deepl_secret)
+            else:
+                print("DeepL authentication key is undefined!",
+                    "\n    Use -k or --key or define DEEPL_SECRET variable in .env-secret.",
+                    "\n  Unable to translate missing entries!")
+                return 1
 
     if not 'languages' in args:
         print("Warning: no languages specified. Loading all languages, which "
