@@ -37,5 +37,6 @@ logging.info(
 )
 
 for module in env["ir.module.module"].search([("name", "in", module_names)]):
-    module.state = "to remove"
-env.cr.commit()
+    if not module.state in ('uninstalled', 'to remove'):
+        module.button_immediate_uninstall()
+        env.cr.commit()
