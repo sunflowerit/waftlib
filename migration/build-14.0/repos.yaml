@@ -2,6 +2,8 @@ ocb:
   remotes:
     oca: https://github.com/OCA/OCB
     ddejong: https://github.com/ddejong-therp/OCB
+    therp: https://github.com/Therp/odoo
   merges:
     - oca ${ODOO_VERSION}
     - ddejong 14.0-fix-duplicate-move-lines-creation
+    - therp 14.0-fix-missing-category_id
