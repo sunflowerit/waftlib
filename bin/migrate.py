@@ -159,7 +159,7 @@ def combine_repos(build_path, version):
             )
 
 
-def copy_database(database, new_database):
+def copy_database(database, new_database, move_fs=False):
     logging.info('Backing up database & filestore to "%s"...' % new_database)
     try:
         cmd('dropdb "' + new_database + '"')
@@ -173,9 +173,12 @@ def copy_database(database, new_database):
     if os.path.exists(filestore):
         if os.path.exists(new_filestore):
             cmd(["rm", "-r", new_filestore])
-        cmd(["cp", "-r", filestore, new_filestore])
+        if not move_fs:
+            cmd(["cp", "-r", filestore, new_filestore])
+        else:
+            cmd(["mv", filestore, new_filestore])
     else:
-        logging.warn("No filestore for %s to copy to %s." % (database, new_database))
+        logging.warning("No filestore for %s to copy to %s." % (database, new_database))
 
 
 def cmd(command, input=None, cwd=None):
@@ -1020,7 +1023,7 @@ def run_enterprise_upgrade(version):
             proc.kill()
 
     mark_enterprise_done(version)
-    copy_database(enterprise_database, os.environ["PGDATABASE"])
+    copy_database(enterprise_database, os.environ["PGDATABASE"], True)
 
 
 def run_migration(start_version, target_version):
