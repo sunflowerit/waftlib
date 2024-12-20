@@ -318,6 +318,11 @@ def load_defaults(params):
         if "MIGRATION_ENTERPRISE_JUMP_TO" in os.environ
         else ENTERPRISE_MINIMUM_TARGET
     )
+    no_backups = (
+        os.environ["MIGRATION_NO_BACKUPS"]
+        if "MIGRATION_NO_BACKUPS" in os.environ
+        else None
+    )
     return {
         **{
             "enterprise-autotrust-ssh": False,
@@ -325,6 +330,7 @@ def load_defaults(params):
             "enterprise-enabled": enterprise_enabled,
             "enterprise-jump-to": minimum_target,
             "help": False,
+            "no-backups": no_backups,
             "open-upgrade-disabled": open_upgrade_disabled,
             "rebuild": False,
             "reset-progress": False,
@@ -903,6 +909,12 @@ def rebuild_sources():
             cmd_system('echo "running_env = dev" >> "' + build_dir + '/auto/odoo.conf"')
 
 
+def rename_database(database, new_database):
+    with psycopg.connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute('ALTER DATABASE "%s" RENAME TO "%s"' % (database, new_database))
+
+
 def run_enterprise_upgrade(version):
     global params, enterprise_script_filepath
     logging.info("Running enterprise upgrade to %s..." % version)
@@ -1023,7 +1035,10 @@ def run_enterprise_upgrade(version):
             proc.kill()
 
     mark_enterprise_done(version)
-    copy_database(enterprise_database, os.environ["PGDATABASE"], True)
+    if not params["no-backups"]:
+        copy_database(enterprise_database, os.environ["PGDATABASE"], True)
+    else:
+        rename_database(enterprise_database, os.environ["PGDATABASE"])
 
 
 def run_migration(start_version, target_version):
@@ -1254,6 +1269,8 @@ def run_scripts(version, hook_name, run_at_version=None):
 
 
 def run_upgrade(version):
+    global params
+
     instance = os.environ["PGDATABASE"] + "-" + version
     final_version = os.environ["ODOO_VERSION"]
     build_dir = (
@@ -1268,7 +1285,10 @@ def run_upgrade(version):
     mark_upgrade_done(version)
 
     # Backup the database
-    copy_database(os.environ["PGDATABASE"], os.environ["PGDATABASE"] + "-" + version)
+    if not params["no-backups"]:
+        copy_database(
+            os.environ["PGDATABASE"], os.environ["PGDATABASE"] + "-" + version
+        )
 
     logging.info("Disabling dangerous stuff...")
     disable_dangerous_stuff()
