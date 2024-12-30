@@ -246,7 +246,7 @@ def cmd_system(command):
         raise CommandFailedException(command, exit_code)
 
 
-def disable_dangerous_stuff():
+def defuse_database():
     queries = [
         ("UPDATE fetchmail_server SET active = FALSE, server = 'f'", False),
         ("UPDATE ir_cron SET active = FALSE", True),
@@ -1072,8 +1072,8 @@ def run_migration(start_version, target_version):
         )
     )
 
-    logging.info("Disabling dangerous stuff...")
-    disable_dangerous_stuff()
+    logging.info("Defusing database...")
+    defuse_database()
 
     #  Run the pre-migration scripts
     if from_start:
@@ -1284,14 +1284,14 @@ def run_upgrade(version):
     cmd(build_dir + "/run " + args)
     mark_upgrade_done(version)
 
+    logging.info("Defusing database...")
+    defuse_database()
+
     # Backup the database
     if not params["no-backups"]:
         copy_database(
             os.environ["PGDATABASE"], os.environ["PGDATABASE"] + "-" + version
         )
-
-    logging.info("Disabling dangerous stuff...")
-    disable_dangerous_stuff()
 
 
 def save_progress():
