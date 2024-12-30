@@ -276,9 +276,10 @@ def purge_records(cr, table_name, where_clause, reset_id, non_updatable_tables=[
         cr.execute("DROP TABLE yyy")
 
 
-def purge_model(env, model_id, careful=True):
+def purge_model(env, model_id, careful=True, model_name=None):
     env.cr.execute("SELECT model FROM ir_model WHERE id = %s", [model_id])
-    model_name = env.cr.fetchone()[0]
+    if not model_name:
+        model_name = env.cr.fetchone()[0]
     env.cr.commit()
     env.cr.execute(
         """
@@ -298,6 +299,16 @@ def purge_model(env, model_id, careful=True):
     env.cr.execute("DELETE FROM ir_model_relation WHERE model = %s", [model_id])
     env.cr.execute("DELETE FROM ir_rule WHERE model_id = %s", [model_id])
     env.cr.execute("DELETE FROM ir_model WHERE id = %s", [model_id])
+
+
+def purge_model_by_name(env, model_name, careful=True):
+    env.cr.execute("SELECT id FROM ir_model WHERE model = %s", [model_name])
+    result = env.cr.fetchone()
+    if result:
+        model_id = result[0]
+        purge_model(env, model_id, careful, model_name)
+    else:
+        logging.warning("Unable to purge model %s, model was not found", model_name)
 
 
 def purge_view(env, view_id):
