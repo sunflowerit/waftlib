@@ -1280,7 +1280,7 @@ def run_upgrade(version):
     )
 
     logfile = os.path.join(WAFT_DIR, "logfile", instance + ".log")
-    args = '-u base --stop-after-init --logfile "%s"' % logfile
+    args = '-u base --stop-after-init --load=openupgrade_framework --logfile "%s"' % logfile
     cmd(build_dir + "/run " + args)
     mark_upgrade_done(version)
 
