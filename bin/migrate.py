@@ -421,10 +421,10 @@ def load_progress():
             delete_hook, enterprise_done, upgrade_done = HOOK_ORDER[j]
             if (
                 version in progress
-                and "hook" in progress[version]
-                and delete_hook in progress[version]["hook"]
+                and "hooks" in progress[version]
+                and delete_hook in progress[version]["hooks"]
             ):
-                del progress[version]["hook"][delete_hook]
+                del progress[version]["hooks"][delete_hook]
                 if not enterprise_done and "enterprise" in progress[version]:
                     del progress[version]["enterprise"]
                 if not upgrade_done and "upgrade" in progress[version]:
