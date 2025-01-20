@@ -9,7 +9,7 @@ except Exception as e:
     # else:
     logging.error("Unable to open %s/etc/uninstall-modules.txt:", MIGRATION_PATH)
     traceback.print_exc()
-    exit(1)
+    exit(0)
 
 module_names = []
 for line in file:
