@@ -158,7 +158,7 @@ class Purger:
             query = "DELETE FROM %s WHERE " + where_clause
         else:
             self.cr.execute(
-                'CREATE TABLE "%s_deleted" (id INTEGER NOT NULL)' % self.table_name
+                'CREATE TABLE "%s_deleted" (id INTEGER NOT NULL PRIMARY KEY)' % self.table_name
             )
             query = """
                 WITH deleted AS (
