@@ -42,6 +42,8 @@ Parameters
 -h          Show this help message.
 --open-upgrade-disabled
 -o          Disable the open-upgrade builds and upgrades.
+--production
+-p          Run the migration for production purposes.
 --restore
 -s          Restore a database from the configured path.
 -r          Rebuild all builds before running the migration.
@@ -332,6 +334,7 @@ def load_defaults(params):
             "help": False,
             "no-backups": no_backups,
             "open-upgrade-disabled": open_upgrade_disabled,
+            "production": False,
             "rebuild": False,
             "reset-progress": False,
             "restore": False,
@@ -478,10 +481,11 @@ def parse_arguments():
     try:
         optlist, args = getopt.getopt(
             sys.argv[1:],
-            "d:ef:hrsvo",
+            "d:ef:hoprsv",
             [
                 "database=",
                 "enterprise-enabled",
+                "production",
                 "start-version=",
                 "help",
                 "rebuild",
@@ -504,12 +508,14 @@ def parse_arguments():
             arguments["database"] = value
         if arg == "-e" or arg == "--enterprise-enabled":
             arguments["enterprise-enabled"] = True
-        if arg == "-o" or arg == "--open-upgrade-disabled":
-            arguments["open-upgrade-disabled"] = True
         if arg == "-f" or arg == "--start-version":
             arguments["start-version"] = value
         if arg == "-h" or arg == "--help":
             arguments["help"] = True
+        if arg == "-o" or arg == "--open-upgrade-disabled":
+            arguments["open-upgrade-disabled"] = True
+        if arg == "-p" or arg == "--production":
+            arguments["production"] = True
         if arg == "-r" or arg == "--rebuild":
             arguments["rebuild"] = True
         if arg == "--reset-progress":
@@ -977,7 +983,7 @@ def run_enterprise_upgrade(version):
     logfile = open(log_filepath, "r")
     logfile.seek(0, io.SEEK_END)
     # tty = open('/dev/tty', 'r')
-
+    mode = "production" if params["production"] else "test"
     while not done:
         if attempts == 10:
             raise Exception("Enterprise upgrade failed, too many attempts.")
@@ -988,7 +994,7 @@ def run_enterprise_upgrade(version):
                 [
                     "python3",
                     enterprise_script_filepath,
-                    "test",
+                    mode,
                     "-d",
                     os.environ["PGDATABASE"],
                     "-t",
