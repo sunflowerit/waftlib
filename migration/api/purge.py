@@ -158,7 +158,8 @@ class Purger:
             query = "DELETE FROM %s WHERE " + where_clause
         else:
             self.cr.execute(
-                'CREATE TABLE "%s_deleted" (id INTEGER NOT NULL PRIMARY KEY)' % self.table_name
+                'CREATE TABLE "%s_deleted" (id INTEGER NOT NULL PRIMARY KEY)'
+                % self.table_name
             )
             query = """
                 WITH deleted AS (
@@ -232,6 +233,8 @@ class Purger:
                         "ALTER TABLE %s VALIDATE CONSTRAINT %s",
                         [AsIs(foreign_table_name), AsIs(constraint_name)],
                     )
+        if not self.delete_more_than_keep and self.has_id:
+            self.cr.execute('DROP TABLE "%s_deleted"' % self.table_name)
         self.clean_foreign_references = False
 
     def truncate(self):
