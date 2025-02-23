@@ -1199,15 +1199,15 @@ def run_script(script_path, run_at_version=None):
         run_at_version = db_version
     logging.info("Running script %s..." % script_path)
 
+    build_dir = (
+        WAFT_DIR
+        if run_at_version == final_version and float(run_at_version) > 13.999
+        else MIGRATION_PATH + "/build-" + run_at_version
+    )
     if script_path.endswith(".py"):
-        build_dir = (
-            WAFT_DIR
-            if run_at_version == final_version and float(run_at_version) > 13.999
-            else MIGRATION_PATH + "/build-" + run_at_version
-        )
         run_python_script(build_dir, script_path)
     elif script_path.endswith(".sh"):
-        cmd(["bash", script_path])
+        cmd(["bash", script_path], None, cwd=build_dir)
     elif script_path.endswith(".sql"):
         script_content = "\\set ON_ERROR_STOP true\n" + open(script_path, "r").read()
         cmd("psql -d " + os.environ["PGDATABASE"], script_content)
@@ -1286,7 +1286,10 @@ def run_upgrade(version):
     )
 
     logfile = os.path.join(WAFT_DIR, "logfile", instance + ".log")
-    args = '-u base --stop-after-init --load=openupgrade_framework --logfile "%s"' % logfile
+    args = (
+        '-u base --stop-after-init --load=openupgrade_framework --logfile "%s"'
+        % logfile
+    )
     cmd(build_dir + "/run " + args)
     mark_upgrade_done(version)
 
