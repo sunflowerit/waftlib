@@ -25,6 +25,7 @@ fi
 # pip 20.3 has a neat depenency resolver
 # https://pip.pypa.io/en/latest/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020
 . .venv/bin/activate && \
+pip install --quiet "setuptools-scm<8.0" && \
 pip install --quiet "setuptools<58" && \
 pip install --quiet "pip>=20.3" && \
 (pip uninstall --yes -r "${ODOO_WORK_DIR}/requirements-remove-default.txt" 2>/dev/null || /bin/true) && \
