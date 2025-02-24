@@ -1344,6 +1344,8 @@ def verify_params():
 def main():
     global params, progress
 
+    os.environ["MIGRATION_PATH"] = MIGRATION_PATH
+
     try:
         args = parse_arguments()
         if args == None or not verify_arguments(args):

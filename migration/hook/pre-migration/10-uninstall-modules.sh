@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
-# TODO: Use $MIGRATION_SCRIPT as the path prefix
-UNINSTALL_LIST=$(cat /home/ubuntu/odoo/migration/etc/uninstall-modules.txt)
+
+UNINSTALL_LIST=$(cat $MIGRATION_PATH/etc/uninstall-modules.txt)
 
 
 for MODULE_NAME in ${UNINSTALL_LIST[@]}; do
