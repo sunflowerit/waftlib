@@ -1,5 +1,6 @@
 # Version: v.22.05.30
 # -*- coding: utf-8 -*-
+from dotenv import load_dotenv
 import os
 import sys
 import getopt
@@ -39,7 +40,14 @@ Parameters
 --use-translation-service
 -t          Use the DeepL translation service to translate any missing
             translations.
+--deepl-secret key
+-k key      Specify the DeepL API secret.
 """
+
+
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+os.environ["ODOO_WORK_DIR"] = os.path.realpath(os.path.join(SCRIPT_PATH, "../.."))
+load_dotenv(os.path.join(os.environ["ODOO_WORK_DIR"], ".env-secret"))
 
 
 arguments = {}
@@ -187,9 +195,10 @@ def parse_arguments():
 
     optlist, args = getopt.getopt(
         sys.argv[1:],
-        "d:hm:f:l:t",
+        "d:hm:f:l:tk:",
         [
             "database=",
+            "deepl-secret=",
             "help",
             "module=",
             "module-folder=",
@@ -207,6 +216,8 @@ def parse_arguments():
             arguments["module-folder"] = value
         if arg == "-h" or arg == "--help":
             arguments["help"] = True
+        if arg == "-k" or arg == "--deepl-secret":
+            arguments["deepl-secret"] = value
         if arg == "-m" or arg == "--module":
             arguments["module"] = value
         if arg == "-l" or arg == "--languages":
@@ -253,13 +264,16 @@ def main():
 
     # Load translator if requested
     if "use-translation-service" in args:
-        if "DEEPL_SECRET" in os.environ:
+        if "deepl-secret" in args:
+            deepl_secret = args["deepl-secret"]
+        elif "DEEPL_SECRET" in os.environ:
             deepl_secret = os.environ["DEEPL_SECRET"]
+        if deepl_secret:
             translator = deepl.Translator(deepl_secret)
         else:
             print(
-                "Missing DEEPL_SECRET variable in .env-secret, unable to "
-                "translate missing entries."
+                "Missing DEEPL_SECRET variable in .env-secret or the "
+                "--deepl-secret flag, unable to translate missing entries."
             )
             return 1
 
