@@ -288,7 +288,7 @@ def main():
 
     # Initialize
     # FIXME: Only works if odoo is actually placed in this directory
-    print("Loading exising Odoo translations...", file=sys.stderr)
+    print("Loading existing Odoo translations...", file=sys.stderr)
     compendium = load_compendium(os.path.join(ODOO_DIR), langs)
 
     temp_file = tempfile.mkstemp(prefix="trans", suffix=".po")[1]
@@ -325,7 +325,7 @@ def upgrade_module_translations(module_name, module_path):
 
 def verify_code_syntax(original, result):
     original_texts, original_tags = parse_code_syntax(original)
-    tranlated_texts, translated_tags = parse_code_syntax(result)
+    translated_texts, translated_tags = parse_code_syntax(result)
     translated_tags == original_tags, original_texts, original_tags
 
 
