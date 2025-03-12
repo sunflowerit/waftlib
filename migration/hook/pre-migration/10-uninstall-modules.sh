@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e
 
-UNINSTALL_LIST=$(cat $MIGRATION_PATH/etc/uninstall-modules.txt)
+if [ ! -f "$MIGRATION_PATH/etc/uninstall-modules.txt" ]; then
+   exit 0
+fi
+UNINSTALL_LIST=$(cat "$MIGRATION_PATH/etc/uninstall-modules.txt")
 
 
 for MODULE_NAME in ${UNINSTALL_LIST[@]}; do
