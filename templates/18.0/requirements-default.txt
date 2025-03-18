@@ -34,7 +34,7 @@ geoip2==4.7.0
 geojson==3.2.0
 gevent==24.11.1
 git+https://github.com/sunflowerit/git-aggregator.git@b459aee4f35c5b4b8fc2bc4fd826bf4f2639bd3d#egg=git_aggregator
-git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
+git+https://github.com/OCA/openupgradelib.git#egg=openupgradelib
 greenlet==3.1.1
 html2text==2024.2.26
 idna==3.6
