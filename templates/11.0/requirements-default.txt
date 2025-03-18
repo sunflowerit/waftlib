@@ -30,7 +30,7 @@ geojson==2.5.0
 geopy==1.23.0
 gevent==1.3.4
 git+https://github.com/janverb/git-aggregator.git@d1685abb2776d255730e90fd22ae3363d83a9e89#egg=git_aggregator
-git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
+git+https://github.com/OCA/openupgradelib.git#egg=openupgradelib
 greenlet==0.4.13
 html2text==2016.9.19
 idna==2.10
