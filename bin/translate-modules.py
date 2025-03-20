@@ -269,6 +269,7 @@ def upgrade_module_translation(language, module_name, module_path, filename):
     shutil.move(filename, old_filename)
     shutil.move(temp_file, filename)
 
+
 def upgrade_module_translations(module_name, module_path):
     global temp_file
     i18n_path = os.path.join(module_path, 'i18n')
@@ -284,6 +285,7 @@ def upgrade_module_translations(module_name, module_path):
                 module_path,
                 pofile_path
             )
+
 
 if __name__ == '__main__':
     main()
