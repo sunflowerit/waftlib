@@ -38,7 +38,7 @@ gdata==2.0.18
 geojson==2.5.0
 gevent==1.0.2
 git+https://github.com/janverb/git-aggregator.git@d1685abb2776d255730e90fd22ae3363d83a9e89#egg=git_aggregator
-git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
+git+https://github.com/OCA/openupgradelib.git#egg=openupgradelib
 greenlet==0.4.7
 idna==2.10
 importlib-metadata==2.1.1
