@@ -1,0 +1,9 @@
+odoo:
+  defaults:
+    depth: ${WAFT_DEPTH_MERGE}
+  merges:
+      - oca ${ODOO_VERSION}
+      - sunflowerit 11.0-no-auto_install-procurement_jit
+  remotes:
+    oca: https://github.com/OCA/OpenUpgrade
+    sunflowerit: https://github.com/sunflowerit/OpenUpgrade

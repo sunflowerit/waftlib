@@ -40,7 +40,7 @@ Jinja2==2.8.1
 kaptan==0.5.12
 log-colorizer==1.8.6
 lxml==4.2.3
--e git+https://github.com/StefanRijnhart/python-magento.git@614ffcf430534ec7e36a65184db51575dd17347d#egg=magento
+git+https://github.com/StefanRijnhart/python-magento.git@614ffcf430534ec7e36a65184db51575dd17347d#egg=magento
 Mako==1.0.0
 MarkupSafe==0.23
 mock==1.0.1
