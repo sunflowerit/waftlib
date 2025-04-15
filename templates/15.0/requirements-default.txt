@@ -30,8 +30,8 @@ feedparser==5.2.1
 freezegun==0.3.15
 geojson==2.5.0
 gevent==20.9.0
--e git+https://github.com/janverb/git-aggregator.git@d1685abb2776d255730e90fd22ae3363d83a9e89#egg=git_aggregator
--e git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
+git+https://github.com/janverb/git-aggregator.git@d1685abb2776d255730e90fd22ae3363d83a9e89#egg=git_aggregator
+git+https://github.com/OCA/openupgradelib.git#egg=openupgradelib
 greenlet==0.4.17
 html2text==2020.1.16
 idna==2.10

@@ -31,8 +31,8 @@ freezegun==1.2.2
 geoip2==4.7.0
 geojson==3.1.0
 gevent==23.9.1
--e git+https://github.com/sunflowerit/git-aggregator.git@b459aee4f35c5b4b8fc2bc4fd826bf4f2639bd3d#egg=git_aggregator
--e git+https://github.com/OCA/openupgradelib.git@6d97dfc0af2f528889f4a491c71129ef0f7cf82f#egg=openupgradelib
+git+https://github.com/sunflowerit/git-aggregator.git@b459aee4f35c5b4b8fc2bc4fd826bf4f2639bd3d#egg=git_aggregator
+git+https://github.com/OCA/openupgradelib.git#egg=openupgradelib
 greenlet==3.0.1
 html2text==2020.1.16
 idna==3.4

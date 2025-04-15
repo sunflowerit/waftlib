@@ -217,5 +217,3 @@ This allows you to develop locally if you wish to. Firstly:
 - Lastly and importantly, add the existing virtual env under 
   *python interpreter*, that you had earlier configured in 
   the first step, and run.
-
-  
