@@ -113,7 +113,7 @@ class Purger:
                     'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
                     % (constraint_name, foreign_table_name, foreign_column)
                 )
-                purger = Purger(self.cr, foreign_table_name)
+                purger = Purger(self.cr, foreign_table_name, delete_more_than_keep=self.delete_more_than_keep, skip_validation=self.skip_validation)
                 purger.start()
                 purger.purge(filter_clause)
                 purger.clean()
