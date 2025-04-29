@@ -310,6 +310,11 @@ def load_defaults(params):
         and os.environ["MIGRATION_OPEN_UPGRADE_DISABLED"].lower()
         in ("1", "yes", "true")
     )
+    skip_initial_upgrade = (
+        os.environ["SKIP_INITIAL_UPGRADE"] == "1"
+        if "SKIP_INITIAL_UPGRADE" in os.environ
+        else False
+    )
     start_version = (
         os.environ["MIGRATION_START_VERSION"]
         if "MIGRATION_START_VERSION" in os.environ
@@ -338,6 +343,7 @@ def load_defaults(params):
             "rebuild": False,
             "reset-progress": False,
             "restore": False,
+            "skip-initial-upgrade": skip_initial_upgrade,
             "start-version": start_version,
             "verbose": False,
         },
@@ -797,8 +803,6 @@ def rebuild_sources():
         build_dir = os.path.join(MIGRATION_PATH, "build-" + version)
         if float(version) > 13.999 and version == os.environ["ODOO_VERSION"]:
             build_dir = WAFT_DIR
-        elif params["open-upgrade-disabled"]:
-            continue
 
         # Set up git in build dir
         if not os.path.exists(os.path.join(build_dir, "bootstrap")):
