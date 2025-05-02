@@ -1334,7 +1334,7 @@ def verify_arguments(args: dict):
 
 def verify_params():
     global params
-    if not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]:
+    if not params["rebuild"] and (not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]):
         logging.error("No database specified in the environment as PGDATABASE.")
         return False
     if not "start-version" in params or not params["start-version"]:
