@@ -1,7 +1,5 @@
 #!/bin/sh
 
-/usr/bin/sudo /bin/systemctl stop odoo.service || /bin/true
-
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
 export ODOO_WORK_DIR="${SCRIPT_PATH}"
 . "${ODOO_WORK_DIR}/.env-default" && \
