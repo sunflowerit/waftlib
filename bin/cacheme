@@ -1,17 +1,31 @@
-#!/bin/sh
+#!/bin/bash
 # save as e.g. $HOME/.local/bin/cacheme
 # and then chmod u+x $HOME/.local/bin/cacheme
-VERBOSE=false
-PROG="$(basename $0)"
-DIR="${HOME}/.cache/${PROG}"
-mkdir -p "${DIR}"
-EXPIRY=600 # default to 10 minutes
-# check if first argument is a number, if so use it as expiration (seconds)
-[ "$1" -eq "$1" ] 2>/dev/null && EXPIRY=$1 && shift
-[ "$VERBOSE" = true ] && echo "Using expiration $EXPIRY seconds"
-CMD="$@"
-HASH=$(echo "$CMD" | md5sum | awk '{print $1}')
-CACHE="$DIR/$HASH"
-test -f "${CACHE}" && [ $(expr $(date +%s) - $(date -r "$CACHE" +%s)) -le $EXPIRY ] || eval "$CMD" > "${CACHE}"
-cat "${CACHE}"
 
+
+CACHEME_VERBOSE="${CACHEME_VERBOSE:-false}"
+CACHEME_PROG="$(basename "${0}")"
+CACHEME_DIR="${HOME}/.cache/waft/${CACHEME_PROG}"
+/bin/mkdir -p "${CACHEME_DIR}"
+
+
+CACHEME_EXPIRY="${CACHEME_EXPIRY:-600}" # default to 10 minutes
+# check if first argument is a number, if so use it as expiration (seconds)
+[[ "${1}" =~ ^[0-9]+$ ]] 2>/dev/null && \
+CACHEME_EXPIRY="${1}" && \
+shift
+
+
+[[ "${CACHEME_VERBOSE}" = true ]] && \
+/bin/echo "Using expiration ${CACHEME_EXPIRY} seconds"
+
+
+CACHEME_CMD="${@}"
+CACHEME_HASH=$(/bin/echo "${CACHEME_CMD}" | /usr/bin/md5sum | /usr/bin/awk '{print $1}')
+CACHEME_CACHE_PATH="${CACHEME_DIR}/${CACHEME_HASH}"
+test -f "${CACHEME_CACHE_PATH}" && \
+[[ "$(/usr/bin/expr "$(/bin/date +%s)" - "$(/bin/date -r "${CACHEME_CACHE_PATH}" +%s)")" -le "${CACHEME_EXPIRY}" ]] || \
+eval "${CACHEME_CMD}" > "${CACHEME_CACHE_PATH}"
+
+
+/bin/cat "${CACHEME_CACHE_PATH}"
