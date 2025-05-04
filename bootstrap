@@ -295,7 +295,12 @@ if [ ! -f "${ODOO_WORK_DIR}/translate-modules" ] || [ -L "${ODOO_WORK_DIR}/trans
 else
   /bin/echo "WARNING: ${ODOO_WORK_DIR}/translate-modules not a default link!"
 fi
-
+if [ ! -f "${ODOO_WORK_DIR}/update_depths" ] || [ -L "${ODOO_WORK_DIR}/update_depths" ]; then
+  /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/update_depths to ${ODOO_WORK_DIR}/update_depths"
+  cd "${ODOO_WORK_DIR}" && /bin/ln -sf waftlib/update_depths
+else
+  /bin/echo "WARNING: ${ODOO_WORK_DIR}/update_depths not a default link!"
+fi
 if [ ! -f "${ODOO_WORK_DIR}/upgrade" ] || [ -L "${ODOO_WORK_DIR}/upgrade" ]; then
   /bin/echo "INFO: Link ${ODOO_WORK_DIR}/waftlib/upgrade to ${ODOO_WORK_DIR}/upgrade"
   cd "${ODOO_WORK_DIR}" && /bin/ln -sf waftlib/upgrade
