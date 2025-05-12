@@ -28,7 +28,6 @@ deepl==1.20.0
 defusedxml==0.7.1
 docutils==0.20.1
 ebaysdk==2.2.0
-feedparser==6.0.11
 freezegun==1.2.2
 geoip2==4.7.0
 geojson==3.2.0

@@ -26,7 +26,6 @@ decorator==4.0.10
 deepl==1.14.0; python_version >= "3.6"
 docutils==0.14
 ebaysdk==2.1.5
-feedparser==5.2.1
 funcsigs==1.0.2
 fuser==1.0.4
 geographiclib==1.52
@@ -47,7 +46,7 @@ jmespath==0.10.0
 kaptan==0.5.12
 libsass==0.12.3
 libxml2-python3==2.9.5
-log-colorizer==1.8.6
+log-colorizer==2.0.0
 lxml==4.2.3
 Mako==1.0.4
 MarkupSafe==0.23

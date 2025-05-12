@@ -26,7 +26,6 @@ deepl==1.14.0; python_version >= "3.6"
 defusedxml==0.7.1
 docutils==0.14
 ebaysdk==2.1.5
-feedparser==5.2.1
 geojson==2.5.0
 freezegun==0.3.15
 gevent==1.4.0
@@ -44,7 +43,7 @@ Jinja2==2.10.1
 kaptan==0.5.12
 libsass==0.17.0
 libxml2-python3==2.9.5
-log-colorizer==1.8.6
+log-colorizer==2.0.0
 lxml==4.3.2
 Mako==1.0.7
 MarkupSafe==1.1.0
