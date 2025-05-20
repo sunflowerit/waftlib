@@ -1174,7 +1174,10 @@ def run_migration(start_version, target_version):
             db_version = version
 
         init_progress(version)
-        if not enterprise_done and not openupgrade_done:
+        going_to_upgrade = \
+            (not params["open-upgrade-disabled"] and not openupgrade_done) or \
+            not enterprise_done
+        if going_to_upgrade:
             run_scripts(version, "pre-upgrade", last_version)
         if params["enterprise-enabled"]:
             if not enterprise_done and float(version) - float(minimum_target) > 0.001:
