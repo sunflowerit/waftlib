@@ -250,8 +250,10 @@ def cmd_system(command):
 
 def defuse_database():
     queries = [
+        ("CREATE TABLE fetchmail_server_backup AS SELECT * FROM fetchmail_server", False),
         ("UPDATE fetchmail_server SET active = FALSE, server = 'f'", False),
         ("UPDATE ir_cron SET active = FALSE", True),
+        ("CREATE TABLE ir_mail_server_backup AS SELECT * FROM ir_mail_server", True),
         ("UPDATE ir_mail_server SET active = FALSE, smtp_host = 'f'", True),
     ]
     dbname = os.environ["PGDATABASE"]
