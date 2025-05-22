@@ -270,6 +270,14 @@ OCA/partner-contact:
   merges:
     - oca $ODOO_VERSION
 
+OCA/pos:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/pos
+  merges:
+    - oca $ODOO_VERSION
+
 OCA/product-attribute:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
