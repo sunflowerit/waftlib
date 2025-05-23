@@ -95,6 +95,41 @@ def available_build_versions(start_version):
     return [str(x) + ".0" for x in range(floor(float(start_version)), end_version + 1)]
 
 
+def backup_mail_server_info():
+    queries = [
+        (
+            """
+            CREATE TABLE fetchmail_server_backup AS
+            SELECT * FROM fetchmail_server
+        """,
+            False
+        ),
+        (
+            """
+            CREATE TABLE ir_mail_server_backup AS
+            SELECT * FROM ir_mail_server
+        """,
+            True
+        ),
+    ]
+    dbname = os.environ["PGDATABASE"]
+
+    for query, required in queries:
+        with psycopg.connect("dbname=" + dbname) as conn:
+            with conn.cursor() as cur:
+                try:
+                    cur.execute(query)
+                except Exception as e:
+                    if required:
+                        logging.error(
+                            "Unable to defuse database, "
+                            "the following query failed:"
+                        )
+                        logging.error(query)
+                        raise e
+
+
+
 def check_modules_installed(modules):
     """Returns whether or not the given `modules` are installed in the
     current database.
@@ -250,10 +285,8 @@ def cmd_system(command):
 
 def defuse_database():
     queries = [
-        ("CREATE TABLE fetchmail_server_backup AS SELECT * FROM fetchmail_server", False),
         ("UPDATE fetchmail_server SET active = FALSE, server = 'f'", False),
         ("UPDATE ir_cron SET active = FALSE", True),
-        ("CREATE TABLE ir_mail_server_backup AS SELECT * FROM ir_mail_server", True),
         ("UPDATE ir_mail_server SET active = FALSE, smtp_host = 'f'", True),
     ]
     dbname = os.environ["PGDATABASE"]
@@ -1084,7 +1117,8 @@ def run_migration(start_version, target_version):
         )
     )
 
-    logging.info("Defusing database...")
+    logging.info("Backing up mail server and defusing database...")
+    backup_mail_server_info()
     defuse_database()
 
     #  Run the pre-migration scripts
