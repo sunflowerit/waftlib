@@ -1033,12 +1033,12 @@ def run_enterprise_upgrade(version):
                 [
                     "python3",
                     enterprise_script_filepath,
+                    "--debug",
                     mode,
                     "-d",
                     os.environ["PGDATABASE"],
                     "-t",
                     version,
-                    "--debug",
                 ],
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
