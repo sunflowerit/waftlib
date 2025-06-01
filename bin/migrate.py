@@ -1038,6 +1038,7 @@ def run_enterprise_upgrade(version):
                     os.environ["PGDATABASE"],
                     "-t",
                     version,
+                    "--debug",
                 ],
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
