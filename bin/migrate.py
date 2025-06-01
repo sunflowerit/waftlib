@@ -95,6 +95,41 @@ def available_build_versions(start_version):
     return [str(x) + ".0" for x in range(floor(float(start_version)), end_version + 1)]
 
 
+def backup_mail_server_info():
+    queries = [
+        (
+            """
+            CREATE TABLE fetchmail_server_backup AS
+            SELECT * FROM fetchmail_server
+        """,
+            False
+        ),
+        (
+            """
+            CREATE TABLE ir_mail_server_backup AS
+            SELECT * FROM ir_mail_server
+        """,
+            True
+        ),
+    ]
+    dbname = os.environ["PGDATABASE"]
+
+    for query, required in queries:
+        with psycopg.connect("dbname=" + dbname) as conn:
+            with conn.cursor() as cur:
+                try:
+                    cur.execute(query)
+                except Exception as e:
+                    if required:
+                        logging.error(
+                            "Unable to defuse database, "
+                            "the following query failed:"
+                        )
+                        logging.error(query)
+                        raise e
+
+
+
 def check_modules_installed(modules):
     """Returns whether or not the given `modules` are installed in the
     current database.
@@ -310,6 +345,11 @@ def load_defaults(params):
         and os.environ["MIGRATION_OPEN_UPGRADE_DISABLED"].lower()
         in ("1", "yes", "true")
     )
+    skip_initial_upgrade = (
+        os.environ["SKIP_INITIAL_UPGRADE"] == "1"
+        if "SKIP_INITIAL_UPGRADE" in os.environ
+        else False
+    )
     start_version = (
         os.environ["MIGRATION_START_VERSION"]
         if "MIGRATION_START_VERSION" in os.environ
@@ -338,6 +378,7 @@ def load_defaults(params):
             "rebuild": False,
             "reset-progress": False,
             "restore": False,
+            "skip-initial-upgrade": skip_initial_upgrade,
             "start-version": start_version,
             "verbose": False,
         },
@@ -797,8 +838,6 @@ def rebuild_sources():
         build_dir = os.path.join(MIGRATION_PATH, "build-" + version)
         if float(version) > 13.999 and version == os.environ["ODOO_VERSION"]:
             build_dir = WAFT_DIR
-        elif params["open-upgrade-disabled"]:
-            continue
 
         # Set up git in build dir
         if not os.path.exists(os.path.join(build_dir, "bootstrap")):
@@ -999,6 +1038,7 @@ def run_enterprise_upgrade(version):
                     os.environ["PGDATABASE"],
                     "-t",
                     version,
+                    "--debug",
                 ],
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -1078,7 +1118,8 @@ def run_migration(start_version, target_version):
         )
     )
 
-    logging.info("Defusing database...")
+    logging.info("Backing up mail server and defusing database...")
+    backup_mail_server_info()
     defuse_database()
 
     #  Run the pre-migration scripts
@@ -1170,7 +1211,10 @@ def run_migration(start_version, target_version):
             db_version = version
 
         init_progress(version)
-        if not enterprise_done and not openupgrade_done:
+        going_to_upgrade = \
+            (not params["open-upgrade-disabled"] and not openupgrade_done) or \
+            not enterprise_done
+        if going_to_upgrade:
             run_scripts(version, "pre-upgrade", last_version)
         if params["enterprise-enabled"]:
             if not enterprise_done and float(version) - float(minimum_target) > 0.001:
@@ -1330,7 +1374,7 @@ def verify_arguments(args: dict):
 
 def verify_params():
     global params
-    if not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]:
+    if not params["rebuild"] and (not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]):
         logging.error("No database specified in the environment as PGDATABASE.")
         return False
     if not "start-version" in params or not params["start-version"]:
