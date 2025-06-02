@@ -99,14 +99,14 @@ def backup_mail_server_info():
     queries = [
         (
             """
-            CREATE TABLE fetchmail_server_backup AS
+            CREATE TABLE IF NOT EXISTS fetchmail_server_backup AS
             SELECT * FROM fetchmail_server
         """,
             False
         ),
         (
             """
-            CREATE TABLE ir_mail_server_backup AS
+            CREATE TABLE IF NOT EXISTS ir_mail_server_backup AS
             SELECT * FROM ir_mail_server
         """,
             True
