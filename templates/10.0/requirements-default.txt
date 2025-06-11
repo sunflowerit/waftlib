@@ -50,7 +50,6 @@ jedi==0.17.2
 Jinja2==2.10.1
 kaptan==0.5.12
 libsass==0.12.3
-libxml2-python3==2.9.5
 log-colorizer==1.8.6
 lxml==4.2.3
 Mako==1.0.4
