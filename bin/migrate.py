@@ -668,13 +668,13 @@ def rebuild_sources():
         if "PGPASSWORD" in os.environ:
             overwrite_values["PGPASSWORD"] = os.environ["PGPASSWORD"]
         if params["enterprise-enabled"]:
-            overwrite_values[
-                "DEFAULT_REPO_PATTERN_ODOO"
-            ] = "https://github.com/odoo/odoo.git"
+            overwrite_values["DEFAULT_REPO_PATTERN_ODOO"] = (
+                "https://github.com/odoo/odoo.git"
+            )
         elif float(version) < 14.0 and version != params["start-version"]:
-            overwrite_values[
-                "DEFAULT_REPO_PATTERN_ODOO"
-            ] = "https://github.com/OCA/OpenUpgrade.git"
+            overwrite_values["DEFAULT_REPO_PATTERN_ODOO"] = (
+                "https://github.com/OCA/OpenUpgrade.git"
+            )
         rewritten_lines = []
 
         lines = []
@@ -1041,10 +1041,21 @@ def run_enterprise_upgrade(version):
             proc.kill()
 
     mark_enterprise_done(version)
-    if not params["no-backups"]:
-        copy_database(enterprise_database, os.environ["PGDATABASE"], True)
-    else:
-        rename_database(enterprise_database, os.environ["PGDATABASE"])
+    try:
+        if not params["no-backups"]:
+            copy_database(enterprise_database, os.environ["PGDATABASE"], True)
+        else:
+            rename_database(enterprise_database, os.environ["PGDATABASE"])
+    except CommandFailedException as e:
+        logging.error(
+            "Failed because we weren't able to get the enterprise database in "
+            "place of the original one. No worries, the migrated database "
+            "still exists, but someone needs to resolve the error, execute "
+            "the following command, and restart the migration script:\n"
+            f"createdb \"{os.environ['PGDATABASE']}\" -T "
+            f'"{enterprise_database}"'
+        )
+        raise e
 
 
 def run_migration(start_version, target_version):
