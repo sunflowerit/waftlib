@@ -5,6 +5,9 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+is_running_top_level = False
+
+
 class Purger:
     def __init__(
         self,
@@ -205,10 +208,14 @@ class Purger:
         self.purge(actual_where_clause)
 
     def start(self):
-        _logger.debug("Disabling triggers for table %s", self.table_name)
-        self.cr.execute("ALTER TABLE %s DISABLE TRIGGER ALL", [AsIs(self.table_name)])
+        global is_running_top_level
+        if not is_running_top_level:
+            is_running_top_level = True
+            self.cr.execute("BEGIN TRANSACTION")
+            self.cr.execute("SET CONSTRAINTS ALL DEFERRED")
 
     def stop(self):
+        global is_running_top_level
         if self.clean_foreign_references:
             _logger.debug("Cleaning foreign references to %s..." % self.table_name)
             for (
@@ -221,24 +228,13 @@ class Purger:
                     constraint_name, foreign_table_name, foreign_column, is_nullable
                 )
 
-                if not self.skip_validation:
-                    _logger.debug(
-                        "Enabling foreign key constraint %s from table %s again..."
-                        % (constraint_name, foreign_table_name)
-                    )
-                    self.cr.execute(
-                        """
-                        UPDATE pg_constraint SET convalidated = FALSE WHERE conname = %s
-                    """,
-                        [constraint_name],
-                    )
-                    self.cr.execute(
-                        "ALTER TABLE %s VALIDATE CONSTRAINT %s",
-                        [AsIs(foreign_table_name), AsIs(constraint_name)],
-                    )
         if not self.delete_more_than_keep and self.has_id:
             self.cr.execute('DROP TABLE "%s_deleted"' % self.table_name)
         self.clean_foreign_references = False
+
+        if is_running_top_level:
+            self.cr.execute("COMMIT")
+            is_running_top_level = False
 
     def truncate(self):
         _logger.debug("Truncating table %s", self.table_name)
