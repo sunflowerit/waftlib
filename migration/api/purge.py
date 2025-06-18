@@ -104,7 +104,7 @@ class Purger:
                 [update_value],
             )
             _logger.debug("%s records affected.", self.cr.rowcount)
-            self.cr.execute('DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name)
+            #self.cr.execute('DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name)
         else:
             if not (foreign_table_name, foreign_column) in self.columns_already_cleaned:
                 self.columns_already_cleaned.append(
@@ -124,9 +124,9 @@ class Purger:
                 purger.purge(filter_clause)
                 purger.clean()
                 # Only clean, don't stop, because foreign_table_name might be the same as self.table_name, and we don't want to enable the foreign keys too early
-                self.cr.execute(
-                    'DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name
-                )
+                #self.cr.execute(
+                #    'DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name
+                #)
             else:
                 raise Exception(
                     "Recursion detected while cleaning foreign references. Column %s.%s was encountered twice."
