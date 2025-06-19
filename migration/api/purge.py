@@ -5,7 +5,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-is_running_top_level = False
+is_running_top_level = None
 
 
 class Purger:
@@ -210,7 +210,7 @@ class Purger:
     def start(self):
         global is_running_top_level
         if not is_running_top_level:
-            is_running_top_level = True
+            is_running_top_level = self
             self.cr.execute("BEGIN TRANSACTION")
             self.cr.execute("SET CONSTRAINTS ALL DEFERRED")
 
@@ -232,9 +232,9 @@ class Purger:
             self.cr.execute('DROP TABLE "%s_deleted"' % self.table_name)
         self.clean_foreign_references = False
 
-        if is_running_top_level:
+        if is_running_top_level == self:
             self.cr.execute("COMMIT")
-            is_running_top_level = False
+            is_running_top_level = None
 
     def truncate(self):
         _logger.debug("Truncating table %s", self.table_name)
