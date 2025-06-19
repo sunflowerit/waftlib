@@ -57,23 +57,31 @@ class Purger:
 
         if not self.filter_record_id:
             if self.delete_more_than_keep or not self.has_id:
-                filter_clause = (
-                    '"%s" IS NOT NULL AND "%s" NOT IN (SELECT id FROM "%s")'
-                    % (
-                        foreign_column,
-                        foreign_column,
-                        self.table_name,
+                filter_clause = \
+                    """
+                    %s IS NOT NULL AND NOT EXISTS (
+                        SELECT 1 FROM %s WHERE %s.id = %s.%s
                     )
-                )
+                    """ % (
+                        AsIs(foreign_column),
+                        AsIs(self.table_name),
+                        AsIs(self.table_name),
+                        AsIs(foreign_table_name),
+                        AsIs(foreign_column),
+                    )
             else:
-                filter_clause = (
-                    '"%s" IS NOT NULL AND "%s" IN (SELECT id FROM "%s_deleted")'
-                    % (
-                        foreign_column,
-                        foreign_column,
-                        self.table_name,
+                filter_clause = \
+                    """
+                    %s IS NOT NULL AND EXISTS (
+                        SELECT 1 FROM "%s_deleted" WHERE %s.id = %s.%s
                     )
-                )
+                    """ % (
+                        AsIs(foreign_column),
+                        self.table_name,
+                        AsIs(self.table_name),
+                        AsIs(foreign_table_name),
+                        AsIs(foreign_column),
+                    )
         else:
             filter_clause = '"%s" %s %s' % (
                 foreign_column,
@@ -81,11 +89,11 @@ class Purger:
                 self.filter_record_id,
             )
         if not delete:
-            _logger.debug(
-                "Creating index to on %s.%s to speed up update...",
-                foreign_table_name,
-                foreign_column,
-            )
+            #_logger.debug(
+            #    "Creating index to on %s.%s to speed up update...",
+            #    foreign_table_name,
+            #    foreign_column,
+            #)
             #self.cr.execute(
             #    'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
             #    % (constraint_name, foreign_table_name, foreign_column)
