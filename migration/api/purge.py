@@ -89,15 +89,15 @@ class Purger:
                 self.filter_record_id,
             )
         if not delete:
-            #_logger.debug(
-            #    "Creating index to on %s.%s to speed up update...",
-            #    foreign_table_name,
-            #    foreign_column,
-            #)
-            #self.cr.execute(
-            #    'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
-            #    % (constraint_name, foreign_table_name, foreign_column)
-            #)
+            _logger.info(
+                "Creating index to on %s.%s to speed up update...",
+                foreign_table_name,
+                foreign_column,
+            )
+            self.cr.execute(
+                'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
+                % (constraint_name, foreign_table_name, foreign_column)
+            )
             query = """
                 UPDATE \"%s\" SET \"%s\" = %s WHERE %s
             """ % (
@@ -112,7 +112,7 @@ class Purger:
                 [update_value],
             )
             _logger.debug("%s records affected.", self.cr.rowcount)
-            #self.cr.execute('DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name)
+            self.cr.execute('DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name)
         else:
             if not (foreign_table_name, foreign_column) in self.columns_already_cleaned:
                 self.columns_already_cleaned.append(
@@ -123,18 +123,18 @@ class Purger:
                     foreign_table_name,
                     foreign_column,
                 )
-                #self.cr.execute(
-                #    'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
-                #    % (constraint_name, foreign_table_name, foreign_column)
-                #)
+                self.cr.execute(
+                    'CREATE INDEX IF NOT EXISTS "%s_temp_index" ON "%s" ("%s")'
+                    % (constraint_name, foreign_table_name, foreign_column)
+                )
                 purger = Purger(self.cr, foreign_table_name, delete_more_than_keep=self.delete_more_than_keep, skip_validation=self.skip_validation)
                 purger.start()
                 purger.purge(filter_clause)
                 purger.clean()
                 # Only clean, don't stop, because foreign_table_name might be the same as self.table_name, and we don't want to enable the foreign keys too early
-                #self.cr.execute(
-                #    'DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name
-                #)
+                self.cr.execute(
+                    'DROP INDEX IF EXISTS "%s_temp_index"' % constraint_name
+                )
             else:
                 raise Exception(
                     "Recursion detected while cleaning foreign references. Column %s.%s was encountered twice."
@@ -216,11 +216,7 @@ class Purger:
         self.purge(actual_where_clause)
 
     def start(self):
-        global is_running_top_level
-        if not is_running_top_level:
-            is_running_top_level = self
-            self.cr.execute("BEGIN TRANSACTION")
-            self.cr.execute("SET CONSTRAINTS ALL DEFERRED")
+        pass 
 
     def stop(self):
         global is_running_top_level
@@ -240,10 +236,6 @@ class Purger:
             self.cr.execute('DROP TABLE "%s_deleted"' % self.table_name)
         self.clean_foreign_references = False
 
-        if is_running_top_level == self:
-            self.cr.execute("COMMIT")
-            is_running_top_level = None
-
     def truncate(self):
         _logger.debug("Truncating table %s", self.table_name)
         self.cr.execute("TRUNCATE %s", [AsIs(self.table_name)])
@@ -260,27 +252,8 @@ class UnresolvableForeignReferenceError(Exception):
 def fetch_foreign_key_constraints(cr, table_name):
     cr.execute(
         """
-        SELECT r.table_name, r.constraint_name, r.column_name, rc.is_nullable FROM information_schema.constraint_column_usage AS u
-            INNER JOIN information_schema.columns AS c
-                ON u.constraint_catalog = c.table_catalog
-                    AND u.constraint_schema = c.table_schema
-                    AND u.table_name = c.table_name
-                    AND u.column_name = c.column_name
-            INNER JOIN information_schema.referential_constraints AS fk
-                ON u.constraint_catalog = fk.unique_constraint_catalog
-                    AND u.constraint_schema = fk.unique_constraint_schema
-                    AND u.constraint_name = fk.unique_constraint_name
-            INNER JOIN information_schema.key_column_usage AS r
-                ON r.constraint_catalog = fk.constraint_catalog
-                    AND r.constraint_schema = fk.constraint_schema
-                    AND r.constraint_name = fk.constraint_name
-            INNER JOIN information_schema.columns AS rc
-                ON rc.table_catalog = c.table_catalog
-                    AND rc.table_name = r.table_name
-                    AND rc.column_name = r.column_name
-            WHERE
-                u.column_name = 'id' AND
-                u.table_name = %s
+        SELECT table_name, constraint_name, column_name, is_nullable FROM purger_save_constraint
+        WHERE table_name = %s
     """,
         [table_name],
     )
@@ -290,7 +263,7 @@ def fetch_foreign_key_constraints(cr, table_name):
             r["constraint_name"],
             r["table_name"],
             r["column_name"],
-            r["is_nullable"] == "YES",
+            r["is_nullable"]
         )
         for r in results
     ]
