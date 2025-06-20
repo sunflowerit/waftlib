@@ -253,7 +253,7 @@ def fetch_foreign_key_constraints(cr, table_name):
     cr.execute(
         """
         SELECT table_name, constraint_name, column_name, is_nullable FROM purger_save_constraint
-        WHERE table_name = %s
+        WHERE utablename = %s
     """,
         [table_name],
     )
