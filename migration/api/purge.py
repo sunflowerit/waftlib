@@ -118,7 +118,7 @@ class Purger:
                 self.columns_already_cleaned.append(
                     (foreign_table_name, foreign_column)
                 )
-                _logger.debug(
+                _logger.info(
                     "Creating index to on %s.%s to speed up deletion...",
                     foreign_table_name,
                     foreign_column,
