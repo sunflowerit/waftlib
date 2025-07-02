@@ -336,20 +336,19 @@ def init_progress(version):
         progress[version]["hooks"] = {}
 
 
-def load_defaults(params):
-    enterprise_enabled = "MIGRATION_ENTERPRISE_ENABLED" in os.environ and os.environ[
-        "MIGRATION_ENTERPRISE_ENABLED"
-    ].lower() in ("1", "yes", "true")
-    open_upgrade_disabled = (
-        "MIGRATION_OPEN_UPGRADE_DISABLED" in os.environ
-        and os.environ["MIGRATION_OPEN_UPGRADE_DISABLED"].lower()
-        in ("1", "yes", "true")
-    )
-    skip_initial_upgrade = (
-        os.environ["SKIP_INITIAL_UPGRADE"] == "1"
-        if "SKIP_INITIAL_UPGRADE" in os.environ
-        else False
-    )
+def load_defaults(parameters):
+    """Load the parameters from the environment variables.
+
+    Applies defaults wherever they are not set.
+    """
+    def is_environ_bool_true(name):
+        return name in os.environ and os.environ[name].lower() in \
+            ("1", "yes", "true")
+
+    enterprise_enabled = is_environ_bool_true("MIGRATION_ENTERPRISE_ENABLED")
+    open_upgrade_disabled = \
+        is_environ_bool_true("MIGRATION_OPEN_UPGRADE_DISABLED")
+    skip_initial_upgrade = is_environ_bool_true("SKIP_INITIAL_UPGRADE")
     start_version = (
         os.environ["MIGRATION_START_VERSION"]
         if "MIGRATION_START_VERSION" in os.environ
@@ -360,11 +359,7 @@ def load_defaults(params):
         if "MIGRATION_ENTERPRISE_JUMP_TO" in os.environ
         else ENTERPRISE_MINIMUM_TARGET
     )
-    no_backups = (
-        os.environ["MIGRATION_NO_BACKUPS"]
-        if "MIGRATION_NO_BACKUPS" in os.environ
-        else None
-    )
+    no_backups = is_environ_bool_true("MIGRATION_NO_BACKUPS")
     return {
         **{
             "enterprise-autotrust-ssh": False,
@@ -382,7 +377,7 @@ def load_defaults(params):
             "start-version": start_version,
             "verbose": False,
         },
-        **params,
+        **parameters,
     }
 
 
