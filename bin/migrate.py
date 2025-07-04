@@ -950,6 +950,10 @@ def rebuild_sources():
 
 
 def rename_database(database, new_database):
+    try:
+        cmd('dropdb "' + new_database + '"')
+    except CommandFailedException:
+        pass
     with psycopg.connect() as conn:
         with conn.cursor() as cur:
             cur.execute('ALTER DATABASE "%s" RENAME TO "%s"' % (database, new_database))
