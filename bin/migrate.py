@@ -138,8 +138,11 @@ def check_modules_installed(modules):
         with conn.cursor() as cur:
             for module in modules:
                 cur.execute(
-                    "SELECT * FROM ir_module_module WHERE "
-                    "state <> 'uninstalled' AND name = %s",
+                    """
+                    SELECT * FROM ir_module_module WHERE
+                    state NOT IN ('uninstalled', 'uninstallable')
+                    AND name = %s
+                    """,
                     [module],
                 )
                 if not cur.rowcount:
@@ -148,24 +151,28 @@ def check_modules_installed(modules):
 
 
 def check_script_support(filename, version):
+    """Check wether the specified script is supported.
+
+    The given version and the currently installed modules are considered.
+    """
     comment_prefix = "--" if filename.endswith(".sql") else "#"
-    file = open(filename, "r")
 
-    for line in file:
-        stripped_line = line.strip()
-        # Only parse comments in the top of the file
-        if not stripped_line.startswith(comment_prefix):
-            break
+    with open(filename, "r") as file:
+        for line in file:
+            stripped_line = line.strip()
+            # Only parse comments in the top of the file
+            if not stripped_line.startswith(comment_prefix):
+                break
 
-        comment = stripped_line[len(comment_prefix) :].strip()
-        if comment.startswith("X-Supports:"):
-            versions = [x.strip() for x in comment[11:].split()]
-            if not version in versions:
-                return False
-        elif comment.startswith("X-Modules:"):
-            modules = comment[10:].split()
-            if not check_modules_installed(modules):
-                return False
+            comment = stripped_line[len(comment_prefix):].strip()
+            if comment.startswith("X-Supports:"):
+                versions = [x.strip() for x in comment[11:].split()]
+                if version not in versions:
+                    return False
+            elif comment.startswith("X-Modules:"):
+                modules = comment[10:].split()
+                if not check_modules_installed(modules):
+                    return False
 
     return True
 
