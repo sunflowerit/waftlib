@@ -8,7 +8,7 @@ UNINSTALL_LIST=$(cat "$MIGRATION_PATH/etc/uninstall-modules.txt")
 
 
 LAST_MODULE_NAME=""
-for MODULE_NAME in ${UNINSTALL_LIST[@]}; do
+for MODULE_NAME in ${UNINSTALL_LIST[@]} ""; do
     .venv/bin/python <<PYTHON
 from anybox.recipe.odoo.runtime.session import Session
 
