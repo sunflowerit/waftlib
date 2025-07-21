@@ -11,3 +11,6 @@ FROM (
 	WHERE category_id = (SELECT id FROM category)
 ) AS r
 WHERE rp.id = r.partner_id;
+
+-- TODO: Perform database cleanup of the partner_coc module
+UPDATE ir_module_module SET state = 'uninstalled' WHERE name = 'partner_coc';
