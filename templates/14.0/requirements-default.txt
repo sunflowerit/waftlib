@@ -29,7 +29,7 @@ ebaysdk==2.1.5
 geojson==2.5.0
 freezegun==0.3.15
 gevent==1.4.0
-git+https://github.com/janverb/git-aggregator.git@d1685abb2776d255730e90fd22ae3363d83a9e89#egg=git_aggregator
+git+https://github.com/acsone/git-aggregator.git@223afe312880d1e1f7dd16daf4d659309710818c#egg=git_aggregator
 git+https://github.com/OCA/openupgradelib.git#egg=openupgradelib
 greenlet==0.4.15
 html2text==2018.1.9
