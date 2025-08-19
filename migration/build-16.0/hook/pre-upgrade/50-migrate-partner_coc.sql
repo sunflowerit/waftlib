@@ -1,5 +1,7 @@
 -- X-Modules: partner_coc
 
+ALTER TABLE res_partner ADD COLUMN company_registry VARCHAR;
+
 WITH category AS (
 	SELECT res_id AS id FROM ir_model_data
 	WHERE module = 'partner_coc' AND name = 'id_category_coc'
@@ -12,5 +14,5 @@ FROM (
 ) AS r
 WHERE rp.id = r.partner_id;
 
--- TODO: Perform database cleanup of the partner_coc module
-UPDATE ir_module_module SET state = 'uninstalled' WHERE name = 'partner_coc';
+-- Have the partner_coc module uninstalled
+UPDATE ir_module_module SET state = 'to remove' WHERE name = 'partner_coc';
