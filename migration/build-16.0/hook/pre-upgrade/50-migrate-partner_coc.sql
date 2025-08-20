@@ -14,5 +14,3 @@ FROM (
 ) AS r
 WHERE rp.id = r.partner_id;
 
--- Have the partner_coc module uninstalled
-UPDATE ir_module_module SET state = 'to remove' WHERE name = 'partner_coc';
