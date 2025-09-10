@@ -204,7 +204,7 @@ def combine_repos(build_path, version):
 def copy_database(database, new_database, move_fs=False):
     logging.info('Backing up database & filestore to "%s"...' % new_database)
     try:
-        cmd(['dropdb', new_database], supress_stderr=True)
+        cmd(["dropdb", new_database], supress_stderr=True)
     except CommandFailedException:
         pass
     cmd('createdb "' + new_database + '" -T "' + database + '"')
@@ -959,7 +959,7 @@ def rebuild_sources():
 
 def rename_database(database, new_database):
     try:
-        cmd(['dropdb', new_database], suppress_stderr=True)
+        cmd(["dropdb", new_database], suppress_stderr=True)
     except CommandFailedException:
         pass
     with psycopg.connect("dbname=postgres") as conn:
@@ -1346,7 +1346,9 @@ def run_upgrade(version):
     )
 
     logfile = os.path.join(WAFT_DIR, "logfile", instance + ".log")
-    args = f'-u base --stop-after-init --load=openupgrade_framework --logfile "{logfile}"'
+    args = (
+        f'-u base --stop-after-init --load=openupgrade_framework --logfile "{logfile}"'
+    )
     cmd(build_dir + "/run " + args)
 
     logging.info("Defusing database...")
