@@ -1337,8 +1337,6 @@ def run_scripts(version, hook_name, run_at_version=None):
 
 
 def run_upgrade(version):
-    global params
-
     instance = os.environ["PGDATABASE"] + "-" + version
     final_version = os.environ["ODOO_VERSION"]
     build_dir = (
@@ -1348,12 +1346,8 @@ def run_upgrade(version):
     )
 
     logfile = os.path.join(WAFT_DIR, "logfile", instance + ".log")
-    args = (
-        '-u base --stop-after-init --load=openupgrade_framework --logfile "%s"'
-        % logfile
-    )
+    args = f'-u base --stop-after-init --load=openupgrade_framework --logfile "{logfile}"'
     cmd(build_dir + "/run " + args)
-    mark_upgrade_done(version)
 
     logging.info("Defusing database...")
     defuse_database()
@@ -1375,6 +1369,7 @@ def run_upgrade(version):
                 database,
             )
             raise e
+    mark_upgrade_done(version)
 
 
 def save_progress():
