@@ -204,7 +204,7 @@ def combine_repos(build_path, version):
 def copy_database(database, new_database, move_fs=False):
     logging.info('Backing up database & filestore to "%s"...' % new_database)
     try:
-        cmd('dropdb "' + new_database + '"')
+        cmd(['dropdb', new_database], supress_stderr=True)
     except CommandFailedException:
         pass
     cmd('createdb "' + new_database + '" -T "' + database + '"')
@@ -223,7 +223,7 @@ def copy_database(database, new_database, move_fs=False):
         logging.warning("No filestore for %s to copy to %s." % (database, new_database))
 
 
-def cmd(command, input=None, cwd=None):
+def cmd(command, input=None, cwd=None, suppress_stderr=False, suppress_stdout=False):
     logging.debug(command)
 
     def enqueue_stream(stream, queue):
@@ -266,18 +266,22 @@ def cmd(command, input=None, cwd=None):
             line = q.get(timeout=1.0)
         except Empty:
             continue
-        stderrlines += "[stderr]: " + line[:-1] + "\n"
-        logging.debug("[stderr]: " + line[:-1])
+        if not suppress_stderr:
+            stderrlines += "[stderr]: " + line[:-1] + "\n"
+            logging.debug("[stderr]: " + line[:-1])
 
     # Read stdout all in one go
     stdoutlines = ""
     for line in iter(proc.stdout.readline, ""):
-        stdoutlines += "[stdout]: " + line[:-1] + "\n"
-        logging.debug("[stdout]: " + line[:-1])
+        if not suppress_stderr:
+            stdoutlines += "[stdout]: " + line[:-1] + "\n"
+            logging.debug("[stdout]: " + line[:-1])
 
     if proc.returncode != 0:
-        logging.error(stderrlines)
-        logging.error(stdoutlines)
+        if not suppress_stderr:
+            logging.error(stderrlines)
+        if not suppress_stdout:
+            logging.error(stdoutlines)
         raise CommandFailedException(command, proc.returncode)
 
 
@@ -602,7 +606,7 @@ def pull_customer_database():
 
     logging.info("Importing customer database...")
     try:
-        cmd(["dropdb", os.environ["PGDATABASE"]])
+        cmd(["dropdb", os.environ["PGDATABASE"]], suppress_stderr=True)
     except CommandFailedException:
         pass
     cmd(["createdb", os.environ["PGDATABASE"]])
@@ -955,7 +959,7 @@ def rebuild_sources():
 
 def rename_database(database, new_database):
     try:
-        cmd('dropdb "' + new_database + '"')
+        cmd(['dropdb', new_database], suppress_stderr=True)
     except CommandFailedException:
         pass
     with psycopg.connect("dbname=postgres") as conn:
@@ -1004,7 +1008,7 @@ def run_enterprise_upgrade(version):
         os.environ["HOME"], ".local/share/Odoo/filestore/", enterprise_database
     )
     try:
-        cmd_system("dropdb " + enterprise_database + " 2>/dev/null")
+        cmd('dropdb "' + enterprise_database + '"', suppress_stderr=True)
     except CommandFailedException:
         pass
     cmd("rm -rf " + enterprise_filestore)
