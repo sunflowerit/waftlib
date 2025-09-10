@@ -1359,9 +1359,24 @@ def run_upgrade(version):
 
     # Backup the database
     if not params["no-backups"]:
-        copy_database(
-            os.environ["PGDATABASE"], os.environ["PGDATABASE"] + "-" + version
-        )
+        database = os.environ["PGDATABASE"]
+        backup_database = database + "-" + version
+        try:
+            copy_database(
+                database,
+                backup_database
+            )
+        except CommandFailedException as e:
+            logging.error(
+                "Failed to back up the database. No worries, the migrated "
+                "database still exists, but someone needs to resolve the "
+                "error, execute the following command, and restart the "
+                "migration script:\n"
+                'createdb "%s" -T "%s"',
+                backup_database,
+                database,
+            )
+            raise e
 
 
 def save_progress():
