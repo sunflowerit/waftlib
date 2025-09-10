@@ -1,7 +1,5 @@
 #!/bin/sh
 
-/usr/bin/sudo /bin/systemctl stop odoo.service || /bin/true
-
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
 export ODOO_WORK_DIR="${SCRIPT_PATH}"
 . "${ODOO_WORK_DIR}/.env-default" && \
@@ -9,8 +7,12 @@ export ODOO_WORK_DIR="${SCRIPT_PATH}"
 . "${ODOO_WORK_DIR}/.env-secret"
 export ODOO_VERSION="$ODOO_VERSION"
 export PGDATABASE="$PGDATABASE"
+if [ -n "$PGHOST" ]; then export PGHOST="$PGHOST"; fi
+if [ -n "$PGUSER" ]; then export PGUSER="$PGUSER"; fi
+if [ -n "$PGPASSWORD" ]; then export PGPASSWORD="$PGPASSWORD"; fi
 export MIGRATION_ENTERPRISE_ENABLED="$MIGRATION_ENTERPRISE_ENABLED"
 export MIGRATION_ENTERPRISE_JUMP_TO="$MIGRATION_ENTERPRISE_JUMP_TO"
+export MIGRATION_NO_BACKUPS="$MIGRATION_NO_BACKUPS"
 export MIGRATION_OPEN_UPGRADE_DISABLED="$MIGRATION_OPEN_UPGRADE_DISABLED"
 export MIGRATION_START_VERSION="$MIGRATION_START_VERSION"
 export SKIP_INITIAL_UPGRADE="$SKIP_INITIAL_UPGRADE"

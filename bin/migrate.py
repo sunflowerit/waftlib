@@ -95,6 +95,39 @@ def available_build_versions(start_version):
     return [str(x) + ".0" for x in range(floor(float(start_version)), end_version + 1)]
 
 
+def backup_mail_server_info():
+    queries = [
+        (
+            """
+            CREATE TABLE IF NOT EXISTS fetchmail_server_backup AS
+            SELECT * FROM fetchmail_server
+        """,
+            False,
+        ),
+        (
+            """
+            CREATE TABLE IF NOT EXISTS ir_mail_server_backup AS
+            SELECT * FROM ir_mail_server
+        """,
+            True,
+        ),
+    ]
+    dbname = os.environ["PGDATABASE"]
+
+    for query, required in queries:
+        with psycopg.connect("dbname=" + dbname) as conn:
+            with conn.cursor() as cur:
+                try:
+                    cur.execute(query)
+                except Exception as e:
+                    if required:
+                        logging.error(
+                            "Unable to defuse database, the following query failed:"
+                        )
+                        logging.error(query)
+                        raise e
+
+
 def check_modules_installed(modules):
     """Returns whether or not the given `modules` are installed in the
     current database.
@@ -103,8 +136,11 @@ def check_modules_installed(modules):
         with conn.cursor() as cur:
             for module in modules:
                 cur.execute(
-                    "SELECT * FROM ir_module_module WHERE "
-                    "state <> 'uninstalled' AND name = %s",
+                    """
+                    SELECT * FROM ir_module_module WHERE
+                    state NOT IN ('uninstalled', 'uninstallable')
+                    AND name = %s
+                    """,
                     [module],
                 )
                 if not cur.rowcount:
@@ -113,24 +149,28 @@ def check_modules_installed(modules):
 
 
 def check_script_support(filename, version):
+    """Check wether the specified script is supported.
+
+    The given version and the currently installed modules are considered.
+    """
     comment_prefix = "--" if filename.endswith(".sql") else "#"
-    file = open(filename, "r")
 
-    for line in file:
-        stripped_line = line.strip()
-        # Only parse comments in the top of the file
-        if not stripped_line.startswith(comment_prefix):
-            break
+    with open(filename, "r") as file:
+        for line in file:
+            stripped_line = line.strip()
+            # Only parse comments in the top of the file
+            if not stripped_line.startswith(comment_prefix):
+                break
 
-        comment = stripped_line[len(comment_prefix) :].strip()
-        if comment.startswith("X-Supports:"):
-            versions = [x.strip() for x in comment[11:].split()]
-            if not version in versions:
-                return False
-        elif comment.startswith("X-Modules:"):
-            modules = comment[10:].split()
-            if not check_modules_installed(modules):
-                return False
+            comment = stripped_line[len(comment_prefix) :].strip()
+            if comment.startswith("X-Supports:"):
+                versions = [x.strip() for x in comment[11:].split()]
+                if version not in versions:
+                    return False
+            elif comment.startswith("X-Modules:"):
+                modules = comment[10:].split()
+                if not check_modules_installed(modules):
+                    return False
 
     return True
 
@@ -164,7 +204,7 @@ def combine_repos(build_path, version):
 def copy_database(database, new_database, move_fs=False):
     logging.info('Backing up database & filestore to "%s"...' % new_database)
     try:
-        cmd('dropdb "' + new_database + '"')
+        cmd(["dropdb", new_database], suppress_stderr=True)
     except CommandFailedException:
         pass
     cmd('createdb "' + new_database + '" -T "' + database + '"')
@@ -183,7 +223,7 @@ def copy_database(database, new_database, move_fs=False):
         logging.warning("No filestore for %s to copy to %s." % (database, new_database))
 
 
-def cmd(command, input=None, cwd=None):
+def cmd(command, input=None, cwd=None, suppress_stderr=False, suppress_stdout=False):
     logging.debug(command)
 
     def enqueue_stream(stream, queue):
@@ -226,18 +266,22 @@ def cmd(command, input=None, cwd=None):
             line = q.get(timeout=1.0)
         except Empty:
             continue
-        stderrlines += "[stderr]: " + line[:-1] + "\n"
-        logging.debug("[stderr]: " + line[:-1])
+        if not suppress_stderr:
+            stderrlines += "[stderr]: " + line[:-1] + "\n"
+            logging.debug("[stderr]: " + line[:-1])
 
     # Read stdout all in one go
     stdoutlines = ""
     for line in iter(proc.stdout.readline, ""):
-        stdoutlines += "[stdout]: " + line[:-1] + "\n"
-        logging.debug("[stdout]: " + line[:-1])
+        if not suppress_stderr:
+            stdoutlines += "[stdout]: " + line[:-1] + "\n"
+            logging.debug("[stdout]: " + line[:-1])
 
     if proc.returncode != 0:
-        logging.error(stderrlines)
-        logging.error(stdoutlines)
+        if not suppress_stderr:
+            logging.error(stderrlines)
+        if not suppress_stdout:
+            logging.error(stdoutlines)
         raise CommandFailedException(command, proc.returncode)
 
 
@@ -301,15 +345,18 @@ def init_progress(version):
         progress[version]["hooks"] = {}
 
 
-def load_defaults(params):
-    enterprise_enabled = "MIGRATION_ENTERPRISE_ENABLED" in os.environ and os.environ[
-        "MIGRATION_ENTERPRISE_ENABLED"
-    ].lower() in ("1", "yes", "true")
-    open_upgrade_disabled = (
-        "MIGRATION_OPEN_UPGRADE_DISABLED" in os.environ
-        and os.environ["MIGRATION_OPEN_UPGRADE_DISABLED"].lower()
-        in ("1", "yes", "true")
-    )
+def load_defaults(parameters):
+    """Load the parameters from the environment variables.
+
+    Applies defaults wherever they are not set.
+    """
+
+    def is_environ_bool_true(name):
+        return name in os.environ and os.environ[name].lower() in ("1", "yes", "true")
+
+    enterprise_enabled = is_environ_bool_true("MIGRATION_ENTERPRISE_ENABLED")
+    open_upgrade_disabled = is_environ_bool_true("MIGRATION_OPEN_UPGRADE_DISABLED")
+    skip_initial_upgrade = is_environ_bool_true("SKIP_INITIAL_UPGRADE")
     start_version = (
         os.environ["MIGRATION_START_VERSION"]
         if "MIGRATION_START_VERSION" in os.environ
@@ -320,11 +367,7 @@ def load_defaults(params):
         if "MIGRATION_ENTERPRISE_JUMP_TO" in os.environ
         else ENTERPRISE_MINIMUM_TARGET
     )
-    no_backups = (
-        os.environ["MIGRATION_NO_BACKUPS"]
-        if "MIGRATION_NO_BACKUPS" in os.environ
-        else None
-    )
+    no_backups = is_environ_bool_true("MIGRATION_NO_BACKUPS")
     return {
         **{
             "enterprise-autotrust-ssh": False,
@@ -338,10 +381,11 @@ def load_defaults(params):
             "rebuild": False,
             "reset-progress": False,
             "restore": False,
+            "skip-initial-upgrade": skip_initial_upgrade,
             "start-version": start_version,
             "verbose": False,
         },
-        **params,
+        **parameters,
     }
 
 
@@ -562,7 +606,7 @@ def pull_customer_database():
 
     logging.info("Importing customer database...")
     try:
-        cmd(["dropdb", os.environ["PGDATABASE"]])
+        cmd(["dropdb", os.environ["PGDATABASE"]], suppress_stderr=True)
     except CommandFailedException:
         pass
     cmd(["createdb", os.environ["PGDATABASE"]])
@@ -668,13 +712,13 @@ def rebuild_sources():
         if "PGPASSWORD" in os.environ:
             overwrite_values["PGPASSWORD"] = os.environ["PGPASSWORD"]
         if params["enterprise-enabled"]:
-            overwrite_values[
-                "DEFAULT_REPO_PATTERN_ODOO"
-            ] = "https://github.com/odoo/odoo.git"
+            overwrite_values["DEFAULT_REPO_PATTERN_ODOO"] = (
+                "https://github.com/odoo/odoo.git"
+            )
         elif float(version) < 14.0 and version != params["start-version"]:
-            overwrite_values[
-                "DEFAULT_REPO_PATTERN_ODOO"
-            ] = "https://github.com/OCA/OpenUpgrade.git"
+            overwrite_values["DEFAULT_REPO_PATTERN_ODOO"] = (
+                "https://github.com/OCA/OpenUpgrade.git"
+            )
         rewritten_lines = []
 
         lines = []
@@ -797,8 +841,6 @@ def rebuild_sources():
         build_dir = os.path.join(MIGRATION_PATH, "build-" + version)
         if float(version) > 13.999 and version == os.environ["ODOO_VERSION"]:
             build_dir = WAFT_DIR
-        elif params["open-upgrade-disabled"]:
-            continue
 
         # Set up git in build dir
         if not os.path.exists(os.path.join(build_dir, "bootstrap")):
@@ -916,7 +958,11 @@ def rebuild_sources():
 
 
 def rename_database(database, new_database):
-    with psycopg.connect() as conn:
+    try:
+        cmd(["dropdb", new_database], suppress_stderr=True)
+    except CommandFailedException:
+        pass
+    with psycopg.connect("dbname=postgres") as conn:
         with conn.cursor() as cur:
             cur.execute('ALTER DATABASE "%s" RENAME TO "%s"' % (database, new_database))
 
@@ -962,7 +1008,7 @@ def run_enterprise_upgrade(version):
         os.environ["HOME"], ".local/share/Odoo/filestore/", enterprise_database
     )
     try:
-        cmd_system("dropdb " + enterprise_database + " 2>/dev/null")
+        cmd('dropdb "' + enterprise_database + '"', suppress_stderr=True)
     except CommandFailedException:
         pass
     cmd("rm -rf " + enterprise_filestore)
@@ -994,6 +1040,7 @@ def run_enterprise_upgrade(version):
                 [
                     "python3",
                     enterprise_script_filepath,
+                    "--debug",
                     mode,
                     "-d",
                     os.environ["PGDATABASE"],
@@ -1041,10 +1088,21 @@ def run_enterprise_upgrade(version):
             proc.kill()
 
     mark_enterprise_done(version)
-    if not params["no-backups"]:
-        copy_database(enterprise_database, os.environ["PGDATABASE"], True)
-    else:
-        rename_database(enterprise_database, os.environ["PGDATABASE"])
+    try:
+        if not params["no-backups"]:
+            copy_database(enterprise_database, os.environ["PGDATABASE"], True)
+        else:
+            rename_database(enterprise_database, os.environ["PGDATABASE"])
+    except CommandFailedException as e:
+        logging.error(
+            "Failed because we weren't able to get the enterprise database in "
+            "place of the original one. No worries, the migrated database "
+            "still exists, but someone needs to resolve the error, execute "
+            "the following command, and restart the migration script:\n"
+            f"createdb \"{os.environ['PGDATABASE']}\" -T "
+            f'"{enterprise_database}"'
+        )
+        raise e
 
 
 def run_migration(start_version, target_version):
@@ -1078,7 +1136,8 @@ def run_migration(start_version, target_version):
         )
     )
 
-    logging.info("Defusing database...")
+    logging.info("Backing up mail server and defusing database...")
+    backup_mail_server_info()
     defuse_database()
 
     #  Run the pre-migration scripts
@@ -1170,7 +1229,10 @@ def run_migration(start_version, target_version):
             db_version = version
 
         init_progress(version)
-        if not enterprise_done and not openupgrade_done:
+        going_to_upgrade = (
+            not params["open-upgrade-disabled"] and not openupgrade_done
+        ) or not enterprise_done
+        if going_to_upgrade:
             run_scripts(version, "pre-upgrade", last_version)
         if params["enterprise-enabled"]:
             if not enterprise_done and float(version) - float(minimum_target) > 0.001:
@@ -1275,8 +1337,6 @@ def run_scripts(version, hook_name, run_at_version=None):
 
 
 def run_upgrade(version):
-    global params
-
     instance = os.environ["PGDATABASE"] + "-" + version
     final_version = os.environ["ODOO_VERSION"]
     build_dir = (
@@ -1287,20 +1347,31 @@ def run_upgrade(version):
 
     logfile = os.path.join(WAFT_DIR, "logfile", instance + ".log")
     args = (
-        '-u base --stop-after-init --load=openupgrade_framework --logfile "%s"'
-        % logfile
+        f'-u base --stop-after-init --load=openupgrade_framework --logfile "{logfile}"'
     )
     cmd(build_dir + "/run " + args)
-    mark_upgrade_done(version)
 
     logging.info("Defusing database...")
     defuse_database()
 
     # Backup the database
     if not params["no-backups"]:
-        copy_database(
-            os.environ["PGDATABASE"], os.environ["PGDATABASE"] + "-" + version
-        )
+        database = os.environ["PGDATABASE"]
+        backup_database = database + "-" + version
+        try:
+            copy_database(database, backup_database)
+        except CommandFailedException as e:
+            logging.error(
+                "Failed to back up the database. No worries, the migrated "
+                "database still exists, but someone needs to resolve the "
+                "error, execute the following command, and restart the "
+                "migration script:\n"
+                'createdb "%s" -T "%s"',
+                backup_database,
+                database,
+            )
+            raise e
+    mark_upgrade_done(version)
 
 
 def save_progress():
@@ -1330,7 +1401,9 @@ def verify_arguments(args: dict):
 
 def verify_params():
     global params
-    if not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]:
+    if not params["rebuild"] and (
+        not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]
+    ):
         logging.error("No database specified in the environment as PGDATABASE.")
         return False
     if not "start-version" in params or not params["start-version"]:
