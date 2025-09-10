@@ -102,14 +102,14 @@ def backup_mail_server_info():
             CREATE TABLE IF NOT EXISTS fetchmail_server_backup AS
             SELECT * FROM fetchmail_server
         """,
-            False
+            False,
         ),
         (
             """
             CREATE TABLE IF NOT EXISTS ir_mail_server_backup AS
             SELECT * FROM ir_mail_server
         """,
-            True
+            True,
         ),
     ]
     dbname = os.environ["PGDATABASE"]
@@ -122,12 +122,10 @@ def backup_mail_server_info():
                 except Exception as e:
                     if required:
                         logging.error(
-                            "Unable to defuse database, "
-                            "the following query failed:"
+                            "Unable to defuse database, the following query failed:"
                         )
                         logging.error(query)
                         raise e
-
 
 
 def check_modules_installed(modules):
@@ -164,7 +162,7 @@ def check_script_support(filename, version):
             if not stripped_line.startswith(comment_prefix):
                 break
 
-            comment = stripped_line[len(comment_prefix):].strip()
+            comment = stripped_line[len(comment_prefix) :].strip()
             if comment.startswith("X-Supports:"):
                 versions = [x.strip() for x in comment[11:].split()]
                 if version not in versions:
@@ -348,13 +346,12 @@ def load_defaults(parameters):
 
     Applies defaults wherever they are not set.
     """
+
     def is_environ_bool_true(name):
-        return name in os.environ and os.environ[name].lower() in \
-            ("1", "yes", "true")
+        return name in os.environ and os.environ[name].lower() in ("1", "yes", "true")
 
     enterprise_enabled = is_environ_bool_true("MIGRATION_ENTERPRISE_ENABLED")
-    open_upgrade_disabled = \
-        is_environ_bool_true("MIGRATION_OPEN_UPGRADE_DISABLED")
+    open_upgrade_disabled = is_environ_bool_true("MIGRATION_OPEN_UPGRADE_DISABLED")
     skip_initial_upgrade = is_environ_bool_true("SKIP_INITIAL_UPGRADE")
     start_version = (
         os.environ["MIGRATION_START_VERSION"]
@@ -1228,9 +1225,9 @@ def run_migration(start_version, target_version):
             db_version = version
 
         init_progress(version)
-        going_to_upgrade = \
-            (not params["open-upgrade-disabled"] and not openupgrade_done) or \
-            not enterprise_done
+        going_to_upgrade = (
+            not params["open-upgrade-disabled"] and not openupgrade_done
+        ) or not enterprise_done
         if going_to_upgrade:
             run_scripts(version, "pre-upgrade", last_version)
         if params["enterprise-enabled"]:
@@ -1362,10 +1359,7 @@ def run_upgrade(version):
         database = os.environ["PGDATABASE"]
         backup_database = database + "-" + version
         try:
-            copy_database(
-                database,
-                backup_database
-            )
+            copy_database(database, backup_database)
         except CommandFailedException as e:
             logging.error(
                 "Failed to back up the database. No worries, the migrated "
@@ -1406,7 +1400,9 @@ def verify_arguments(args: dict):
 
 def verify_params():
     global params
-    if not params["rebuild"] and (not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]):
+    if not params["rebuild"] and (
+        not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]
+    ):
         logging.error("No database specified in the environment as PGDATABASE.")
         return False
     if not "start-version" in params or not params["start-version"]:
