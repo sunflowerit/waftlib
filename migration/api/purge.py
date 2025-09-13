@@ -5,6 +5,9 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+is_running_top_level = None
+
+
 class Purger:
     def __init__(
         self,
@@ -54,23 +57,31 @@ class Purger:
 
         if not self.filter_record_id:
             if self.delete_more_than_keep or not self.has_id:
-                filter_clause = (
-                    '"%s" IS NOT NULL AND "%s" NOT IN (SELECT id FROM "%s")'
-                    % (
-                        foreign_column,
-                        foreign_column,
-                        self.table_name,
+                filter_clause = \
+                    """
+                    %s IS NOT NULL AND NOT EXISTS (
+                        SELECT 1 FROM %s WHERE %s.id = %s.%s
                     )
-                )
+                    """ % (
+                        AsIs(foreign_column),
+                        AsIs(self.table_name),
+                        AsIs(self.table_name),
+                        AsIs(foreign_table_name),
+                        AsIs(foreign_column),
+                    )
             else:
-                filter_clause = (
-                    '"%s" IS NOT NULL AND "%s" IN (SELECT id FROM "%s_deleted")'
-                    % (
-                        foreign_column,
-                        foreign_column,
-                        self.table_name,
+                filter_clause = \
+                    """
+                    %s IS NOT NULL AND EXISTS (
+                        SELECT 1 FROM "%s_deleted" WHERE %s.id = %s.%s
                     )
-                )
+                    """ % (
+                        AsIs(foreign_column),
+                        self.table_name,
+                        AsIs(self.table_name),
+                        AsIs(foreign_table_name),
+                        AsIs(foreign_column),
+                    )
         else:
             filter_clause = '"%s" %s %s' % (
                 foreign_column,
@@ -78,7 +89,7 @@ class Purger:
                 self.filter_record_id,
             )
         if not delete:
-            _logger.debug(
+            _logger.info(
                 "Creating index to on %s.%s to speed up update...",
                 foreign_table_name,
                 foreign_column,
@@ -107,7 +118,7 @@ class Purger:
                 self.columns_already_cleaned.append(
                     (foreign_table_name, foreign_column)
                 )
-                _logger.debug(
+                _logger.info(
                     "Creating index to on %s.%s to speed up deletion...",
                     foreign_table_name,
                     foreign_column,
@@ -205,10 +216,10 @@ class Purger:
         self.purge(actual_where_clause)
 
     def start(self):
-        _logger.debug("Disabling triggers for table %s", self.table_name)
-        self.cr.execute("ALTER TABLE %s DISABLE TRIGGER ALL", [AsIs(self.table_name)])
+        pass 
 
     def stop(self):
+        global is_running_top_level
         if self.clean_foreign_references:
             _logger.debug("Cleaning foreign references to %s..." % self.table_name)
             for (
@@ -221,21 +232,6 @@ class Purger:
                     constraint_name, foreign_table_name, foreign_column, is_nullable
                 )
 
-                if not self.skip_validation:
-                    _logger.debug(
-                        "Enabling foreign key constraint %s from table %s again..."
-                        % (constraint_name, foreign_table_name)
-                    )
-                    self.cr.execute(
-                        """
-                        UPDATE pg_constraint SET convalidated = FALSE WHERE conname = %s
-                    """,
-                        [constraint_name],
-                    )
-                    self.cr.execute(
-                        "ALTER TABLE %s VALIDATE CONSTRAINT %s",
-                        [AsIs(foreign_table_name), AsIs(constraint_name)],
-                    )
         if not self.delete_more_than_keep and self.has_id:
             self.cr.execute('DROP TABLE "%s_deleted"' % self.table_name)
         self.clean_foreign_references = False
@@ -256,27 +252,8 @@ class UnresolvableForeignReferenceError(Exception):
 def fetch_foreign_key_constraints(cr, table_name):
     cr.execute(
         """
-        SELECT r.table_name, r.constraint_name, r.column_name, rc.is_nullable FROM information_schema.constraint_column_usage AS u
-            INNER JOIN information_schema.columns AS c
-                ON u.constraint_catalog = c.table_catalog
-                    AND u.constraint_schema = c.table_schema
-                    AND u.table_name = c.table_name
-                    AND u.column_name = c.column_name
-            INNER JOIN information_schema.referential_constraints AS fk
-                ON u.constraint_catalog = fk.unique_constraint_catalog
-                    AND u.constraint_schema = fk.unique_constraint_schema
-                    AND u.constraint_name = fk.unique_constraint_name
-            INNER JOIN information_schema.key_column_usage AS r
-                ON r.constraint_catalog = fk.constraint_catalog
-                    AND r.constraint_schema = fk.constraint_schema
-                    AND r.constraint_name = fk.constraint_name
-            INNER JOIN information_schema.columns AS rc
-                ON rc.table_catalog = c.table_catalog
-                    AND rc.table_name = r.table_name
-                    AND rc.column_name = r.column_name
-            WHERE
-                u.column_name = 'id' AND
-                u.table_name = %s
+        SELECT table_name, constraint_name, column_name, is_nullable FROM purger_save_constraint
+        WHERE utablename = %s
     """,
         [table_name],
     )
@@ -286,7 +263,7 @@ def fetch_foreign_key_constraints(cr, table_name):
             r["constraint_name"],
             r["table_name"],
             r["column_name"],
-            r["is_nullable"] == "YES",
+            r["is_nullable"]
         )
         for r in results
     ]
