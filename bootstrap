@@ -111,7 +111,7 @@ if [ "$(/bin/echo "${ODOO_VERSION}" | /usr/bin/cut -d'.' -f1)" -lt '8' ]; then
   exit 1
 fi
 
-if [ "$(/bin/echo ${ODOO_VERSION} | /usr/bin/cut -d'.' -f1)" -gt '18' ]; then
+if [ "$(/bin/echo ${ODOO_VERSION} | /usr/bin/cut -d'.' -f1)" -gt '19' ]; then
   /bin/echo "ERROR: Waft does not support ${ODOO_VERSION} yet."
   exit 1
 fi

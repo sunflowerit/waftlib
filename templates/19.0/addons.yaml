@@ -1,0 +1,9 @@
+---
+odoo/addons:
+    - "*"
+
+odoo/odoo/addons:
+    - "*"
+
+OCA/web:
+    - "*"
