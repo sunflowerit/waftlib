@@ -83,7 +83,9 @@ Pygments==2.19.2
 pyldap==3.0.0.post1
 pyopenssl==24.1.0
 pyparsing==3.2.4
-pypdf==6.0.0
+# Should be pypdf in future versions...
+PyPDF2==1.26.0 ; python_version <= '3.10'
+PyPDF2==2.12.1 ; python_version > '3.10'
 pyserial==3.5
 python-dateutil==2.8.2
 python-dotenv==1.1.1
