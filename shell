@@ -1,12 +1,40 @@
 #!/bin/sh
 # Version: v.22.05.30
 
+set -e
+
+compare_versions()
+{
+  var1=$1;
+  var2=$2;
+  for i in 1 2
+  do
+    part1=$(echo $var1 | cut -d "." -f $i)
+    part2=$(echo $var2 | cut -d "." -f $i)
+    if [ $part1 -lt $part2 ]
+    then
+      return 0
+    fi
+  done
+  return 1
+}
+
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
 ODOO_WORK_DIR="${SCRIPT_PATH}"
+
 . "${ODOO_WORK_DIR}/.env-default" && \
 . "${ODOO_WORK_DIR}/.env-shared" && \
 . "${ODOO_WORK_DIR}/.env-secret"
+. "${ODOO_WORK_DIR}"/.venv/bin/activate
+
 cd "${ODOO_WORK_DIR}"
 
+if compare_versions "${ODOO_VERSION}" "19.0"
+then
+    PORT_OPTION="--xmlrpc-port=18080"
+else
+    PORT_OPTION="--http-port=18080"
+fi
+
 # Note: in Odoo 8.0 this requires OCA 'shell' module to be installed.
-cd "${ODOO_WORK_DIR}" && . .venv/bin/activate && odoo --addons-path=auto/addons shell -c ./auto/odoo.conf --xmlrpc-port=18080
+odoo --addons-path=auto/addons shell -c ./auto/odoo.conf "${PORT_OPTION}"
