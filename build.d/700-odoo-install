@@ -18,10 +18,10 @@ source .venv/bin/activate && \
 if [[ "${ODOO_VERSION}" == "8.0" ]]; then
   pip install --no-cache-dir --no-deps "${src}"
 elif [[ "${ODOO_VERSION}" == "9.0" ]] || \
-[[ "${ODOO_VERSION}" == "10.0" ]] ||
-[[ "${ODOO_VERSION}" == "11.0" ]] ||
-[[ "${ODOO_VERSION}" == "12.0" ]] ||
-[[ "${ODOO_VERSION}" == "13.0" ]] ||
+[[ "${ODOO_VERSION}" == "10.0" ]] || \
+[[ "${ODOO_VERSION}" == "11.0" ]] || \
+[[ "${ODOO_VERSION}" == "12.0" ]] || \
+[[ "${ODOO_VERSION}" == "13.0" ]] || \
 [[ "${ODOO_VERSION}" == "14.0" ]]; then
   pip install --no-cache-dir "${src}"
 else
