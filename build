@@ -26,7 +26,7 @@ fi
 # https://pip.pypa.io/en/latest/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020
 . .venv/bin/activate && \
 pip install --quiet "setuptools-scm<8.0" && \
-if [[ "$(/bin/echo "${ODOO_VERSION}" | /usr/bin/cut -d '.' -f1)" -ge 13 ]]; then
+if [[ "$(/bin/echo "${ODOO_VERSION}" | /usr/bin/cut -d '.' -f1)" -ge 15 ]]; then
   pip install --quiet "setuptools>=64"
 else
   pip install --quiet setuptools
