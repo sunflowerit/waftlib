@@ -186,9 +186,17 @@ OCA/intrastat:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    intrastat: https://github.com/oca/intrastat-extrastat
+    oca: https://github.com/oca/intrastat-extrastat
   merges:
-    - intrastat $ODOO_VERSION
+    - oca $ODOO_VERSION
+
+OCA/intrastat-extrastat:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/oca/intrastat-extrastat
+  merges:
+    - oca $ODOO_VERSION
 
 OCA/knowledge:
   defaults:
@@ -259,6 +267,14 @@ OCA/partner-contact:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
     oca: https://github.com/OCA/partner-contact 
+  merges:
+    - oca $ODOO_VERSION
+
+OCA/pos:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    oca: https://github.com/OCA/pos
   merges:
     - oca $ODOO_VERSION
 
