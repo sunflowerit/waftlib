@@ -19,6 +19,7 @@ click==8.0.1
 click-odoo==1.4.3
 click-odoo-contrib==1.12.0
 colorama==0.4.4
+cryptography==38.0.1
 cssselect==1.1.0
 dateparser==1.1.1
 decorator==4.3.0
@@ -27,6 +28,7 @@ defusedxml==0.7.1
 docutils==0.14
 ebaysdk==2.1.5
 geojson==2.5.0
+GitPython==3.1.20
 freezegun==0.3.15
 gevent==1.4.0
 git+https://github.com/janverb/git-aggregator.git@d1685abb2776d255730e90fd22ae3363d83a9e89#egg=git_aggregator
@@ -51,6 +53,7 @@ num2words==0.5.6
 ofxparse==0.20
 parso==0.8.2
 passlib==1.7.1
+pathspec==0.9.0
 pathtools==0.1.2
 pg-activity==1.5.0
 phonenumbers==8.10.19
@@ -62,8 +65,12 @@ ptvsd==5.0.0a4
 pudb==2019.1
 pydot==1.4.1
 Pygments==2.10.0
+PyGithub==1.56
+pygount==1.4.0
 pyldap==2.4.28
+PyNaCl==1.5.0
 pyparsing==2.2.0
+pypdf==4.3.1
 PyPDF2==1.26.0
 pyserial==3.4
 python-dateutil==2.8.2
@@ -78,11 +85,13 @@ raven==6.10.0
 reportlab==3.5.13
 requests==2.26.0
 requests-toolbelt==0.9.1
+responses==0.17.0
 Shapely==1.8.5.post1
+sentry_sdk==1.9.0
 six==1.16.0
 soupsieve==1.9.6
 spark-parser==1.8.9
-typing-extensions==3.10.0.2
+typing-extensions==4.12.2
 uncompyle6==3.7.4
 Unidecode==1.1.1
 urllib3==1.26.6
@@ -92,6 +101,7 @@ watchdog==0.9.0
 wdb==3.3.0
 websocket-client==0.56.0
 Werkzeug==0.14.1
+wrapt==1.16.0
 xdis==5.0.12
 xlrd==1.1.0; python_version < '3.8'
 xlrd==1.2.0; python_version >= '3.8'
