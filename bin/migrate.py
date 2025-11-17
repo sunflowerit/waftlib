@@ -1340,11 +1340,15 @@ def run_upgrade(version):
         if version == final_version and float(version) >= 14.0
         else MIGRATION_PATH + "/build-" + version
     )
-
     logfile = os.path.join(WAFT_DIR, "logfile", instance + ".log")
-    args = (
-        f'-u base --stop-after-init --load=openupgrade_framework --logfile "{logfile}"'
-    )
+    if version == start_version:
+        args = (
+            f'-u base --stop-after-init --logfile "{logfile}"'
+        )
+    else:
+        args = (
+            f'-u base --stop-after-init --load=openupgrade_framework --logfile "{logfile}"'
+        )
     cmd(build_dir + "/run " + args)
 
     logging.info("Defusing database...")
