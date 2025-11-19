@@ -1341,6 +1341,11 @@ def run_upgrade(version):
         else MIGRATION_PATH + "/build-" + version
     )
     logfile = os.path.join(WAFT_DIR, "logfile", instance + ".log")
+    start_version = (
+        os.environ["MIGRATION_START_VERSION"]
+        if "MIGRATION_START_VERSION" in os.environ
+        else None
+    )
     if version == start_version:
         args = (
             f'-u base --stop-after-init --logfile "{logfile}"'
