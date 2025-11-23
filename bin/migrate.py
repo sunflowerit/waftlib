@@ -937,21 +937,26 @@ def rebuild_sources():
             cmd_system(
                 "sed -i '/server_wide_modules =/d' \"" + build_dir + '/auto/odoo.conf"'
             )
-            cmd_system(
-                'echo upgrade_path = "'
-                + build_dir
-                + '/custom/src/openupgrade/openupgrade_scripts/scripts" >> "'
-                + build_dir
-                + '/auto/odoo.conf"'
+            start_version = (
+                os.environ["MIGRATION_START_VERSION"]
+                if "MIGRATION_START_VERSION" in os.environ
+                else None
             )
-            cmd_system(
-                'echo server_wide_modules =  "openupgrade_framework" >> "'
-                + build_dir
-                + '/auto/odoo.conf"'
-            )
+            if version != start_version:
+                cmd_system(
+                    'echo upgrade_path = "'
+                    + build_dir
+                    + '/custom/src/openupgrade/openupgrade_scripts/scripts" >> "'
+                    + build_dir
+                    + '/auto/odoo.conf"'
+                )
+                cmd_system(
+                    'echo server_wide_modules =  "openupgrade_framework" >> "'
+                    + build_dir
+                    + '/auto/odoo.conf"'
+                )
         if float(version) <= 10.001:
             cmd_system('echo "running_env = dev" >> "' + build_dir + '/auto/odoo.conf"')
-
 
 def rename_database(database, new_database):
     try:
