@@ -204,7 +204,7 @@ def combine_repos(build_path, version):
 def copy_database(database, new_database, move_fs=False):
     logging.info('Backing up database & filestore to "%s"...' % new_database)
     try:
-        cmd(["dropdb", new_database], suppress_stderr=True)
+        cmd(["dropdb", new_database], suppress_stderr=True, suppress_stdout=True)
     except CommandFailedException:
         pass
     cmd('createdb "' + new_database + '" -T "' + database + '"')
@@ -606,7 +606,11 @@ def pull_customer_database():
 
     logging.info("Importing customer database...")
     try:
-        cmd(["dropdb", os.environ["PGDATABASE"]], suppress_stderr=True)
+        cmd(
+            ["dropdb", os.environ["PGDATABASE"]],
+            suppress_stderr=True,
+            suppress_stdout=True,
+        )
     except CommandFailedException:
         pass
     cmd(["createdb", os.environ["PGDATABASE"]])
@@ -958,9 +962,10 @@ def rebuild_sources():
         if float(version) <= 10.001:
             cmd_system('echo "running_env = dev" >> "' + build_dir + '/auto/odoo.conf"')
 
+
 def rename_database(database, new_database):
     try:
-        cmd(["dropdb", new_database], suppress_stderr=True)
+        cmd(["dropdb", new_database], suppress_stderr=True, suppress_stdout=True)
     except CommandFailedException:
         pass
     with psycopg.connect("dbname=postgres") as conn:
@@ -1009,7 +1014,11 @@ def run_enterprise_upgrade(version):
         os.environ["HOME"], ".local/share/Odoo/filestore/", enterprise_database
     )
     try:
-        cmd('dropdb "' + enterprise_database + '"', suppress_stderr=True)
+        cmd(
+            'dropdb "' + enterprise_database + '"',
+            suppress_stderr=True,
+            suppress_stdout=True,
+        )
     except CommandFailedException:
         pass
     cmd("rm -rf " + enterprise_filestore)
