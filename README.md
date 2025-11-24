@@ -217,3 +217,8 @@ This allows you to develop locally if you wish to. Firstly:
 - Lastly and importantly, add the existing virtual env under 
   *python interpreter*, that you had earlier configured in 
   the first step, and run.
+
+## Migrate Odoo
+
+Waft includes a migration script that can be used to migrate an Odoo instance using OpenUpgrade & the enterprise migration script.
+[More info here...](doc/MIGRATION.md)
