@@ -288,7 +288,7 @@ def cmd(
 
     # Write input
     if input_:
-        proc.stdin.write(input + "\n")
+        proc.stdin.write(input_ + "\n")
         proc.stdin.close()
 
     # Let another thread block on reading stderr
