@@ -316,9 +316,9 @@ def cmd(
             logging.debug("[stdout]: " + line[:-1])
 
     if proc.returncode != 0:
-        if not suppress_stderr:
+        if not suppress_stderr and stderrlines:
             logging.error(stderrlines)
-        if not suppress_stdout:
+        if not suppress_stdout and stdoutlines:
             logging.error(stdoutlines)
         raise CommandFailedException(command, proc.returncode)
 
