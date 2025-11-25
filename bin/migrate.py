@@ -229,7 +229,7 @@ def copy_database(database: str, new_database: str, move_fs: bool = False):
     """
     logging.info('Backing up database & filestore to "%s"...' % new_database)
     try:
-        cmd(["dropdb", new_database], suppress_stderr=True)
+        cmd(["dropdb", new_database], suppress_stderr=True, suppress_stdout=True)
     except CommandFailedException:
         pass
     cmd('createdb "' + new_database + '" -T "' + database + '"')
@@ -1013,7 +1013,7 @@ def rebuild_sources():
 def rename_database(database, new_database):
     """Rename the database."""
     try:
-        cmd(["dropdb", new_database], suppress_stderr=True)
+        cmd(["dropdb", new_database], suppress_stderr=True, suppress_stdout=True)
     except CommandFailedException:
         pass
     with psycopg.connect("dbname=postgres") as conn:
@@ -1067,7 +1067,11 @@ def run_enterprise_upgrade(version: str):
         os.environ["HOME"], ".local/share/Odoo/filestore/", enterprise_database
     )
     try:
-        cmd('dropdb "' + enterprise_database + '"', suppress_stderr=True)
+        cmd(
+            'dropdb "' + enterprise_database + '"',
+            suppress_stderr=True,
+            suppress_stdout=True,
+        )
     except CommandFailedException:
         pass
     cmd("rm -rf " + enterprise_filestore)
