@@ -11,7 +11,6 @@ try:
     import psycopg
 except ImportError:
     import psycopg2 as psycopg
-import yaml
 import shutil
 import subprocess
 import sys
@@ -21,12 +20,15 @@ from threading import Thread
 import traceback
 from urllib.request import urlopen
 from queue import Queue, Empty
+import yaml
 
 
 # Adjust this to the minimum supported target version by the enterprise script
 # whenever Odoo decides to change it.
 ENTERPRISE_MINIMUM_TARGET = "15.0"
 HELP_TEXT = """
+
+
 Parameters
 ===================
 
@@ -44,8 +46,6 @@ Parameters
 -o          Disable the open-upgrade builds and upgrades.
 --production
 -p          Run the migration for production purposes.
---restore
--s          Restore a database from the configured path.
 -r          Rebuild all builds before running the migration.
 --reset-progress VERSION[:openupgrade]
             Don't take into account the progress that is specified with this
@@ -70,7 +70,13 @@ enterprise_script_filepath = None
 
 
 class CommandFailedException(Exception):
-    def __init__(self, command, exit_code):
+    def __init__(self, command: str | list[str], exit_code: int):
+        """
+        A failed command execution.
+
+        :param command: The command which failed execution.
+        :param exit_code: The exit code of the command execution.
+        """
         self.command = command
         self.exit_code = exit_code
 
@@ -82,6 +88,12 @@ class CommandFailedException(Exception):
 
 
 def available_enterprise_build_versions(start_version, minimum_target):
+    """
+    Get a list of all Odoo versions which need a build folder for the migration.
+
+    Does not include the versions which are skipped by Odoo's own official migration
+    script.
+    """
     return [
         version
         for version in available_build_versions(start_version)
@@ -90,12 +102,13 @@ def available_enterprise_build_versions(start_version, minimum_target):
 
 
 def available_build_versions(start_version):
-    global params
+    """Get a list of all Odoo versions which need a build folder for the migration."""
     end_version = floor(float(os.environ["ODOO_VERSION"]))
     return [str(x) + ".0" for x in range(floor(float(start_version)), end_version + 1)]
 
 
 def backup_mail_server_info():
+    """Back up the mail server tables in the database."""
     queries = [
         (
             """
@@ -128,9 +141,9 @@ def backup_mail_server_info():
                         raise e
 
 
-def check_modules_installed(modules):
-    """Returns whether or not the given `modules` are installed in the
-    current database.
+def check_modules_installed(modules: str):
+    """
+    Check whether or not the given `modules` are installed in the current database.
     """
     with psycopg.connect("dbname=" + os.environ["PGDATABASE"]) as conn:
         with conn.cursor() as cur:
@@ -149,7 +162,8 @@ def check_modules_installed(modules):
 
 
 def check_script_support(filename, version):
-    """Check wether the specified script is supported.
+    """
+    Check wether the specified script is supported.
 
     The given version and the currently installed modules are considered.
     """
@@ -162,7 +176,7 @@ def check_script_support(filename, version):
             if not stripped_line.startswith(comment_prefix):
                 break
 
-            comment = stripped_line[len(comment_prefix) :].strip()
+            comment = stripped_line[len(comment_prefix):].strip()
             if comment.startswith("X-Supports:"):
                 versions = [x.strip() for x in comment[11:].split()]
                 if version not in versions:
@@ -176,7 +190,11 @@ def check_script_support(filename, version):
 
 
 def combine_repos(build_path, version):
-    global params
+    """
+    Combine the repositories into a single repos.yaml file.
+
+    Creates a repos.yaml file from the repos.custom.yaml & repos.enterprise.yaml files.
+    """
     repos_path = os.path.join(build_path, "custom/src/repos.yaml")
 
     cmd_system('printf "\\n\\n" >> "%s"' % repos_path)
@@ -201,10 +219,17 @@ def combine_repos(build_path, version):
             )
 
 
-def copy_database(database, new_database, move_fs=False):
+def copy_database(database: str, new_database: str, move_fs: bool = False):
+    """
+    Copy the database (and filestore) to a new database.
+
+    :param database: The database to copy.
+    :param new_database: The name of the new database to create.
+    :param move_fs: Whether to move the filestore rather than copy it.
+    """
     logging.info('Backing up database & filestore to "%s"...' % new_database)
     try:
-        cmd(["dropdb", new_database], suppress_stderr=True)
+        cmd(["dropdb", new_database], suppress_stderr=True, suppress_stdout=True)
     except CommandFailedException:
         pass
     cmd('createdb "' + new_database + '" -T "' + database + '"')
@@ -223,7 +248,20 @@ def copy_database(database, new_database, move_fs=False):
         logging.warning("No filestore for %s to copy to %s." % (database, new_database))
 
 
-def cmd(command, input=None, cwd=None, suppress_stderr=False, suppress_stdout=False):
+def cmd(
+    command: list[str], input_: str | None = None, cwd: str | None = None,
+    suppress_stderr: bool = False, suppress_stdout: bool = False
+):
+    """
+    Run a command.
+
+    :param command: The command to run, formatted as a list of strings.
+    :param input: Some text to immediately send to the input of the command, as UTF-8.
+    :param cwd: The working directory in which the command will be executed. When not
+        set, will default to migration directory of the main build folder.
+    :param suppress_stderr: Whether to suppress the standard error output.
+    :param suppress_stdout: Whether to suppress the standard output.
+    """
     logging.debug(command)
 
     def enqueue_stream(stream, queue):
@@ -234,8 +272,8 @@ def cmd(command, input=None, cwd=None, suppress_stderr=False, suppress_stdout=Fa
     subprocess_args = {}
     if sys.version_info.minor >= 7:
         subprocess_args["capture_output"] = True
-    if input:
-        subprocess_args["input"] = input.encode("utf-8")
+    if input_:
+        subprocess_args["input"] = input_.encode("utf-8")
 
     proc = subprocess.Popen(
         command,
@@ -249,8 +287,8 @@ def cmd(command, input=None, cwd=None, suppress_stderr=False, suppress_stdout=Fa
     )
 
     # Write input
-    if input:
-        proc.stdin.write(input + "\n")
+    if input_:
+        proc.stdin.write(input_ + "\n")
         proc.stdin.close()
 
     # Let another thread block on reading stderr
@@ -261,7 +299,7 @@ def cmd(command, input=None, cwd=None, suppress_stderr=False, suppress_stdout=Fa
 
     # Read stderr line by line
     stderrlines = ""
-    while proc.poll() == None:
+    while proc.poll() is None:
         try:
             line = q.get(timeout=1.0)
         except Empty:
@@ -278,14 +316,19 @@ def cmd(command, input=None, cwd=None, suppress_stderr=False, suppress_stdout=Fa
             logging.debug("[stdout]: " + line[:-1])
 
     if proc.returncode != 0:
-        if not suppress_stderr:
+        if not suppress_stderr and stderrlines:
             logging.error(stderrlines)
-        if not suppress_stdout:
+        if not suppress_stdout and stdoutlines:
             logging.error(stdoutlines)
         raise CommandFailedException(command, proc.returncode)
 
 
-def cmd_system(command):
+def cmd_system(command: str):
+    """
+    Run the givin system command.
+
+    The standard output and error output should generally show up in the terminal.
+    """
     logging.debug(command)
     exit_code = os.system(command)
     if exit_code != 0:
@@ -293,6 +336,12 @@ def cmd_system(command):
 
 
 def defuse_database():
+    """
+    Disable some stuff in the database.
+
+    This is to prevent the things from running that we don't
+    want to have running.
+    """
     queries = [
         ("UPDATE fetchmail_server SET active = FALSE, server = 'f'", False),
         ("UPDATE ir_cron SET active = FALSE", True),
@@ -315,7 +364,7 @@ def defuse_database():
 
 
 def find_db_version_from_progress():
-    global params, progress
+    """Extract the current Odoo version of the database from the current progress."""
     highest_version = params["start-version"]
     for version, values in progress.items():
         if float(version) - float(highest_version) > 0.001:
@@ -329,7 +378,8 @@ def find_db_version_from_progress():
     return highest_version
 
 
-def http_download(url):
+def http_download(url: str):
+    """Download the HTTP body from the specified URL."""
     logging.debug("Downloading %s..." % url)
     with urlopen(url) as stream:
         response = stream.read()
@@ -338,19 +388,19 @@ def http_download(url):
 
 
 def init_progress(version):
-    global progress
-    if not version in progress:
+    """Initialize the global progress variable."""
+    if version not in progress:
         progress[version] = {"hooks": {}}
-    elif not "hooks" in progress[version]:
+    elif "hooks" not in progress[version]:
         progress[version]["hooks"] = {}
 
 
 def load_defaults(parameters):
-    """Load the parameters from the environment variables.
-
-    Applies defaults wherever they are not set.
     """
+    Load the parameters from any present environment variables.
 
+    Applies defaults wherever they are not yet set.
+    """
     def is_environ_bool_true(name):
         return name in os.environ and os.environ[name].lower() in ("1", "yes", "true")
 
@@ -390,7 +440,12 @@ def load_defaults(parameters):
 
 
 def load_enterprise_script():
-    global params, enterprise_script_filepath
+    """
+    Download and save the migration script in a temporary location.
+
+    The file path is stored in the global variable `enterprise_script_filepath`.
+    """
+    global enterprise_script_filepath
 
     def alter_code_block(prefix, postfix, replacement):
         i = code.find(prefix) + len(prefix)
@@ -438,8 +493,12 @@ def load_enterprise_script():
 
 
 def load_progress():
-    global params
+    """
+    Load the progress.json file from the waft build directory.
 
+    It will be put into the global progress variable.
+    """
+    global progress
     HOOK_ORDER = [
         ("pre-migration", False, False),
         ("pre-upgrade", False, False),
@@ -479,7 +538,7 @@ def load_progress():
 
         # Also, delete all higher versions from the progress dict
         version = params["reset-progress"][0]
-        for v in [k for k in progress.keys()]:
+        for v in progress.keys():
             if float(v) > float(version):
                 del progress[v]
 
@@ -487,21 +546,34 @@ def load_progress():
 
 
 def mark_enterprise_done(version):
-    if not version in progress:
+    """
+    Remember that we have completed the 'enterprise upgrade' targetting a version.
+
+    This means that the core - and enterprise modules have been upgraded to this
+    version, but none of the other modules.
+    """
+    if version not in progress:
         progress[version] = {"hooks": {}}
     progress[version]["enterprise"] = True
     save_progress()
 
 
 def mark_upgrade_done(version):
-    if not version in progress:
+    """
+    Remember that we completed the 'OpenUpgrade upgrade' towards the given version.
+
+    This means that all modules of this version should have been upgraded.
+    """
+    if version not in progress:
         progress[version] = {"hooks": {}}
     progress[version]["upgrade"] = True
     save_progress()
 
 
 def mark_script_executed(version, hook_name, script_path):
-    global progress
+    """
+    Remember that we have succesfully executed a certain script during the migration.
+    """
     if (
         version in progress
         and "hooks" in progress[version]
@@ -520,10 +592,11 @@ def mark_script_executed(version, hook_name, script_path):
 
 
 def parse_arguments():
+    """Parse the command line arguments."""
     arguments = {}
 
     try:
-        optlist, args = getopt.getopt(
+        optlist, _args = getopt.getopt(
             sys.argv[1:],
             "d:ef:hoprsv",
             [
@@ -548,9 +621,9 @@ def parse_arguments():
     for opt in optlist:
         arg, value = opt
 
-        if arg == "-d" or arg == "--database":
+        if arg in ("-d" or "--database"):
             arguments["database"] = value
-        if arg == "-e" or arg == "--enterprise-enabled":
+        if arg in ("-e" or "--enterprise-enabled"):
             arguments["enterprise-enabled"] = True
         if arg == "-f" or arg == "--start-version":
             arguments["start-version"] = value
@@ -577,52 +650,17 @@ def parse_arguments():
     return arguments
 
 
-def pull_customer_database():
-    global params
-    customer_container = params["customer-container"]
-    customer_database_name = params["customer-database-name"]
-
-    _, tmp_file = mkstemp("-" + customer_database_name + ".sql")
-    logging.info("Dumping customer database...")
-    cmd(
-        [
-            "ssh",
-            customer_container,
-            "/usr/bin/pg_dump -O -x %s > /tmp/%s.sql"
-            % (
-                customer_database_name,
-                customer_database_name,
-            ),
-        ]
-    )
-    logging.info("Downloading customer database...")
-    cmd(
-        [
-            "scp",
-            "%s:/tmp/%s.sql" % (customer_container, customer_database_name),
-            tmp_file,
-        ]
-    )
-
-    logging.info("Importing customer database...")
-    try:
-        cmd(["dropdb", os.environ["PGDATABASE"]], suppress_stderr=True)
-    except CommandFailedException:
-        pass
-    cmd(["createdb", os.environ["PGDATABASE"]])
-    cmd_system('psql -d "' + os.environ["PGDATABASE"] + '" < ' + tmp_file)
-    logging.info("Customer database import succeeded.")
-
-
 def parse_repos_config(filename):
+    """Load and parse a repos.yaml file."""
     if not os.path.exists(filename):
         return []
-    file = open(filename)
-    config = yaml.load(file.read(), Loader=yaml.Loader)
+    with open(filename) as file:
+        config = yaml.load(file.read(), Loader=yaml.Loader)
     return config.keys()
 
 
 def prepare():
+    """Do some stuff in preparation of running the migration."""
     # Make sure the migration logfile already exists
     log_path = os.path.join(WAFT_DIR, "logfile")
     if not os.path.exists(log_path):
@@ -635,8 +673,7 @@ def prepare():
 
 
 def run_python_script(build_dir, script_path):
-    """Execute the given python script in the shell."""
-
+    """Execute the given python script in the Odoo shell."""
     session_unopened = script_path.endswith("-unop.py")
 
     header = """
@@ -693,19 +730,27 @@ __session.cr.close()
 
 
 def rebuild_sources():
-    global params
+    """
+    (Re)build all Waft build folders that are part of this migration build.
+
+    This includes all the build folders in the ./migration folder, and it also includes
+    the main Waft build.
+    """
     if not os.path.exists(MIGRATION_PATH):
         os.mkdir(MIGRATION_PATH)
         shutil.copytree(os.path.join(WAFT_DIR, "waftlib/migration"), MIGRATION_PATH)
 
     # Updates the .env-secret file of a build
     def write_env_secret(build_dir, version):
+        """Generate a .env-secret file for a particular build folder."""
         overwrite_values = {
             "ODOO_VERSION": version,
             "PGDATABASE": os.environ["PGDATABASE"],
             "ODOO_DBFILTER": "^%s$" % os.environ["PGDATABASE"],
             "LOG_LEVEL": "DEBUG",
-            # .env-secret files are generated with variables set to empty values causing issues.
+            # .env-secret files are by default generated with variables set to empty
+            # values, which causes issues with PGPORT, because the empty value will
+            # actually be tried as a port.
             # This is a workaround for it.
             "PGPORT": "5432",
         }
@@ -746,7 +791,7 @@ def rebuild_sources():
 
         # Add lines for the missing values
         for key, value in overwrite_values.items():
-            if not key in rewritten_lines:
+            if key not in rewritten_lines:
                 lines.append('%s="%s"' % (key, value))
 
         # Rewrite the file
@@ -754,7 +799,12 @@ def rebuild_sources():
             for line in lines:
                 file.write(line + "\n")
 
-    def exclude_repos(config, whitelist):
+    def exclude_repos(config: dict, whitelist: list[str]):
+        """
+        Get a filtered copy of the given config dictinary.
+
+        Only the top-level entries with a name found in the whitelist will be taken.
+        """
         new_config = {}
         for repo_name in config:
             if repo_name in whitelist:
@@ -762,6 +812,7 @@ def rebuild_sources():
         return new_config
 
     def prepare_odoo_entry(config, version):
+        """Construct a repos.yaml repository entry."""
         if not params["enterprise-enabled"]:
             odoo_repo_url = (
                 "https://github.com/OCA/OpenUpgrade"
@@ -813,16 +864,16 @@ def rebuild_sources():
                 "merges": ["odoo ${ODOO_VERSION}"],
             }
 
-    repos_whitelist = [
-        x
-        for x in parse_repos_config(os.path.join(WAFT_DIR, "custom/src/old-repos.yaml"))
-    ] + ["openupgrade"]
+    repos_whitelist = parse_repos_config(
+        os.path.join(WAFT_DIR, "custom/src/old-repos.yaml")
+    ) + ["openupgrade"]
     default_repos_template_file = os.path.join(
         WAFT_DIR, "waftlib/migration/default-repos.yaml"
     )
-    default_config = yaml.load(
-        open(default_repos_template_file).read(), Loader=yaml.Loader
-    )
+    with open(default_repos_template_file, 'r') as file:
+        default_config = yaml.load(
+            file.read(), Loader=yaml.Loader
+        )
 
     jump_to_version = (
         params["enterprise-jump-to"] if "enterprise-jump-to" in params else None
@@ -870,7 +921,8 @@ def rebuild_sources():
                     os.path.join(WAFT_DIR, "custom/src/old-repos.yaml")
                 ):
                     raise Exception(
-                        "Put a copy of the original repos.yaml in custom/src/old-repos.yaml"
+                        "Put a copy of the original repos.yaml in "
+                        "custom/src/old-repos.yaml"
                     )
                 shutil.copy(
                     os.path.join(WAFT_DIR, "custom/src/old-repos.yaml"), repos_file
@@ -881,22 +933,23 @@ def rebuild_sources():
                     WAFT_DIR + "/waftlib/migration/build-" + version + "/repos.yaml"
                 )
                 if os.path.exists(repos_template_file):
-                    config = {
-                        **default_config,
-                        **yaml.load(
-                            open(repos_template_file).read(), Loader=yaml.Loader
-                        ),
-                    }
+                    with open(repos_template_file) as file:
+                        config = {
+                            **default_config,
+                            **yaml.load(
+                                file.read(), Loader=yaml.Loader
+                            ),
+                        }
                 else:
                     config = copy.deepcopy(default_config)
-                # The "ocb" entry is a special case that is merged into the "odoo" entry if needed
+                # The "ocb" entry is a special case that is merged into the "odoo" entry
+                # if needed
                 prepare_odoo_entry(config, version)
                 limited_config = exclude_repos(config, repos_whitelist)
                 # Write down new repos.yaml
-                file = open(repos_file, "w")
-                raw_config = yaml.dump(limited_config, Dumper=yaml.Dumper)
-                file.write(raw_config)
-                file.close()
+                with open(repos_file, "w") as file:
+                    raw_config = yaml.dump(limited_config, Dumper=yaml.Dumper)
+                    file.write(raw_config)
 
         # Build the build directory
         cmd_system(os.path.join(build_dir, "build"))
@@ -959,8 +1012,9 @@ def rebuild_sources():
             cmd_system('echo "running_env = dev" >> "' + build_dir + '/auto/odoo.conf"')
 
 def rename_database(database, new_database):
+    """Rename the database."""
     try:
-        cmd(["dropdb", new_database], suppress_stderr=True)
+        cmd(["dropdb", new_database], suppress_stderr=True, suppress_stdout=True)
     except CommandFailedException:
         pass
     with psycopg.connect("dbname=postgres") as conn:
@@ -968,8 +1022,13 @@ def rename_database(database, new_database):
             cur.execute('ALTER DATABASE "%s" RENAME TO "%s"' % (database, new_database))
 
 
-def run_enterprise_upgrade(version):
-    global params, enterprise_script_filepath
+def run_enterprise_upgrade(version: str):
+    """
+    Run Odoo's official enterprise migration script.
+
+    :param version: The target odoo version to run the script for. The version that the
+        database gets upgraded to.
+    """
     logging.info("Running enterprise upgrade to %s..." % version)
 
     def read_last_line(file):
@@ -981,7 +1040,7 @@ def run_enterprise_upgrade(version):
         return last_line
 
     def check_process_status(proc):
-        if proc.poll() == None:
+        if proc.poll() is None:
             return False
         else:
             if proc.returncode != 0:
@@ -1009,7 +1068,11 @@ def run_enterprise_upgrade(version):
         os.environ["HOME"], ".local/share/Odoo/filestore/", enterprise_database
     )
     try:
-        cmd('dropdb "' + enterprise_database + '"', suppress_stderr=True)
+        cmd(
+            'dropdb "' + enterprise_database + '"',
+            suppress_stderr=True,
+            suppress_stdout=True,
+        )
     except CommandFailedException:
         pass
     cmd("rm -rf " + enterprise_filestore)
@@ -1107,7 +1170,8 @@ def run_enterprise_upgrade(version):
 
 
 def run_migration(start_version, target_version):
-    global params, db_version, progress
+    """Run the migration process, from start to finish."""
+    global params, db_version
 
     start_version = db_version = params["start-version"]
     minimum_target = (
@@ -1126,13 +1190,13 @@ def run_migration(start_version, target_version):
     init_progress(start_version)
     progress_version = find_db_version_from_progress()
     from_start = abs(float(progress_version) - float(start_version)) < 0.001 and (
-        not minimum_target in progress
+        minimum_target not in progress
         or (
-            not "upgrade" in progress[minimum_target]
+            "upgrade" not in progress[minimum_target]
             or not progress[minimum_target]["upgrade"]
         )
         and (
-            not "enterprise" in progress[minimum_target]
+            "enterprise" not in progress[minimum_target]
             or not progress[minimum_target]["enterprise"]
         )
     )
@@ -1143,12 +1207,12 @@ def run_migration(start_version, target_version):
 
     #  Run the pre-migration scripts
     if from_start:
-        if not db_version in progress or not (
+        if db_version not in progress or not (
             "upgrade" in progress[db_version] and progress[db_version]["upgrade"]
         ):
             run_scripts(db_version, "pre-migration")
         if params["enterprise-enabled"]:
-            if not db_version in progress or not (
+            if db_version not in progress or not (
                 "enterprise" in progress[db_version]
                 and progress[db_version]["enterprise"]
             ):
@@ -1161,8 +1225,8 @@ def run_migration(start_version, target_version):
     )
     if from_start:
         if not skip_initial_upgrade and (
-            not db_version in progress
-            or not "upgrade" in progress[db_version]
+            db_version not in progress
+            or "upgrade" not in progress[db_version]
             or not progress[db_version]["upgrade"]
         ):
             logging.info("Running initial upgrade...")
@@ -1173,7 +1237,7 @@ def run_migration(start_version, target_version):
     # Running an enterprise migration from the start, may require a 'jump'
     if params["enterprise-enabled"]:
         if from_start and (
-            not start_version in progress
+            start_version not in progress
             or not (
                 "enterprise" in progress[start_version]
                 and progress[start_version]["enterprise"]
@@ -1214,8 +1278,8 @@ def run_migration(start_version, target_version):
             or float(db_version) - float(version) > 0.999
             or (
                 params["enterprise-enabled"]
-                and not version
-                in available_enterprise_build_versions(start_version, minimum_target)
+                and version not in
+                available_enterprise_build_versions(start_version, minimum_target)
             )
         ):
             last_version = version
@@ -1255,12 +1319,22 @@ def run_migration(start_version, target_version):
     run_scripts(db_version, "post-migration")
 
 
-def run_script(script_path, run_at_version=None):
-    global config, db_version
+def run_script(script_path: str, run_at_version: str | None = None):
+    """
+    Run the script at the given filepath.
+
+    This can be a Python (.py) script (that will run in a Odoo shell.
+    This can be a .sql file with PostgresQL queries.
+    Or this can be a shell (.sh) script, that has some environment variables available.
+
+    :param script_path: The filepath of the script.
+    :param run_at_version: The Odoo version of the build that will be used to run the
+        Odoo shell.
+    """
     final_version = os.environ["ODOO_VERSION"]
     if not run_at_version:
         run_at_version = db_version
-    logging.info("Running script %s..." % script_path)
+    logging.info("Running script %s...", script_path)
 
     build_dir = (
         WAFT_DIR
@@ -1270,10 +1344,11 @@ def run_script(script_path, run_at_version=None):
     if script_path.endswith(".py"):
         run_python_script(build_dir, script_path)
     elif script_path.endswith(".sh"):
-        cmd(["bash", script_path], None, cwd=build_dir)
+        cmd(["bash", script_path], cwd=build_dir)
     elif script_path.endswith(".sql"):
-        script_content = "\\set ON_ERROR_STOP true\n" + open(script_path, "r").read()
-        cmd("psql -d " + os.environ["PGDATABASE"], script_content)
+        with open(script_path, "r") as file:
+            script_content = "\\set ON_ERROR_STOP true\n" + file.read()
+            cmd("psql -d " + os.environ["PGDATABASE"], script_content)
     elif script_path.endswith(".link"):
         actual_subpath = open(script_path).readline().strip()
         actual_script_path = MIGRATION_PATH + "/hook/common/" + actual_subpath
@@ -1290,10 +1365,12 @@ def run_script(script_path, run_at_version=None):
     return True
 
 
-def run_scripts(version, hook_name, run_at_version=None):
-    global config, progress
+def run_scripts(version: str, hook_name: str, run_at_version: str | None = None):
+    """
+    Run all the available scripts for a particular Odoo version and a specific hook.
+    """
 
-    logging.info("Loading %s %s scripts..." % (version, hook_name))
+    logging.info("Loading %s %s scripts...", version, hook_name)
     if not run_at_version:
         run_at_version = version
 
@@ -1338,6 +1415,7 @@ def run_scripts(version, hook_name, run_at_version=None):
 
 
 def run_upgrade(version):
+    """Run a full upgrade to the given Odoo version."""
     instance = os.environ["PGDATABASE"] + "-" + version
     final_version = os.environ["ODOO_VERSION"]
     build_dir = (
@@ -1385,13 +1463,18 @@ def run_upgrade(version):
 
 
 def save_progress():
-    global progress
+    """
+    Write all the progress information from the global variable into a file.
+
+    It is the progress.json file in the main Waft build directory.
+    """
     progress_filepath = os.path.join(WAFT_DIR, "progress.json")
     with open(progress_filepath, "w") as file:
         json.dump(progress, file, indent=2)
 
 
 def setup_logging():
+    """Initialize the logger."""
     log_filepath = os.path.join(WAFT_DIR, "logfile/migration.log")
     log_level = os.environ["WAFT_LOG_LEVEL"]
     log_file_handler = logging.FileHandler(log_filepath)
@@ -1405,33 +1488,31 @@ def setup_logging():
     )
 
 
-def verify_arguments(args: dict):
-    return True
-
-
 def verify_params():
-    global params
+    """Verify all parameters."""
     if not params["rebuild"] and (
-        not "PGDATABASE" in os.environ or not os.environ["PGDATABASE"]
+        "PGDATABASE" not in os.environ or not os.environ["PGDATABASE"]
     ):
         logging.error("No database specified in the environment as PGDATABASE.")
         return False
-    if not "start-version" in params or not params["start-version"]:
+    if "start-version" not in params or not params["start-version"]:
         logging.error(
-            "No start version specified. Use either --start-version on the command line, or MIGRATION_START_VERSION in the environment."
+            "No start version specified. Use either --start-version on the command "
+            "line, or MIGRATION_START_VERSION in the environment."
         )
         return False
     return True
 
 
 def main():
+    """Run the migration script."""
     global params, progress
 
     os.environ["MIGRATION_PATH"] = MIGRATION_PATH
 
     try:
         args = parse_arguments()
-        if args == None or not verify_arguments(args):
+        if args is None:
             return 1
 
         if "help" in args:
@@ -1450,19 +1531,7 @@ def main():
             return 0
 
         progress = load_progress()
-        logging.debug("Loaded progress: " + str(progress))
-
-        if params["restore"]:
-            if progress:
-                logging.error(
-                    "You have chosen to restore from the customer database, but there is still progress saved."
-                )
-                logging.error(
-                    "To restore the customer database, remove the progress.json file."
-                )
-                return
-            else:
-                pull_customer_database()
+        logging.debug("Loaded progress: %s", progress)
 
         start_version = (
             params["reset-progress"][0]
@@ -1476,13 +1545,15 @@ def main():
         run_migration(start_version, target_version)
         logging.info("Migration completed.")
     except Exception as e:
-        type, name, tb = sys.exc_info()
+        _type, _name, tb = sys.exc_info()
         stacktrace = traceback.format_tb(tb)
         logging.error(
             "%s was raised: %s\nStacktrace:\n%s"
             % (type.__name__, e, "".join(stacktrace))
         )
-        exit(1)
+        return 1
+    return 0
 
 
-main()
+exit_code = main()
+sys.exit(exit_code)
