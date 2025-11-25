@@ -963,11 +963,6 @@ def rebuild_sources():
             + " install "
             + "git+https://github.com/anybox/anybox.recipe.odoo#egg=anybox.recipe.odoo"
         )
-        cmd_system(
-            os.path.join(build_dir, ".venv/bin/pip")
-            + " install "
-            + "git+https://github.com/sunflowerit/openupgradelib@fix-tax-tags-conversion"
-        )
 
         # Change the config
         time.sleep(1)
