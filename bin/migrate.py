@@ -1425,13 +1425,23 @@ def run_upgrade(version):
         else None
     )
     if version == start_version:
-        args = (
-            f'-u base --stop-after-init --logfile "{logfile}"'
-        )
+        if params["verbose"]:
+            args = (
+                f'-u base --log-level=debug_sql --log-handler=odoo.modules.loading:DEBUG --logfile "{logfile}" --stop-after-init'
+            )
+        else:
+            args = (
+                f'-u base --logfile "{logfile}" --stop-after-init'
+            )
     else:
-        args = (
-            f'-u base --stop-after-init --load=openupgrade_framework --logfile "{logfile}"'
-        )
+        if params["verbose"]:
+            args = (
+                f'-u base --load=openupgrade_framework --log-level=debug_sql --log-handler=odoo.modules.loading:DEBUG --log-handler=odoo.modules.migration:DEBUG --logfile "{logfile}" --stop-after-init'
+            )
+        else:
+            args = (
+                f'-u base --load=openupgrade_framework --logfile "{logfile}" --stop-after-init'
+            )
     cmd(build_dir + "/run " + args)
 
     logging.info("Defusing database...")
