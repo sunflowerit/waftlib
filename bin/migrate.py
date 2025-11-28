@@ -538,7 +538,7 @@ def load_progress():
 
         # Also, delete all higher versions from the progress dict
         version = params["reset-progress"][0]
-        for v in progress.keys():
+        for v in list(progress.keys()):
             if float(v) > float(version):
                 del progress[v]
 
