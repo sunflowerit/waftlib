@@ -866,7 +866,8 @@ def rebuild_sources():
 
     repos_whitelist = parse_repos_config(
         os.path.join(WAFT_DIR, "custom/src/old-repos.yaml")
-    ) + ["openupgrade"]
+    )
+    repos_whitelist = list(repos_whitelist) + ["openupgrade"]
     default_repos_template_file = os.path.join(
         WAFT_DIR, "waftlib/migration/default-repos.yaml"
     )
