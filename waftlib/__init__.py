@@ -152,22 +152,51 @@ def addons_config(filtered=True, strict=False):
             raise AddonsConfigError("\n".join(error), missing_glob, missing_manifest)
     logger.debug("Resulting configuration after expanding: %r", config)
     for addon, repos in config.items():
-        # Private addons are most important
+        # Priority 1: private addons
         if PRIVATE in repos:
             yield addon, PRIVATE
             continue
-        # Odoo core addons are least important
-        if repos == {CORE}:
+
+        # Priority 2: enterprise addons
+        if ENTERPRISE in repos:
+            yield addon, ENTERPRISE
+            continue
+
+        # Priority 3: core addons
+        if CORE in repos:
             yield addon, CORE
             continue
-        repos.discard(CORE)
-        # Other addons fall in between
-        if filtered and len(repos) != 1:
-            raise AddonsConfigError(
-                "Addon {} defined in several repos {}".format(addon, repos)
+
+        # If still more than one repo, pick first deterministically
+        if len(repos) > 1:
+            repo = sorted(repos)[0]
+            logger.warning(
+                "Addon %s found in multiple repos %s — automatically picking %s",
+                addon, repos, repo
             )
-        for repo in repos:
             yield addon, repo
+            continue
+
+        # Normal case: exactly 1 repo
+        yield addon, next(iter(repos))
+
+    # for addon, repos in config.items():
+    #     # Private addons are most important
+    #     if PRIVATE in repos:
+    #         yield addon, PRIVATE
+    #         continue
+    #     # Odoo core addons are least important
+    #     if repos == {CORE}:
+    #         yield addon, CORE
+    #         continue
+    #     repos.discard(CORE)
+    #     # Other addons fall in between
+    #     if filtered and len(repos) != 1:
+    #         raise AddonsConfigError(
+    #             "Addon {} defined in several repos {}".format(addon, repos)
+    #         )
+    #     for repo in repos:
+    #         yield addon, repo
 
 
 try:
