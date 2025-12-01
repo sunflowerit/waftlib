@@ -1,6 +1,8 @@
 #!/bin/sh
 # Version: v.22.05.30
 
+set -e
+
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
 ODOO_WORK_DIR="${SCRIPT_PATH}"
 . "${ODOO_WORK_DIR}/.env-default" && \
@@ -8,5 +10,12 @@ ODOO_WORK_DIR="${SCRIPT_PATH}"
 . "${ODOO_WORK_DIR}/.env-secret"
 cd "${ODOO_WORK_DIR}"
 
+  if [[ "$(/bin/echo ${ODOO_VERSION} | /usr/bin/cut -d '.' -f1)" -lt 19 ]]; then
+    export ODOO_SHELL_PORT="xmlrpc-port"
+  else
+    export ODOO_SHELL_PORT="http-port"
+  fi
+
 # Note: in Odoo 8.0 this requires OCA 'shell' module to be installed.
-cd "${ODOO_WORK_DIR}" && . .venv/bin/activate && odoo --addons-path=auto/addons shell -c ./auto/odoo.conf --xmlrpc-port=18080
+cd "${ODOO_WORK_DIR}" && . .venv/bin/activate && \
+odoo shell --config=auto/odoo.conf --"${ODOO_SHELL_PORT}"=18080

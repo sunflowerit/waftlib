@@ -1,415 +1,576 @@
-OCA/account-analytic:
+---
+oca/account-analytic:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/account-analytic
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/account-financial-reporting:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/OCA/account-financial-reporting 
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/account-financial-tools:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/OCA/account-financial-tools 
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/account-fiscal-rule:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/OCA/account-fiscal-rule
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/account-invoicing:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/OCA/account-invoicing 
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/account-invoice-reporting:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/OCA/account-invoice-reporting
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/bank-payment:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/OCA/bank-payment 
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/bank-statement-import:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/OCA/bank-statement-import 
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/bank-statement-reconcile:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/OCA/bank-statement-reconcile 
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/business-requirement:
-  defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
-  remotes:
-    oca: https://github.com/oca/business-requirement 
-  merges:
-    - oca $ODOO_VERSION
-
-OCA/community-data-files:
-  defaults:
-    depth: ${WAFT_DEPTH_MERGE}
-  remotes:
-    origin: https://github.com/oca/community-data-files
+    origin: https://github.com/oca/account-analytic.git
+  target: origin ${ODOO_VERSION}
   merges:
     - origin ${ODOO_VERSION}
 
-OCA/connector:
+oca/account-financial-reporting:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/connector
+    origin: https://github.com/oca/account-financial-reporting.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/contract:
+oca/account-financial-tools:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/contract 
+    origin: https://github.com/oca/account-financial-tools.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/credit-control:
+oca/account-fiscal-rule:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/credit-control
+    origin: https://github.com/oca/account-fiscal-rule.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/crm:
+oca/account-invoicing:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/crm
+    origin: https://github.com/oca/account-invoicing.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/currency:
+oca/account-invoice-reporting:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/currency
+    origin: https://github.com/oca/account-invoice-reporting.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/delivery-carrier:
+oca/account-payment:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/delivery-carrier
+    origin: https://github.com/oca/account-payment.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/dms:
+oca/account-reconcile:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/dms
+    origin: https://github.com/oca/account-reconcile.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/edi:
+oca/apps-store:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    edi: https://github.com/OCA/edi 
+    origin: https://github.com/oca/apps-store.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - edi $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/hr:
+oca/bank-payment:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    hr: https://github.com/OCA/hr 
+    origin: https://github.com/oca/bank-payment.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - hr $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/hr-expense:
+oca/bank-statement-import:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    hr: https://github.com/OCA/hr-expense
+    origin: https://github.com/oca/bank-statement-import.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - hr $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/hr-holidays:
+oca/bank-statement-reconcile:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    hr: https://github.com/OCA/hr-holidays
+    origin: https://github.com/oca/bank-statement-reconcile.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - hr $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/hr-timesheet:
+oca/business-requirement:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/hr-timesheet 
+    origin: https://github.com/oca/business-requirement.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/intrastat:
+oca/community-data-files:
   defaults:
-    depth: ${WAFT_DEPTH_DEFAULT}
+    depth: ${WAFT_DEPTH_MERGE}
   remotes:
-    intrastat: https://github.com/oca/intrastat-extrastat
+    origin: https://github.com/oca/community-data-files.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - intrastat $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/knowledge:
+oca/connector:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    knowledge: https://github.com/oca/knowledge 
+    origin: https://github.com/oca/connector.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - knowledge $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/l10n-france:
+oca/contract:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/l10n-france
+    origin: https://github.com/oca/contract.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/l10n-netherlands:
+oca/credit-control:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/l10n-netherlands 
+    origin: https://github.com/oca/credit-control.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/manufacture:
+oca/crm:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/manufacture
+    origin: https://github.com/oca/crm.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/manufacture-reporting:
+oca/crowdfunding:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/manufacture-reporting
+    origin: https://github.com/oca/crowdfunding.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/mis-builder:
+oca/currency:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/mis-builder 
+    origin: https://github.com/oca/currency.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/mis-builder-contrib:
+oca/delivery-carrier:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/mis-builder
+    origin: https://github.com/oca/delivery-carrier.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/multi-company:
+oca/dms:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/multi-company
+    origin: https://github.com/oca/dms.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/partner-contact:
+oca/edi:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/partner-contact 
+    origin: https://github.com/oca/edi.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/product-attribute:
+oca/event:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/product-attribute
+    origin: https://github.com/oca/event.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/project:
+oca/hr:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/project 
+    origin: https://github.com/oca/hr.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/project-agile:
+oca/hr-expense:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/project-agile 
+    origin: https://github.com/oca/hr-expense.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/queue:
+oca/hr-holidays:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/queue 
+    origin: https://github.com/oca/hr-holidays.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/report-print-send:
+oca/hr-timesheet:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/report-print-send
+    origin: https://github.com/oca/hr-timesheet.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/reporting-engine:
+oca/interface-github:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/reporting-engine 
+    origin: https://github.com/oca/interface-github.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/sale-workflow:
+oca/intrastat:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/sale-workflow 
+    origin: https://github.com/oca/intrastat-extrastat.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/server-auth:
+oca/intrastat-extrastat:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/server-auth
+    origin: https://github.com/oca/intrastat-extrastat.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/server-backend:
+oca/knowledge:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/server-backend
+    origin: https://github.com/oca/knowledge.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/server-brand:
+oca/l10n-france:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/server-brand
+    origin: https://github.com/oca/l10n-france.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/server-env:
+oca/l10n-netherlands:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/server-env
+    origin: https://github.com/oca/l10n-netherlands.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/server-tools:
+oca/l10n-switzerland:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/server-tools
+    origin: https://github.com/oca/l10n-switzerland.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/server-ux:
+oca/manufacture:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/server-ux
+    origin: https://github.com/oca/manufacture.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/social:
+oca/manufacture-reporting:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    social: https://github.com/oca/social 
+    origin: https://github.com/oca/manufacture-reporting.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - social $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/stock-logistics-barcode:
+oca/mis-builder:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/stock-logistics-barcode
+    origin: https://github.com/oca/mis-builder.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/stock-logistics-warehouse:
+oca/mis-builder-contrib:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/stock-logistics-warehouse
+    origin: https://github.com/oca/mis-builder.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/stock-logistics-workflow:
+oca/multi-company:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/stock-logistics-workflow
+    origin: https://github.com/oca/multi-company.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/web:
+oca/oca-custom:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/OCA/web
+    origin: https://github.com/oca/oca-custom.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
 
-OCA/website:
+oca/partner-contact:
   defaults:
     depth: ${WAFT_DEPTH_DEFAULT}
   remotes:
-    oca: https://github.com/oca/website 
+    origin: https://github.com/oca/partner-contact.git
+  target: origin ${ODOO_VERSION}
   merges:
-    - oca $ODOO_VERSION
+    - origin ${ODOO_VERSION}
+
+oca/pos:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/pos.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/product-attribute:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/product-attribute.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/project:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/project.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/project-agile:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/project-agile.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/queue:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/queue.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/report-print-send:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/report-print-send.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/reporting-engine:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/reporting-engine.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/sale-workflow:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/sale-workflow.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/server-auth:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/server-auth.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/server-backend:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/server-backend.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/server-brand:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/server-brand.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/server-env:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/server-env.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/server-tools:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/server-tools.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/server-ux:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/server-ux.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/social:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/social.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/stock-logistics-barcode:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/stock-logistics-barcode.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/stock-logistics-warehouse:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/stock-logistics-warehouse.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/stock-logistics-workflow:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/stock-logistics-workflow.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/survey:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/survey.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/vertical-association:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/vertical-association.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/web:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/web.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}
+
+oca/website:
+  defaults:
+    depth: ${WAFT_DEPTH_DEFAULT}
+  remotes:
+    origin: https://github.com/oca/website.git
+  target: origin ${ODOO_VERSION}
+  merges:
+    - origin ${ODOO_VERSION}

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Version: v.22.05.30
 
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
@@ -26,7 +26,11 @@ fi
 # https://pip.pypa.io/en/latest/user_guide/#changes-to-the-pip-dependency-resolver-in-20-3-2020
 . .venv/bin/activate && \
 pip install --quiet "setuptools-scm<8.0" && \
-pip install --quiet "setuptools<58" && \
+if [[ "$(/bin/echo "${ODOO_VERSION}" | /usr/bin/cut -d '.' -f1)" -ge 15 ]]; then
+  pip install --quiet "setuptools>=64"
+else
+  pip install --quiet setuptools
+fi && \
 pip install --quiet "pip>=20.3" && \
 (pip uninstall --yes -r "${ODOO_WORK_DIR}/requirements-remove-default.txt" 2>/dev/null || /bin/true) && \
 pip install --quiet --exists-action w -r "${ODOO_WORK_DIR}/requirements-default.txt" && \
