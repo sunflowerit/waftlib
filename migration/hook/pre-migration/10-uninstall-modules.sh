@@ -5,7 +5,7 @@ set -e
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
 export MIGRATION_PATH="${MIGRATION_PATH:-$(cd "${SCRIPT_PATH}/../../migration" && /bin/pwd)}"
 
-ODOO_CONF="${ODOO_CONF:-$BUILD_DIR/auto/odoo.conf}"
+ODOO_CONF="${ODOO_CONF:-${MIGRATION_PATH}/build-${MIGRATION_START_VERSION}/auto/odoo.conf}"
 
 if [[ ! -f "$MIGRATION_PATH/etc/uninstall-modules.txt" ]]; then
 	exit 0
