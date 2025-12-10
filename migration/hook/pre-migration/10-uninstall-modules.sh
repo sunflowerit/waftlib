@@ -13,7 +13,7 @@ fi
 
 source "${MIGRATION_PATH}/build-${MIGRATION_START_VERSION}/.venv/bin/activate"
 
-click-odoo -c "$ODOO_CONF" shell <<'PYEOF'
+click-odoo -c "$ODOO_CONF" <<'PYEOF'
 import os
 import sys
 import logging
