@@ -11,6 +11,7 @@ if [[ ! -f "$MIGRATION_PATH/etc/uninstall-modules.txt" ]]; then
 	exit 0
 fi
 
+source "${$MIGRATION_PATH}/build-${MIGRATION_START_VERSION}/.venv/bin/activate"
 
 click-odoo -c "$ODOO_CONF" shell <<'PYEOF'
 import os
