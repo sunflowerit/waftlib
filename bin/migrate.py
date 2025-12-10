@@ -673,17 +673,22 @@ def prepare():
 
 
 def run_python_script(build_dir, script_path):
-    """Execute the given python script in the Odoo shell."""
-    session_unopened = script_path.endswith("-unop.py")
+    """Execute the given python script in an Odoo env using click-odoo."""
+    # This path is equivalent to what was used by Session before
+    odoo_conf = os.path.join(build_dir, "auto", "odoo.conf")
 
     header = """
 from __future__ import print_function
-import os, sys, logging
-from anybox.recipe.odoo.runtime.session import Session
+import os
+import sys
+import logging
 
+import odoo
+from odoo.tools import config as odoo_config
+from click_odoo import OdooEnvironment
 
-MIGRATION_PATH = '%s'
-
+MIGRATION_PATH = %r
+ODOO_CONF = %r
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -694,36 +699,29 @@ logging.basicConfig(
     format='%%(message)s'
 )
 
-__session = Session(os.path.join("%s", "auto/odoo.conf"), "%s")
+# Initialize Odoo configuration from the odoo.conf file
+# This is equivalent to: odoo-bin -c ODOO_CONF
+odoo_config.parse_config(["-c", ODOO_CONF])
+
+db_name = odoo_config.get("db_name")
+if not db_name:
+    eprint("No 'db_name' found in Odoo configuration %%r" %% ODOO_CONF)
+    sys.exit(1)
+
+# Create an Environment using click-odoo's OdooEnvironment context manager
+with OdooEnvironment(database=db_name) as env:
+    # Make env visible to the migration script
+    globals()["env"] = env
+
+    # Execute the migration script
+    with open(%r) as f:
+        __script = f.read()
+    exec(__script, globals())
 """ % (
         MIGRATION_PATH,
-        build_dir,
-        build_dir,
+        odoo_conf,
+        script_path,
     )
-
-    if not session_unopened:
-        header += """
-__session.open()
-env = __session.env
-"""
-    else:
-        header += """
-session = __session
-"""
-
-    header += """
-with open("%s") as f:
-    __script = f.read()
-exec(__script)
-""" % (
-        script_path
-    )
-
-    if not session_unopened:
-        header += """
-__session.cr.commit()
-__session.cr.close()
-"""
 
     exec_path = os.path.join(build_dir, ".venv/bin/python")
     return cmd(exec_path, header)
@@ -958,11 +956,6 @@ def rebuild_sources():
             os.path.join(build_dir, ".venv/bin/pip")
             + " install "
             + os.path.join(WAFT_DIR, "waftlib/migration/api")
-        )
-        cmd_system(
-            os.path.join(build_dir, ".venv/bin/pip")
-            + " install "
-            + "git+https://github.com/anybox/anybox.recipe.odoo#egg=anybox.recipe.odoo"
         )
 
         # Change the config

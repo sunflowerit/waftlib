@@ -1,53 +1,68 @@
 #!/bin/bash
 set -e
 
-if [ ! -f "$MIGRATION_PATH/etc/uninstall-modules.txt" ]; then
+# Root of your Odoo build (adjust if needed)
+SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
+export MIGRATION_PATH="${MIGRATION_PATH:-$(cd "${SCRIPT_PATH}/../../migration" && /bin/pwd)}"
+
+ODOO_CONF="${ODOO_CONF:-$BUILD_DIR/auto/odoo.conf}"
+
+if [[ ! -f "$MIGRATION_PATH/etc/uninstall-modules.txt" ]]; then
 	exit 0
 fi
-UNINSTALL_LIST=$(cat "$MIGRATION_PATH/etc/uninstall-modules.txt")
 
 
-LAST_MODULE_NAME=""
-for MODULE_NAME in ${UNINSTALL_LIST[@]} ""; do
-    .venv/bin/python <<PYTHON
-from anybox.recipe.odoo.runtime.session import Session
+click-odoo -c "$ODOO_CONF" shell <<'PYEOF'
+import os
+import sys
+import logging
+import traceback
 
+MIGRATION_PATH = os.environ.get("MIGRATION_PATH", os.getcwd())
+uninstall_file = os.path.join(MIGRATION_PATH, "etc", "uninstall-modules.txt")
 
-def test_uninstalled(module):
-    """Check whether the given module is actually uninstalled.
+logging.basicConfig(
+    level=logging.INFO,
+    stream=sys.stderr,
+    format="%(message)s",
+)
 
-    If its state is not "uninstalled" or "uninstallable", it is still in some sort of installed
-    state.
-    """
-    if module.state not in ("uninstalled", "uninstallable"):
-        raise Exception("Module %s was not uninstalled, has state \"%s\"" % (
-            module.name,
-            module.state
-        ))
+try:
+    f = open(uninstall_file, "r")
+except FileNotFoundError:
+    logging.warning("%s doesn't exist, no modules will be uninstalled.", uninstall_file)
+    sys.exit(0)
+except IOError:
+    logging.warning("%s can't be opened, no modules will be uninstalled.", uninstall_file)
+    traceback.print_exc()
+    sys.exit(0)
+except Exception:
+    logging.error("Unable to open %s:", uninstall_file)
+    traceback.print_exc()
+    sys.exit(1)
 
+module_names = []
+for line in f:
+    name = line.strip()
+    if name and not name.startswith("#"):
+        module_names.append(name)
 
-if "$MODULE_NAME".startswith("#"):
-    exit(0)
+logging.info("Uninstalling %d modules...", len(module_names))
 
-session = Session("auto/odoo.conf", ".")
-session.open()
-env = session.env
+model = env["ir.module.module"]
 
-# Check if the last module actually got uninstalled when exiting the shell.
-print("$LAST_MODULE_NAME")
-if "$LAST_MODULE_NAME":
-    module = env["ir.module.module"].search([("name", "=", "$LAST_MODULE_NAME")])
-    if module:
-        test_uninstalled(module)
+for module_name in module_names:
+    mods = model.search([("name", "=", module_name)])
+    if not mods:
+        logging.info("Module %s not found, skipping.", module_name)
+        continue
 
-module = env["ir.module.module"].search([("name", "=", "$MODULE_NAME")])
-if module and module.state not in ("uninstalled", "uninstallable"):
-    print("Uninstalling $MODULE_NAME...")
-    module.button_immediate_uninstall()
+    for mod in mods:
+        if mod.state in ("installed", "to install", "to upgrade"):
+            logging.info("Uninstalling %s...", module_name)
+            mod.button_immediate_uninstall()
+        else:
+            logging.info("Module %s already uninstalled (state=%s).", module_name, mod.state)
 
-session.cr.commit()
-session.close()
-PYTHON
-
-	LAST_MODULE_NAME="$MODULE_NAME"
-done
+logging.info("Done uninstalling modules.")
+PYEOF
