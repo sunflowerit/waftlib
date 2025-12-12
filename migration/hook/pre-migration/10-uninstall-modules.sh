@@ -19,51 +19,50 @@ import sys
 import logging
 import traceback
 
-MIGRATION_PATH = os.environ.get("MIGRATION_PATH", os.getcwd())
-uninstall_file = os.path.join(MIGRATION_PATH, "etc", "uninstall-modules.txt")
-
 logging.basicConfig(
     level=logging.INFO,
     stream=sys.stderr,
     format="%(message)s",
 )
 
+MIGRATION_PATH = os.environ.get("MIGRATION_PATH", os.getcwd())
+uninstall_file = os.path.join(MIGRATION_PATH, "etc", "uninstall-modules.txt")
+
 try:
-    f = open(uninstall_file, "r")
-except FileNotFoundError:
-    logging.warning("%s doesn't exist, no modules will be uninstalled.", uninstall_file)
-    sys.exit(0)
-except IOError:
-    logging.warning("%s can't be opened, no modules will be uninstalled.", uninstall_file)
-    traceback.print_exc()
-    sys.exit(0)
-except Exception:
-    logging.error("Unable to open %s:", uninstall_file)
-    traceback.print_exc()
+    with open(uninstall_file, "r") as fff:
+        module_names = [
+            line.strip()
+            for line in fff
+            if line.strip() and not line.startswith("#")
+        ]
+except Exception as eee:
+    logging.error("Failed to read uninstall file: %s", eee)
     sys.exit(1)
 
-module_names = []
-for line in f:
-    name = line.strip()
-    if name and not name.startswith("#"):
-        module_names.append(name)
+logging.info("Found %d modules to uninstall.", len(module_names))
 
-logging.info("Uninstalling %d modules...", len(module_names))
-
-model = env["ir.module.module"]
+module_model = env["ir.module.module"]
 
 for module_name in module_names:
-    mods = model.search([("name", "=", module_name)])
-    if not mods:
-        logging.info("Module %s not found, skipping.", module_name)
+    logging.info("Processing module: %s", module_name)
+
+    module = module_model.search([("name", "=", module_name)], limit=1)
+    if not module:
+        logging.info(" → Not found, skipping.")
         continue
 
-    for mod in mods:
-        if mod.state in ("installed", "to install", "to upgrade"):
-            logging.info("Uninstalling %s...", module_name)
-            mod.button_immediate_uninstall()
-        else:
-            logging.info("Module %s already uninstalled (state=%s).", module_name, mod.state)
+    if module.state not in ("installed", "to install", "to upgrade"):
+        logging.info(" → Already uninstalled (state=%s).", module.state)
+        continue
 
-logging.info("Done uninstalling modules.")
+    logging.info(" → Uninstalling...")
+    try:
+        module.button_immediate_uninstall()
+        logging.info(" → Successfully uninstalled.")
+    except Exception:
+        logging.error(" → Failed uninstalling %s:", module_name)
+        traceback.print_exc()
+        # continue uninstalling the next modules instead of stopping
+
+logging.info("All modules processed.")
 PYEOF
