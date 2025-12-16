@@ -1278,7 +1278,7 @@ def run_migration(start_version, target_version):
         if going_to_upgrade:
             run_scripts(version, "pre-upgrade", last_version)
         if params["enterprise-enabled"]:
-            if not enterprise_done and float(version) - float(minimum_target) > 0.001:
+            if not enterprise_done and float(version) - float(minimum_target) > -1.001:
                 run_scripts(version, "enterprise/pre-upgrade", last_version)
                 run_enterprise_upgrade(version)
                 db_version = version
