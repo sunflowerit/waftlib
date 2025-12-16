@@ -25,7 +25,7 @@ import yaml
 
 # Adjust this to the minimum supported target version by the enterprise script
 # whenever Odoo decides to change it.
-ENTERPRISE_MINIMUM_TARGET = "15.0"
+ENTERPRISE_MINIMUM_TARGET = "16.0"
 HELP_TEXT = """
 
 
