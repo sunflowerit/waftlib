@@ -241,7 +241,7 @@ def copy_database(database: str, new_database: str, move_fs: bool = False):
         if os.path.exists(new_filestore):
             cmd(["rm", "-r", new_filestore])
         if not move_fs:
-            cmd(["cp", "-r", filestore, new_filestore])
+            cmd(["cp", "-rl", filestore, new_filestore])
         else:
             cmd(["mv", filestore, new_filestore])
     else:
