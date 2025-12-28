@@ -25,7 +25,7 @@ import yaml
 
 # Adjust this to the minimum supported target version by the enterprise script
 # whenever Odoo decides to change it.
-ENTERPRISE_MINIMUM_TARGET = "15.0"
+ENTERPRISE_MINIMUM_TARGET = "16.0"
 HELP_TEXT = """
 
 
@@ -176,7 +176,7 @@ def check_script_support(filename, version):
             if not stripped_line.startswith(comment_prefix):
                 break
 
-            comment = stripped_line[len(comment_prefix):].strip()
+            comment = stripped_line[len(comment_prefix) :].strip()
             if comment.startswith("X-Supports:"):
                 versions = [x.strip() for x in comment[11:].split()]
                 if version not in versions:
@@ -249,8 +249,11 @@ def copy_database(database: str, new_database: str, move_fs: bool = False):
 
 
 def cmd(
-    command: list[str], input_: str | None = None, cwd: str | None = None,
-    suppress_stderr: bool = False, suppress_stdout: bool = False
+    command: list[str],
+    input_: str | None = None,
+    cwd: str | None = None,
+    suppress_stderr: bool = False,
+    suppress_stdout: bool = False,
 ):
     """
     Run a command.
@@ -401,21 +404,16 @@ def load_defaults(parameters):
 
     Applies defaults wherever they are not yet set.
     """
+
     def is_environ_bool_true(name):
-        return name in os.environ and os.environ[name].lower() in ("1", "yes", "true")
+        return os.environ.get(name, "").lower() in ("1", "yes", "true")
 
     enterprise_enabled = is_environ_bool_true("MIGRATION_ENTERPRISE_ENABLED")
     open_upgrade_disabled = is_environ_bool_true("MIGRATION_OPEN_UPGRADE_DISABLED")
     skip_initial_upgrade = is_environ_bool_true("SKIP_INITIAL_UPGRADE")
-    start_version = (
-        os.environ["MIGRATION_START_VERSION"]
-        if "MIGRATION_START_VERSION" in os.environ
-        else None
-    )
-    minimum_target = (
-        os.environ["MIGRATION_ENTERPRISE_JUMP_TO"]
-        if "MIGRATION_ENTERPRISE_JUMP_TO" in os.environ
-        else ENTERPRISE_MINIMUM_TARGET
+    start_version = os.environ.get("MIGRATION_START_VERSION", None)
+    minimum_target = os.environ.get(
+        "MIGRATION_ENTERPRISE_JUMP_TO", ENTERPRISE_MINIMUM_TARGET
     )
     no_backups = is_environ_bool_true("MIGRATION_NO_BACKUPS")
     return {
@@ -869,10 +867,8 @@ def rebuild_sources():
     default_repos_template_file = os.path.join(
         WAFT_DIR, "waftlib/migration/default-repos.yaml"
     )
-    with open(default_repos_template_file, 'r') as file:
-        default_config = yaml.load(
-            file.read(), Loader=yaml.Loader
-        )
+    with open(default_repos_template_file, "r") as file:
+        default_config = yaml.load(file.read(), Loader=yaml.Loader)
 
     jump_to_version = (
         params["enterprise-jump-to"] if "enterprise-jump-to" in params else None
@@ -935,9 +931,7 @@ def rebuild_sources():
                     with open(repos_template_file) as file:
                         config = {
                             **default_config,
-                            **yaml.load(
-                                file.read(), Loader=yaml.Loader
-                            ),
+                            **yaml.load(file.read(), Loader=yaml.Loader),
                         }
                 else:
                     config = copy.deepcopy(default_config)
@@ -999,6 +993,7 @@ def rebuild_sources():
                 )
         if float(version) <= 10.001:
             cmd_system('echo "running_env = dev" >> "' + build_dir + '/auto/odoo.conf"')
+
 
 def rename_database(database, new_database):
     """Rename the database."""
@@ -1160,14 +1155,10 @@ def run_enterprise_upgrade(version: str):
 
 def run_migration(start_version, target_version):
     """Run the migration process, from start to finish."""
-    global params, db_version
+    global db_version
 
     start_version = db_version = params["start-version"]
-    minimum_target = (
-        params["enterprise-jump-to"]
-        if "enterprise-jump-to" in params and params["enterprise-jump-to"]
-        else ENTERPRISE_MINIMUM_TARGET
-    )
+    minimum_target = params.get("enterprise-jump-to", ENTERPRISE_MINIMUM_TARGET)
     will_jump = params["enterprise-enabled"] and (float(start_version) + 1.0) < float(
         minimum_target
     )
@@ -1207,11 +1198,7 @@ def run_migration(start_version, target_version):
             ):
                 run_scripts(db_version, "enterprise/pre-migration")
 
-    skip_initial_upgrade = (
-        os.environ["SKIP_INITIAL_UPGRADE"] == "1"
-        if "SKIP_INITIAL_UPGRADE" in os.environ
-        else False
-    )
+    skip_initial_upgrade = os.environ.get("SKIP_INITIAL_UPGRADE", False) == "1"
     if from_start:
         if not skip_initial_upgrade and (
             db_version not in progress
@@ -1267,8 +1254,10 @@ def run_migration(start_version, target_version):
             or float(db_version) - float(version) > 0.999
             or (
                 params["enterprise-enabled"]
-                and version not in
-                available_enterprise_build_versions(start_version, minimum_target)
+                and version
+                not in available_enterprise_build_versions(
+                    start_version, minimum_target
+                )
             )
         ):
             last_version = version
@@ -1289,11 +1278,11 @@ def run_migration(start_version, target_version):
         if going_to_upgrade:
             run_scripts(version, "pre-upgrade", last_version)
         if params["enterprise-enabled"]:
-            if not enterprise_done and float(version) - float(minimum_target) > 0.001:
+            if not enterprise_done and float(version) - float(minimum_target) > -1.001:
                 run_scripts(version, "enterprise/pre-upgrade", last_version)
                 run_enterprise_upgrade(version)
                 db_version = version
-            if not openupgrade_done:
+            if not openupgrade_done and enterprise_done:
                 run_scripts(version, "enterprise/post-upgrade")
         if not params["open-upgrade-disabled"] and not openupgrade_done:
             run_scripts(version, "pre-openupgrade")
@@ -1413,29 +1402,17 @@ def run_upgrade(version):
         else MIGRATION_PATH + "/build-" + version
     )
     logfile = os.path.join(WAFT_DIR, "logfile", instance + ".log")
-    start_version = (
-        os.environ["MIGRATION_START_VERSION"]
-        if "MIGRATION_START_VERSION" in os.environ
-        else None
-    )
+    start_version = os.environ.get("MIGRATION_START_VERSION", None)
     if version == start_version:
         if params["verbose"]:
-            args = (
-                f'-u base --log-level=debug_sql --log-handler=odoo.modules.loading:DEBUG --logfile "{logfile}" --stop-after-init'
-            )
+            args = f'-u base --log-level=debug_sql --log-handler=odoo.modules.loading:DEBUG --logfile "{logfile}" --stop-after-init'
         else:
-            args = (
-                f'-u base --logfile "{logfile}" --stop-after-init'
-            )
+            args = f'-u base --logfile "{logfile}" --stop-after-init'
     else:
         if params["verbose"]:
-            args = (
-                f'-u base --load=openupgrade_framework --log-level=debug_sql --log-handler=odoo.modules.loading:DEBUG --log-handler=odoo.modules.migration:DEBUG --logfile "{logfile}" --stop-after-init'
-            )
+            args = f'-u base --load=openupgrade_framework --log-level=debug_sql --log-handler=odoo.modules.loading:DEBUG --log-handler=odoo.modules.migration:DEBUG --logfile "{logfile}" --stop-after-init'
         else:
-            args = (
-                f'-u base --load=openupgrade_framework --logfile "{logfile}" --stop-after-init'
-            )
+            args = f'-u base --load=openupgrade_framework --logfile "{logfile}" --stop-after-init'
     cmd(build_dir + "/run " + args)
 
     logging.info("Defusing database...")
