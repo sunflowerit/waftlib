@@ -610,6 +610,7 @@ def parse_arguments():
                 "enterprise-dont-resume",
                 "enterprise-autotrust-ssh",
                 "open-upgrade-disabled",
+                "enterprise-jump-to=",
             ],
         )
     except getopt.GetoptError as err:
