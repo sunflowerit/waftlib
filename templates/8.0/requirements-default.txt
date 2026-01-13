@@ -11,7 +11,7 @@ backports.functools-lru-cache==1.6.4
 BeautifulSoup==3.2.1
 beautifulsoup4==4.9.3
 bs4==0.0.1
-certifi==2026.1.4
+certifi==2021.10.8
 chardet==4.0.0
 click==7.1.2
 click-odoo==1.4.3
