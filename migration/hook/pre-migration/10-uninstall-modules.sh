@@ -1,68 +1,86 @@
 #!/bin/bash
-set -e
+set -Eeuo pipefail
 
-# Root of your Odoo build (adjust if needed)
 SCRIPT_PATH="$(cd "$(/usr/bin/dirname "${0}")" && /bin/pwd)"
-export MIGRATION_PATH="${MIGRATION_PATH:-$(cd "${SCRIPT_PATH}/../../migration" && /bin/pwd)}"
+export MIGRATION_PATH="${MIGRATION_PATH:-$(cd "${SCRIPT_PATH}/../../../../migration" && /bin/pwd)}"
 
+: "${MIGRATION_START_VERSION:?MIGRATION_START_VERSION must be set (e.g. 14.0)}"
 ODOO_CONF="${ODOO_CONF:-${MIGRATION_PATH}/build-${MIGRATION_START_VERSION}/auto/odoo.conf}"
 
-if [[ ! -f "$MIGRATION_PATH/etc/uninstall-modules.txt" ]]; then
-	exit 0
+UNINSTALL_FILE="${MIGRATION_PATH}/etc/uninstall-modules.txt"
+VENV_ACTIVATE="${MIGRATION_PATH}/build-${MIGRATION_START_VERSION}/.venv/bin/activate"
+
+if [[ ! -f "${UNINSTALL_FILE}" ]]; then
+  exit 0
 fi
 
-source "${MIGRATION_PATH}/build-${MIGRATION_START_VERSION}/.venv/bin/activate"
+if [[ ! -f "${VENV_ACTIVATE}" ]]; then
+  echo "ERROR: venv activate script not found: ${VENV_ACTIVATE}" >&2
+  exit 1
+fi
 
-click-odoo -c "$ODOO_CONF" <<'PYEOF'
-import os
-import sys
-import logging
-import traceback
+source "${VENV_ACTIVATE}"
 
-logging.basicConfig(
-    level=logging.INFO,
-    stream=sys.stderr,
-    format="%(message)s",
+# Parse module list (ignore blanks and comment lines that start with '#', optionally preceded by spaces)
+mapfile -t MODULES < <(
+  sed -e 's/[[:space:]]\+$//' \
+      -e '/^[[:space:]]*$/d' \
+      -e '/^[[:space:]]*#/d' \
+      "${UNINSTALL_FILE}"
 )
 
-MIGRATION_PATH = os.environ.get("MIGRATION_PATH", os.getcwd())
-uninstall_file = os.path.join(MIGRATION_PATH, "etc", "uninstall-modules.txt")
+if (( ${#MODULES[@]} == 0 )); then
+  exit 0
+fi
 
-try:
-    with open(uninstall_file, "r") as fff:
-        module_names = [
-            line.strip()
-            for line in fff
-            if line.strip() and not line.startswith("#")
-        ]
-except Exception as eee:
-    logging.error("Failed to read uninstall file: %s", eee)
-    sys.exit(1)
+echo "Found ${#MODULES[@]} modules to uninstall."
 
-logging.info("Found %d modules to uninstall.", len(module_names))
+FAILED=0
+
+for module_name in "${MODULES[@]}"; do
+  echo "Processing module: ${module_name}"
+
+  # Run click-odoo once per module
+  if ! click-odoo -c "${ODOO_CONF}" <<PYEOF
+import logging
+import sys
+import traceback
+
+logging.basicConfig(level=logging.INFO, stream=sys.stderr, format="%(message)s")
+
+module_name = ${module_name@Q}
 
 module_model = env["ir.module.module"]
+module = module_model.search([("name", "=", module_name)], limit=1)
 
-for module_name in module_names:
-    logging.info("Processing module: %s", module_name)
+if not module:
+    logging.info(" → Not found, skipping.")
+    raise SystemExit(0)
 
-    module = module_model.search([("name", "=", module_name)], limit=1)
-    if not module:
-        logging.info(" → Not found, skipping.")
-        continue
+if module.state not in ("installed", "to install", "to upgrade"):
+    logging.info(" → Already uninstalled (state=%s).", module.state)
+    raise SystemExit(0)
 
-    if module.state not in ("installed", "to install", "to upgrade"):
-        logging.info(" → Already uninstalled (state=%s).", module.state)
-        continue
-
-    logging.info(" → Uninstalling...")
-    try:
-        module.button_immediate_uninstall()
-        logging.info(" → Successfully uninstalled.")
-    except Exception:
-        logging.error(" → Failed uninstalling %s:", module_name)
-        traceback.print_exc()
-        # continue uninstalling the next modules instead of stopping
-
-logging.info("All modules processed.")
+logging.info(" → Uninstalling...")
+try:
+    module.button_immediate_uninstall()
+    logging.info(" → Successfully uninstalled.")
+except Exception:
+    logging.error(" → Failed uninstalling %s:", module_name)
+    traceback.print_exc()
+    raise SystemExit(2)
 PYEOF
+  then
+    echo "ERROR: uninstall failed for ${module_name}" >&2
+    FAILED=1
+    # continue with next module
+  fi
+done
+
+if (( FAILED != 0 )); then
+  echo "Completed with failures." >&2
+  exit 1
+fi
+
+echo "All modules processed successfully."
+
