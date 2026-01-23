@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+export LIBRARIES_REPOSITORIES='https://github.com/sunflowerit/waftlib.git'
+export LIBRARIES_VERSION_BRANCH=${LIBRARIES_VERSION_BRANCH:-{{waftlib_version}}}
+
+################################################################
+######                                                    ######
+######       Don't change variables after this line       ######
+######                                                    ######
+################################################################
+
+SCRIPT_PATH=$(cd "$(/usr/bin/dirname "$0")" && /bin/pwd)
+ODOO_WORK_DIR=$(cd $SCRIPT_PATH && /bin/pwd)
+cd $ODOO_WORK_DIR
+
+/bin/echo "INFO: Remove exist $ODOO_WORK_DIR/waftlib"
+/bin/rm -fr $ODOO_WORK_DIR/waftlib
+/bin/echo "INFO: Clone $LIBRARIES_REPOSITORIES to $ODOO_WORK_DIR/waftlib"
+/usr/bin/git clone -b $LIBRARIES_VERSION_BRANCH $LIBRARIES_REPOSITORIES $ODOO_WORK_DIR/waftlib 2> /dev/null || \
+/usr/bin/git clone -b master $LIBRARIES_REPOSITORIES $ODOO_WORK_DIR/waftlib
+
+/bin/echo "INFO: Run $ODOO_WORK_DIR/waftlib/bootstrap script"
+$ODOO_WORK_DIR/waftlib/bootstrap

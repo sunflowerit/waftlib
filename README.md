@@ -40,21 +40,17 @@ if you have an existing virtualenv binary: `$ virtualenv .venv.
 
 ## Setup a waft project
 
-Clone the [waft template project](https://github.com/sunflowerit/waft) and run bootstrap:
+Install [copier](https://copier.readthedocs.io):
 
-    git clone https://github.com/sunflowerit/waft
-    cd waft && ./bootstrap
+    pipx install copier
 
-It will clone waftlib and exit with a suggestion to do more things, which we will do now.
+Copy the [waft template project](https://github.com/sunflowerit/waftlib/templates/project) and run bootstrap:
 
-Select an Odoo version that you want to use, for example 13.0
+    copier copy https://github.com/sunflowerit/waftlib/templates/project
 
-Create your secret environment variables file from default environment variables template file and rerun bootstrap:
+This will ask you for the Odoo and waftlib versions to use, then set up the project.
 
-```
-cp waftlib/templates/13.0/.env-shared .env-secret
-./bootstrap
-```
+Select an Odoo version that you want to use, for example 13.0.
 
 When successful, now we can prepare for building Odoo:
 - Take a look at default odoo config file `vi common/conf.d/odoo.conf`.

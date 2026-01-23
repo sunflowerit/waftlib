@@ -1,0 +1,43 @@
+# questions
+odoo_version:
+    type: str
+    help: What Odoo version should this project have?
+    choices:
+      - 19.0
+      - 18.0
+      - 17.0
+      - 16.0
+      - 15.0
+      - 14.0
+      - 19.0
+      - 13.0
+      - 12.0
+      - 11.0
+      - 10.0
+      - 9.0
+      - 8.0
+
+waftlib_version:
+    type: str
+    help: Which version of Waftlib should this project use?
+    choices:
+      - v.22.05.30
+      - v.21.09.22
+      - v.21.05.10
+      - master
+
+_message_after_copy: |
+
+    Your Waft project with Odoo {{ odoo_version }} has been created successfully!
+
+    Next steps:
+
+    1. Change directory to the project root:
+
+       $ cd {{ _copier_conf.dst_path }}
+
+    2. Run bootstrap:
+
+       $ ./bootstrap
+
+    3. Read the documentation on how to build Odoo
