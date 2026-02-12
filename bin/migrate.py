@@ -1418,6 +1418,7 @@ def run_upgrade(version):
 
     logging.info("Defusing database...")
     defuse_database()
+    mark_upgrade_done(version)
 
     # Backup the database
     if not params["no-backups"]:
@@ -1436,7 +1437,6 @@ def run_upgrade(version):
                 database,
             )
             raise e
-    mark_upgrade_done(version)
 
 
 def save_progress():
