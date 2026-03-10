@@ -79,6 +79,7 @@ raven==6.10.0
 reportlab==3.5.59
 requests==2.26.0
 requests-toolbelt==0.9.1
+setuptools==75.3.4
 Shapely==2.0.0
 six==1.16.0
 soupsieve==1.9.6
