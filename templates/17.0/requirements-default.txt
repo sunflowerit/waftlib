@@ -78,6 +78,7 @@ reportlab==4.0.7
 requests==2.31.0
 requests-toolbelt==1.0.0
 rjsmin==1.2.2
+setuptools<82.0
 Shapely==2.0.2
 six==1.16.0
 soupsieve==2.5
