@@ -27,9 +27,13 @@ fi
 . .venv/bin/activate && \
 pip install --quiet "setuptools-scm<8.0" && \
 if [[ "$(/bin/echo "${ODOO_VERSION}" | /usr/bin/cut -d '.' -f1)" -ge 15 ]]; then
-  pip install --quiet "setuptools>=64"
+  if [[ "$(/bin/echo "${ODOO_VERSION}" | /usr/bin/cut -d '.' -f1)" -le 17 ]]; then
+    pip install --quiet "setuptools>=64,<=82"
+  else
+    pip install --quiet setuptools
+  fi
 else
-  pip install --quiet setuptools
+  pip install --quiet "setuptools,<=82"
 fi && \
 pip install --quiet "pip>=20.3" && \
 (pip uninstall --yes -r "${ODOO_WORK_DIR}/requirements-remove-default.txt" 2>/dev/null || /bin/true) && \
