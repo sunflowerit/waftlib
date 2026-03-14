@@ -52,7 +52,7 @@ Parameters
             option and beyond. The migration will start from here if progress
             is beyond what is specified here.
             VERSION should be the Odoo version, such as "12.0" or "14.0".
-            openupgrade is optional, but if provided, will only start 
+            openupgrade is optional, but if provided, will only start
 --verbose
 -v          Log debug messages.
 --enterprise-dont-resume
@@ -655,7 +655,7 @@ def parse_repos_config(filename):
         return []
     with open(filename) as file:
         config = yaml.load(file.read(), Loader=yaml.Loader)
-    return config.keys()
+    return [k.lower() for k in config.keys()]
 
 
 def prepare():
@@ -804,7 +804,7 @@ def rebuild_sources():
         """
         new_config = {}
         for repo_name in config:
-            if repo_name in whitelist:
+            if repo_name.lower() in whitelist:
                 new_config[repo_name] = config[repo_name]
         return new_config
 
